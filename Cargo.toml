@@ -4,3 +4,9 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+
+# NOTE: Version of alloy/revm/reth crates is based on reth v1.4.8:
+# - https://github.com/paradigmxyz/reth/blob/v1.4.8/Cargo.toml
+
+# alloy
+alloy-provider = { version = "1.0.9", default-features = false, features = ["reqwest"] }
