@@ -2352,6 +2352,7 @@ name = "reth-proofs"
 version = "0.1.0"
 dependencies = [
  "alloy-provider",
+ "thiserror",
 ]
 
 [[package]]
