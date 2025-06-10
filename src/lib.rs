@@ -1,5 +1,3 @@
-use alloy_provider::RootProvider;
-
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
   #[error("Invalid URL: {0}")]
@@ -12,7 +10,7 @@ pub fn create_provider(
   let url = http_rpc_url
     .try_into()
     .map_err(|e| Error::InvalidUrl(format!("{}", e)))?;
-  let provider = RootProvider::new_http(url);
+  let provider = alloy_provider::RootProvider::new_http(url);
 
   Ok(provider)
 }
