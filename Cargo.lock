@@ -2379,6 +2379,7 @@ version = "0.1.0"
 dependencies = [
  "alloy-provider",
  "alloy-rpc-types-debug",
+ "alloy-rpc-types-eth",
  "thiserror",
  "tokio",
 ]
