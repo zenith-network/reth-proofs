@@ -2,6 +2,9 @@
 pub enum Error {
   #[error("Invalid URL: {0}")]
   InvalidUrl(String),
+
+  #[error("RPC error: {0}")]
+  RPC(String),
 }
 
 pub fn create_provider(
@@ -13,6 +16,18 @@ pub fn create_provider(
   let provider = alloy_provider::RootProvider::new_http(url);
 
   Ok(provider)
+}
+
+pub async fn fetch_block_witness(
+  provider: &alloy_provider::RootProvider,
+  block_number: u64,
+) -> Result<alloy_rpc_types_debug::ExecutionWitness, Error> {
+  let block_number = block_number.into();
+  let witness = alloy_provider::ext::DebugApi::debug_execution_witness(&provider, block_number)
+    .await
+    .map_err(|e| Error::RPC(e.to_string()))?;
+
+  Ok(witness)
 }
 
 #[cfg(test)]
