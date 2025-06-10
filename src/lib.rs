@@ -18,6 +18,18 @@ pub fn create_provider(
   Ok(provider)
 }
 
+pub async fn fetch_block(
+  provider: &alloy_provider::RootProvider,
+  block_number: u64,
+) -> Result<Option<alloy_rpc_types_eth::Block>, Error> {
+  let block_number = block_number.into();
+  let block = alloy_provider::Provider::get_block_by_number(&provider, block_number)
+    .await
+    .map_err(|e| Error::RPC(e.to_string()))?;
+
+  Ok(block)
+}
+
 pub async fn fetch_block_witness(
   provider: &alloy_provider::RootProvider,
   block_number: u64,
@@ -34,6 +46,9 @@ pub async fn fetch_block_witness(
 mod tests {
   use super::*;
 
+  // NOTE: This MUST be a Reth archive node.
+  const MAINNET_RETH_RPC_EL: &str = "http://130.250.187.55:8545";
+
   #[test]
   fn test_create_provider() {
     let mock_url = "https://google.com";
@@ -45,5 +60,13 @@ mod tests {
     let invalid_mock_url = "foo-bar";
     let maybe_provider = create_provider(invalid_mock_url);
     assert!(maybe_provider.is_err());
+  }
+
+  #[tokio::test]
+  async fn test_fetch_block() {
+    let provider = create_provider(MAINNET_RETH_RPC_EL).unwrap();
+
+    let block_number: u64 = 1;
+    fetch_block(&provider, block_number).await.unwrap();
   }
 }
