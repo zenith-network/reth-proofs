@@ -18,6 +18,14 @@ pub fn create_provider(
   Ok(provider)
 }
 
+pub async fn get_last_block_number(provider: &alloy_provider::RootProvider) -> Result<u64, Error> {
+  let block_number = alloy_provider::Provider::get_block_number(&provider)
+    .await
+    .map_err(|e| Error::RPC(e.to_string()))?;
+
+  Ok(block_number)
+}
+
 pub async fn fetch_block(
   provider: &alloy_provider::RootProvider,
   block_number: u64,
@@ -60,6 +68,14 @@ mod tests {
     let invalid_mock_url = "foo-bar";
     let maybe_provider = create_provider(invalid_mock_url);
     assert!(maybe_provider.is_err());
+  }
+
+  #[tokio::test]
+  async fn test_get_last_block_number() {
+    let provider = create_provider(MAINNET_RETH_RPC_EL).unwrap();
+
+    let block_number = get_last_block_number(&provider).await.unwrap();
+    assert!(block_number > 0);
   }
 
   #[tokio::test]
