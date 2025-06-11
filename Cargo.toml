@@ -10,6 +10,7 @@ edition = "2024"
 
 # alloy
 alloy-rlp = { version = "0.3.10", default-features = false }
+alloy-primitives = { version = "1.1.0", default-features = false, features = ["map-foldhash", "sha3-keccak"] }
 alloy-provider = { version = "1.0.9", default-features = false, features = ["reqwest", "debug-api"] }
 alloy-rpc-types-debug = { version = "1.0.9", default-features = false }
 alloy-rpc-types-eth = { version = "1.0.9", default-features = false }
