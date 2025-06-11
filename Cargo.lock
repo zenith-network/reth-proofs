@@ -2898,6 +2898,7 @@ dependencies = [
  "alloy-rpc-types-debug",
  "alloy-rpc-types-eth",
  "reth-ethereum",
+ "reth-primitives-traits",
  "rlp 0.6.1",
  "serde",
  "thiserror",

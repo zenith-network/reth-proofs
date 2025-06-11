@@ -17,6 +17,7 @@ alloy-rpc-types-eth = { version = "1.0.9", default-features = false }
 
 # reth
 reth-ethereum = { git = "https://github.com/paradigmxyz/reth", tag = "v1.4.8", default-features = false, features = ["evm"] }
+reth-primitives-traits = { git = "https://github.com/paradigmxyz/reth", tag = "v1.4.8", default-features = false }
 
 # Asynchronous runtime.
 tokio = { version = "1.45.1", default-features = false }
