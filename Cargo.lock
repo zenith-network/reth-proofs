@@ -2378,6 +2378,7 @@ name = "reth-proofs"
 version = "0.1.0"
 dependencies = [
  "alloy-provider",
+ "alloy-rlp",
  "alloy-rpc-types-debug",
  "alloy-rpc-types-eth",
  "thiserror",
