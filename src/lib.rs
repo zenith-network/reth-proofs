@@ -1,3 +1,5 @@
+mod mpt;
+
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
   #[error("Invalid URL: {0}")]
