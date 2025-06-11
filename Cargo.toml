@@ -18,6 +18,10 @@ alloy-rpc-types-eth = { version = "1.0.9", default-features = false }
 # Asynchronous runtime.
 tokio = { version = "1.45.1", default-features = false }
 
+# Ethereum serialization.
+# TODO: Remove once switched to `alloy-rlp` in MPT implementation.
+rlp = { version = "0.6.1", default-features = false, features = ["std"] }
+
 # Error handling.
 thiserror = { version = "2.0.12", default-features = false }
 
