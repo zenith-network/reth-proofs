@@ -52,6 +52,10 @@ pub async fn fetch_block_witness(
   Ok(witness)
 }
 
+pub fn create_mainnet_evm_config() -> reth_ethereum::evm::EthEvmConfig {
+  reth_ethereum::evm::EthEvmConfig::mainnet()
+}
+
 #[cfg(test)]
 mod tests {
   use super::*;
@@ -101,6 +105,15 @@ mod tests {
       witness.is_ok(),
       "Failed to fetch block witness: {:?}",
       witness.err()
+    );
+  }
+
+  #[test]
+  fn test_create_mainnet_evm_config() {
+    let config = create_mainnet_evm_config();
+    assert_eq!(
+      reth_ethereum::chainspec::EthChainSpec::chain_id(&config.chain_spec()),
+      1
     );
   }
 }
