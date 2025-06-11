@@ -7,6 +7,9 @@ pub enum Error {
 
   #[error("RPC error: {0}")]
   RPC(String),
+
+  #[error("Failed to recover block: {0}")]
+  BlockRecovery(String),
 }
 
 pub fn create_provider(
@@ -54,6 +57,22 @@ pub async fn fetch_block_witness(
 
 pub fn create_mainnet_evm_config() -> reth_ethereum::evm::EthEvmConfig {
   reth_ethereum::evm::EthEvmConfig::mainnet()
+}
+
+// TODO: Consider if this implementation is done in a sane way.
+pub async fn recover_block(
+  block: alloy_rpc_types_eth::Block,
+) -> Result<
+  reth_primitives_traits::RecoveredBlock<alloy_consensus::Block<reth_ethereum::TransactionSigned>>,
+  Error,
+> {
+  let block: alloy_consensus::Block<reth_ethereum::TransactionSigned> = block
+    .map_transactions(|tx| alloy_consensus::TxEnvelope::from(tx).into())
+    .into_consensus();
+  let recovered_block = reth_primitives_traits::RecoveredBlock::try_recover(block)
+    .map_err(|e| Error::BlockRecovery(format!("{}", e)))?;
+
+  Ok(recovered_block)
 }
 
 #[cfg(test)]
@@ -114,6 +133,20 @@ mod tests {
     assert_eq!(
       reth_ethereum::chainspec::EthChainSpec::chain_id(&config.chain_spec()),
       1
+    );
+  }
+
+  #[tokio::test]
+  async fn test_recover_block() {
+    let provider = create_provider(MAINNET_RETH_RPC_EL).unwrap();
+    let block_number = get_last_block_number(&provider).await.unwrap();
+    let block = fetch_block(&provider, block_number).await.unwrap().unwrap();
+
+    let recovered_block = recover_block(block).await;
+    assert!(
+      recovered_block.is_ok(),
+      "Failed to recover block: {:?}",
+      recovered_block.err()
     );
   }
 }
