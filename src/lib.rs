@@ -1,6 +1,6 @@
 mod mpt;
 mod triedb;
-mod utils;
+pub mod utils;
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
