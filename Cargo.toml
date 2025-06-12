@@ -25,7 +25,7 @@ reth-primitives-traits = { git = "https://github.com/paradigmxyz/reth", tag = "v
 reth-trie = { git = "https://github.com/paradigmxyz/reth", tag = "v1.4.8", default-features = false }
 
 # Asynchronous runtime.
-tokio = { version = "1.45.1", default-features = false }
+tokio = { version = "1.45.1", default-features = false, features = ["rt-multi-thread"] }
 
 # Ethereum serialization.
 # TODO: Remove once switched to `alloy-rlp` in MPT implementation.
