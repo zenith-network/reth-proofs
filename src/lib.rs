@@ -114,8 +114,7 @@ mod tests {
 
   #[tokio::test]
   async fn test_fetch_block_witness() {
-    let mainnet_reth_nr10 = "http://130.250.187.55:8545";
-    let provider = create_provider(mainnet_reth_nr10).unwrap();
+    let provider = create_provider(MAINNET_RETH_RPC_EL).unwrap();
 
     // NOTE: We fetch witness for the latest block, as every single older one is slower to compute.
     let block_number = get_last_block_number(&provider).await.unwrap();
