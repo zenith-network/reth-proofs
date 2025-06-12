@@ -14,6 +14,9 @@ pub enum Error {
 
   #[error("Failed to build trie DB: {0}")]
   TrieDB(String),
+
+  #[error("Failed to execute block: {0}")]
+  Execution(String),
 }
 
 pub fn create_provider(
@@ -93,6 +96,28 @@ pub async fn prepare_block_trie_db(
   Ok(trie_db)
 }
 
+// TODO: Split into core functions.
+pub async fn execute_block(http_rpc_url: &str, block_number: u64) -> Result<(), Error> {
+  let config = create_mainnet_evm_config();
+  let provider = create_provider(http_rpc_url)?;
+  let block = fetch_block(&provider, block_number)
+    .await?
+    .ok_or_else(|| Error::RPC("Block not found".to_string()))?;
+  let trie_db = prepare_block_trie_db(&provider, &block).await?;
+  let db = revm::database::WrapDatabaseRef(trie_db);
+  let block_executor =
+    reth_ethereum::evm::primitives::execute::BasicBlockExecutor::new(config.clone(), db);
+
+  let recovered_block: reth_primitives_traits::RecoveredBlock<
+    alloy_consensus::Block<reth_ethereum::TransactionSigned>,
+  > = recover_block(block).await?;
+
+  reth_ethereum::evm::primitives::execute::Executor::execute(block_executor, &recovered_block)
+    .map_err(|e| Error::Execution(format!("{}", e)))?;
+
+  Ok(())
+}
+
 #[cfg(test)]
 mod tests {
   use super::*;
@@ -164,6 +189,19 @@ mod tests {
       recovered_block.is_ok(),
       "Failed to recover block: {:?}",
       recovered_block.err()
+    );
+  }
+
+  #[tokio::test]
+  async fn test_execute_block() {
+    let provider = create_provider(MAINNET_RETH_RPC_EL).unwrap();
+    let block_number = get_last_block_number(&provider).await.unwrap();
+
+    let result = execute_block(MAINNET_RETH_RPC_EL, block_number).await;
+    assert!(
+      result.is_ok(),
+      "Failed to execute block: {:?}",
+      result.err()
     );
   }
 }
