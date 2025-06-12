@@ -119,6 +119,50 @@ pub async fn execute_block(http_rpc_url: &str, block_number: u64) -> Result<(), 
   Ok(())
 }
 
+pub async fn save_block_in_file(block: &alloy_rpc_types_eth::Block) -> Result<(), Error> {
+  let block_number = block.header.number;
+  let file_name = format!("block_{}.json", block_number);
+  std::fs::write(file_name, serde_json::to_string(&block).unwrap())
+    .map_err(|e| Error::RPC(format!("Failed to write block to file: {}", e)))?;
+
+  Ok(())
+}
+
+pub async fn load_block_from_file(block_number: u64) -> Result<alloy_rpc_types_eth::Block, Error> {
+  let file_name = format!("block_{}.json", block_number);
+  let content = std::fs::read_to_string(file_name)
+    .map_err(|e| Error::RPC(format!("Failed to read block from file: {}", e)))?;
+
+  let block: alloy_rpc_types_eth::Block = serde_json::from_str(&content)
+    .map_err(|e| Error::RPC(format!("Failed to parse block JSON: {}", e)))?;
+
+  Ok(block)
+}
+
+pub async fn save_block_witness_in_file(
+  witness: &alloy_rpc_types_debug::ExecutionWitness,
+  block_number: u64,
+) -> Result<(), Error> {
+  let file_name = format!("witness_{}.json", block_number);
+  std::fs::write(file_name, serde_json::to_string(&witness).unwrap())
+    .map_err(|e| Error::RPC(format!("Failed to write witness to file: {}", e)))?;
+
+  Ok(())
+}
+
+pub async fn load_block_witness_from_file(
+  block_number: u64,
+) -> Result<alloy_rpc_types_debug::ExecutionWitness, Error> {
+  let file_name = format!("witness_{}.json", block_number);
+  let content = std::fs::read_to_string(file_name)
+    .map_err(|e| Error::RPC(format!("Failed to read witness from file: {}", e)))?;
+
+  let witness: alloy_rpc_types_debug::ExecutionWitness = serde_json::from_str(&content)
+    .map_err(|e| Error::RPC(format!("Failed to parse witness JSON: {}", e)))?;
+
+  Ok(witness)
+}
+
 #[cfg(test)]
 mod tests {
   use super::*;
