@@ -11,6 +11,9 @@ pub enum Error {
 
   #[error("Failed to recover block: {0}")]
   BlockRecovery(String),
+
+  #[error("Failed to build trie DB: {0}")]
+  TrieDB(String),
 }
 
 pub fn create_provider(
@@ -74,6 +77,20 @@ pub async fn recover_block(
     .map_err(|e| Error::BlockRecovery(format!("{}", e)))?;
 
   Ok(recovered_block)
+}
+
+pub async fn prepare_block_trie_db(
+  provider: &alloy_provider::RootProvider,
+  block: &alloy_rpc_types_eth::Block,
+) -> Result<triedb::TrieDB, Error> {
+  let block_number = block.header.number;
+  let witness = fetch_block_witness(provider, block_number).await?;
+
+  let state_root = block.header.state_root;
+  let trie_db = triedb::TrieDB::from_execution_witness(witness, state_root)
+    .map_err(|e| Error::TrieDB(format!("{}", e)))?;
+
+  Ok(trie_db)
 }
 
 #[cfg(test)]
