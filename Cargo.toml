@@ -36,3 +36,4 @@ thiserror = { version = "2.0.12", default-features = false }
 
 # Serialization.
 serde = { version = "1.0.219", default-features = false }
+serde_json = { version = "1.0.140", default-features = false }
