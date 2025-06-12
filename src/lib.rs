@@ -122,8 +122,14 @@ pub async fn execute_block(http_rpc_url: &str, block_number: u64) -> Result<(), 
 pub async fn save_block_in_file(block: &alloy_rpc_types_eth::Block) -> Result<(), Error> {
   let block_number = block.header.number;
   let file_name = format!("block_{}.json", block_number);
-  std::fs::write(file_name, serde_json::to_string(&block).unwrap())
-    .map_err(|e| Error::RPC(format!("Failed to write block to file: {}", e)))?;
+  let pretty_json = serde_json::to_string_pretty(&block)
+    .map_err(|e| Error::RPC(format!("Failed to serialize block to JSON: {}", e)))?;
+  std::fs::write(&file_name, pretty_json).map_err(|e| {
+    Error::RPC(format!(
+      "Failed to write block to file {}: {}",
+      file_name, e
+    ))
+  })?;
 
   Ok(())
 }
@@ -144,7 +150,9 @@ pub async fn save_block_witness_in_file(
   block_number: u64,
 ) -> Result<(), Error> {
   let file_name = format!("witness_{}.json", block_number);
-  std::fs::write(file_name, serde_json::to_string(&witness).unwrap())
+  let pretty_json = serde_json::to_string_pretty(&witness)
+    .map_err(|e| Error::RPC(format!("Failed to serialize witness to JSON: {}", e)))?;
+  std::fs::write(&file_name, pretty_json)
     .map_err(|e| Error::RPC(format!("Failed to write witness to file: {}", e)))?;
 
   Ok(())
