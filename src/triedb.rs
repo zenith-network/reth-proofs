@@ -9,10 +9,8 @@ pub struct TrieDB {
 
 impl TrieDB {
   // Custom integration - written by chatGPT.
-  // CAUTION: `pre_state_root` is the state root of the parent block, not the current one.
   pub fn from_execution_witness(
     witness: alloy_rpc_types_debug::ExecutionWitness,
-    _pre_state_root: alloy_primitives::B256,
   ) -> Result<Self, Box<dyn std::error::Error>> {
     // Step 0: Build block hashes and locate `pre_state_root`.
     let mut block_hashes = alloy_primitives::map::HashMap::default();
@@ -244,16 +242,11 @@ mod tests {
     let mainnet_reth_nr10 = "http://130.250.187.55:8545";
     let provider = crate::create_provider(mainnet_reth_nr10).unwrap();
     let block_number = crate::get_last_block_number(&provider).await.unwrap();
-    let block = crate::fetch_block(&provider, block_number)
-      .await
-      .unwrap()
-      .unwrap();
     let witness = crate::fetch_block_witness(&provider, block_number)
       .await
       .unwrap();
 
-    let state_root = block.header.state_root;
-    let _trie_db = TrieDB::from_execution_witness(witness, state_root)
+    let _trie_db = TrieDB::from_execution_witness(witness)
       .expect("Failed to create TrieDB from execution witness");
   }
 }

@@ -90,9 +90,8 @@ pub async fn prepare_block_trie_db(
   let block_number = block.header.number;
   let witness = fetch_block_witness(provider, block_number).await?;
 
-  let state_root = block.header.state_root;
-  let trie_db = triedb::TrieDB::from_execution_witness(witness, state_root)
-    .map_err(|e| Error::TrieDB(format!("{}", e)))?;
+  let trie_db =
+    triedb::TrieDB::from_execution_witness(witness).map_err(|e| Error::TrieDB(format!("{}", e)))?;
 
   Ok(trie_db)
 }
