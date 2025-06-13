@@ -39,12 +39,14 @@ pub async fn get_last_block_number(provider: &alloy_provider::RootProvider) -> R
   Ok(block_number)
 }
 
-pub async fn fetch_block(
+/// Fetches block with *full* transactions data.
+pub async fn fetch_full_block(
   provider: &alloy_provider::RootProvider,
   block_number: u64,
 ) -> Result<Option<alloy_rpc_types_eth::Block>, Error> {
   let block_number = block_number.into();
   let block = alloy_provider::Provider::get_block_by_number(&provider, block_number)
+    .full()
     .await
     .map_err(|e| Error::RPC(e.to_string()))?;
 
@@ -100,7 +102,7 @@ pub async fn prepare_block_trie_db(
 pub async fn execute_block(http_rpc_url: &str, block_number: u64) -> Result<(), Error> {
   let config = create_mainnet_evm_config();
   let provider = create_provider(http_rpc_url)?;
-  let block = fetch_block(&provider, block_number)
+  let block = fetch_full_block(&provider, block_number)
     .await?
     .ok_or_else(|| Error::RPC("Block not found".to_string()))?;
   let trie_db = prepare_block_trie_db(&provider, &block).await?;
@@ -211,7 +213,7 @@ mod tests {
     let provider = create_provider(MAINNET_RETH_RPC_EL).unwrap();
 
     let block_number: u64 = 1;
-    fetch_block(&provider, block_number).await.unwrap();
+    fetch_full_block(&provider, block_number).await.unwrap();
   }
 
   #[tokio::test]
@@ -242,7 +244,10 @@ mod tests {
   async fn test_recover_block() {
     let provider = create_provider(MAINNET_RETH_RPC_EL).unwrap();
     let block_number = get_last_block_number(&provider).await.unwrap();
-    let block = fetch_block(&provider, block_number).await.unwrap().unwrap();
+    let block = fetch_full_block(&provider, block_number)
+      .await
+      .unwrap()
+      .unwrap();
 
     let recovered_block = recover_block(block).await;
     assert!(
