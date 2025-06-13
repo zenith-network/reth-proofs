@@ -1,5 +1,6 @@
 mod mpt;
 mod triedb;
+pub mod triedb_utils;
 pub mod utils;
 
 #[derive(Debug, thiserror::Error)]
