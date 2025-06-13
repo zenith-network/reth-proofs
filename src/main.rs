@@ -1,6 +1,7 @@
 #[tokio::main]
 async fn main() {
-  store_latest_block_and_witness().await;
+  // store_latest_block_and_witness().await;
+  debug_local_block_and_witness(22694900_u64).await;
 }
 
 async fn store_latest_block_and_witness() {
@@ -21,4 +22,57 @@ async fn store_latest_block_and_witness() {
     .await
     .unwrap();
   println!("Block {} and its witness saved successfully!", block_number);
+}
+
+async fn debug_local_block_and_witness(block_number: u64) {
+  // Load the block and witness from files.
+  let block = reth_proofs::load_block_from_file(block_number)
+    .await
+    .unwrap();
+  let witness = reth_proofs::load_block_witness_from_file(block_number)
+    .await
+    .unwrap();
+
+  // Print some information about the loaded block and witness.
+  println!("Loaded block number: {}", block_number);
+
+  // Store debug witness in file.
+  let witness_debug = reth_proofs::utils::format_execution_witness(&witness);
+  std::fs::write(
+    format!("assets/{}_execution-witness-debug.txt", block_number),
+    witness_debug,
+  )
+  .expect("Unable to write witness debug to file");
+
+  // Build trie.
+  let trie = reth_proofs::triedb::TrieDB::from_execution_witness(witness).unwrap();
+  if trie.state_trie.size() == 0 {
+    println!("Ouch! If state trie is empty, then probably you supplied invalid pre_state_root.");
+    return;
+  }
+
+  // Validate that correct witness is used.
+  let highest_block_number = trie
+    .block_hashes
+    .keys()
+    .max()
+    .expect("Trie should have at least one block hash");
+  if (*highest_block_number + 1) != block.header.number {
+    panic!(
+      "Highest block in trie {} does appear to be the parent of the block {}",
+      highest_block_number, block.header.number
+    );
+  }
+
+  // Store the debug format of trie in file.
+  let trie_debug = reth_proofs::triedb_utils::format_trie(&trie);
+  std::fs::write(
+    format!("assets/{}_trie-debug.txt", block_number),
+    trie_debug,
+  )
+  .expect("Unable to write trie debug to file");
+  println!(
+    "Witness and trie debug saved successfully for block {}",
+    block_number
+  );
 }
