@@ -19,6 +19,9 @@ pub enum Error {
 
   #[error("Failed to execute block: {0}")]
   Execution(String),
+
+  #[error("Validation error: {0}")]
+  Validation(String),
 }
 
 pub fn create_provider(
@@ -129,6 +132,16 @@ pub async fn execute_block(
   let output =
     reth_ethereum::evm::primitives::execute::Executor::execute(block_executor, &recovered_block)
       .map_err(|e| Error::Execution(format!("{}", e)))?;
+
+  // Validate the block post execution.
+  let chain_spec = reth_chainspec::MAINNET.as_ref();
+  reth_ethereum_consensus::validate_block_post_execution(
+    &recovered_block,
+    chain_spec,
+    &output.result.receipts,
+    &output.result.requests,
+  )
+  .map_err(|e| Error::Validation(format!("Block validation failed after execution: {}", e)))?;
 
   Ok(output)
 }
