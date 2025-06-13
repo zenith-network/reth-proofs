@@ -100,7 +100,10 @@ pub async fn prepare_block_trie_db(
 }
 
 // TODO: Split into core functions.
-pub async fn execute_block(http_rpc_url: &str, block_number: u64) -> Result<(), Error> {
+pub async fn execute_block(
+  http_rpc_url: &str,
+  block_number: u64,
+) -> Result<reth_execution_types::BlockExecutionOutput<reth_ethereum::Receipt>, Error> {
   let config = create_mainnet_evm_config();
   let provider = create_provider(http_rpc_url)?;
   let block = fetch_full_block(&provider, block_number)
@@ -123,10 +126,11 @@ pub async fn execute_block(http_rpc_url: &str, block_number: u64) -> Result<(), 
     alloy_consensus::Block<reth_ethereum::TransactionSigned>,
   > = recover_block(block).await?;
 
-  reth_ethereum::evm::primitives::execute::Executor::execute(block_executor, &recovered_block)
-    .map_err(|e| Error::Execution(format!("{}", e)))?;
+  let output =
+    reth_ethereum::evm::primitives::execute::Executor::execute(block_executor, &recovered_block)
+      .map_err(|e| Error::Execution(format!("{}", e)))?;
 
-  Ok(())
+  Ok(output)
 }
 
 pub async fn save_block_in_file(block: &alloy_rpc_types_eth::Block) -> Result<(), Error> {
