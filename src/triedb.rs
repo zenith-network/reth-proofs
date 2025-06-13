@@ -130,6 +130,8 @@ impl TrieDB {
     Ok(trie)
   }
 
+  // NOTE: This function can be probably removed, as RSP uses this only in the host
+  // for constructing before/after storage proofs.
   pub fn get_state_requests(
     witness: &alloy_rpc_types_debug::ExecutionWitness,
   ) -> alloy_primitives::map::HashMap<alloy_primitives::Address, Vec<alloy_primitives::U256>> {
