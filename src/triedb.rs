@@ -59,9 +59,6 @@ impl TrieDB {
 
     for key in &witness.keys {
       if key.0.len() != 20 {
-        // if key.0.len() == 32  && key.0[0] == 38 && key.0[1] == 153 {
-        //     println!("{:?}", key.0); // 26994ac57a8be8b817f1403cb31701ed576b0d3eebb994c6da77e232e74c4b09
-        // }
         continue; // Not an address preimage
       }
 
