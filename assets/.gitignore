@@ -1,0 +1,4 @@
+# Ignore everything except the example and this gitignore.
+*
+!.gitignore
+!22694900_*
