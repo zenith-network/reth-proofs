@@ -135,7 +135,7 @@ pub async fn execute_block(
 
 pub async fn save_block_in_file(block: &alloy_rpc_types_eth::Block) -> Result<(), Error> {
   let block_number = block.header.number;
-  let file_name = format!("block_{}.json", block_number);
+  let file_name = format!("assets/{}_full-block.json", block_number);
   let pretty_json = serde_json::to_string_pretty(&block)
     .map_err(|e| Error::RPC(format!("Failed to serialize block to JSON: {}", e)))?;
   std::fs::write(&file_name, pretty_json).map_err(|e| {
@@ -149,7 +149,7 @@ pub async fn save_block_in_file(block: &alloy_rpc_types_eth::Block) -> Result<()
 }
 
 pub async fn load_block_from_file(block_number: u64) -> Result<alloy_rpc_types_eth::Block, Error> {
-  let file_name = format!("block_{}.json", block_number);
+  let file_name = format!("assets/{}_full-block.json", block_number);
   let content = std::fs::read_to_string(file_name)
     .map_err(|e| Error::RPC(format!("Failed to read block from file: {}", e)))?;
 
@@ -163,7 +163,7 @@ pub async fn save_block_witness_in_file(
   witness: &alloy_rpc_types_debug::ExecutionWitness,
   block_number: u64,
 ) -> Result<(), Error> {
-  let file_name = format!("witness_{}.json", block_number);
+  let file_name = format!("assets/{}_execution-witness.json", block_number);
   let pretty_json = serde_json::to_string_pretty(&witness)
     .map_err(|e| Error::RPC(format!("Failed to serialize witness to JSON: {}", e)))?;
   std::fs::write(&file_name, pretty_json)
@@ -175,7 +175,7 @@ pub async fn save_block_witness_in_file(
 pub async fn load_block_witness_from_file(
   block_number: u64,
 ) -> Result<alloy_rpc_types_debug::ExecutionWitness, Error> {
-  let file_name = format!("witness_{}.json", block_number);
+  let file_name = format!("assets/{}_execution-witness.json", block_number);
   let content = std::fs::read_to_string(file_name)
     .map_err(|e| Error::RPC(format!("Failed to read witness from file: {}", e)))?;
 
