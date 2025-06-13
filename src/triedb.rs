@@ -114,12 +114,20 @@ impl TrieDB {
       bytecode_by_hash.insert(hash, revm::state::Bytecode::new_raw(encoded.clone()));
     }
 
-    Ok(Self {
+    let trie = Self {
       state_trie,
       storage_tries,
       bytecode_by_hash,
       block_hashes,
-    })
+    };
+
+    // Extra check to validate that state_trie was built correctly - confirm tree hash with pre state root.
+    // Do NOT use this inside zkVM!
+    if trie.compute_state_root() != pre_state_root {
+      panic!("Error in TrieDB build logic: computed root does not match pre_state_root");
+    }
+
+    Ok(trie)
   }
 
   pub fn get_state_requests(
