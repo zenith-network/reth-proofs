@@ -12,10 +12,12 @@ impl TrieDB {
   // CAUTION: `pre_state_root` is the state root of the parent block, not the current one.
   pub fn from_execution_witness(
     witness: alloy_rpc_types_debug::ExecutionWitness,
-    pre_state_root: alloy_primitives::B256,
+    _pre_state_root: alloy_primitives::B256,
   ) -> Result<Self, Box<dyn std::error::Error>> {
-    // Step 0: Build block hashes
+    // Step 0: Build block hashes and locate `pre_state_root`.
     let mut block_hashes = alloy_primitives::map::HashMap::default();
+    let mut highest_block_number = 0;
+    let mut highest_state_root = None;
     for header_bytes in &witness.headers {
       let header =
         <alloy_consensus::Header as alloy_rlp::Decodable>::decode(&mut &header_bytes[..])?;
@@ -23,7 +25,14 @@ impl TrieDB {
       let hash = alloy_primitives::keccak256(alloy_rlp::encode(&header));
       println!("Block number: {number}, header: {header:?}");
       block_hashes.insert(number, hash);
+
+      if number > highest_block_number {
+        highest_block_number = number;
+        highest_state_root = Some(header.state_root);
+      }
     }
+    let pre_state_root =
+      highest_state_root.expect("At least one block header must be present in the witness");
 
     // Step 1: Decode all RLP-encoded trie nodes and index by hash
     let mut node_map: alloy_primitives::map::HashMap<
