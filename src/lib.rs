@@ -1,5 +1,5 @@
 mod mpt;
-mod triedb;
+pub mod triedb;
 pub mod triedb_utils;
 pub mod utils;
 
