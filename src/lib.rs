@@ -108,6 +108,14 @@ pub async fn execute_block(http_rpc_url: &str, block_number: u64) -> Result<(), 
   let block_executor =
     reth_ethereum::evm::primitives::execute::BasicBlockExecutor::new(config.clone(), db);
 
+  // Before proceeding, make sure that block has full tx data, not just hashes.
+  // Otherwise executor silently executes 0 tx.
+  if !block.transactions.is_full() {
+    return Err(Error::RPC(
+      "Tx missing - make sure that you fetch block with tx included".to_string(),
+    ));
+  }
+
   let recovered_block: reth_primitives_traits::RecoveredBlock<
     alloy_consensus::Block<reth_ethereum::TransactionSigned>,
   > = recover_block(block).await?;
