@@ -155,6 +155,11 @@ impl TrieDB {
       .map(|(addr, slots)| (addr, slots.into_iter().collect()))
       .collect()
   }
+
+  /// Computes the state root (over state trie).
+  pub fn compute_state_root(&self) -> alloy_primitives::B256 {
+    self.state_trie.hash()
+  }
 }
 
 impl revm::DatabaseRef for TrieDB {
