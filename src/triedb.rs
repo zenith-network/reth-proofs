@@ -9,9 +9,10 @@ pub struct TrieDB {
 
 impl TrieDB {
   // Custom integration - written by chatGPT.
+  // CAUTION: `pre_state_root` is the state root of the parent block, not the current one.
   pub fn from_execution_witness(
     witness: alloy_rpc_types_debug::ExecutionWitness,
-    state_root: alloy_primitives::B256,
+    pre_state_root: alloy_primitives::B256,
   ) -> Result<Self, Box<dyn std::error::Error>> {
     // Step 0: Build block hashes
     let mut block_hashes = alloy_primitives::map::HashMap::default();
@@ -38,7 +39,7 @@ impl TrieDB {
     for encoded in &witness.state {
       let node = crate::mpt::MptNode::decode(encoded)?;
       let hash = alloy_primitives::keccak256(encoded);
-      if hash == state_root {
+      if hash == pre_state_root {
         root_node = Some(node.clone());
       }
       node_by_hash.insert(hash, node.clone());
@@ -46,7 +47,7 @@ impl TrieDB {
     }
 
     // Step 2: Use root_node or fallback to Digest
-    let root = root_node.unwrap_or_else(|| crate::mpt::MptNodeData::Digest(state_root).into());
+    let root = root_node.unwrap_or_else(|| crate::mpt::MptNodeData::Digest(pre_state_root).into());
 
     let state_trie = crate::mpt::resolve_nodes(&root, &node_map);
 
