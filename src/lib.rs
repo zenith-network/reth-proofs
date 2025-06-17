@@ -143,6 +143,22 @@ pub async fn execute_block(
   )
   .map_err(|e| Error::Validation(format!("Block validation failed after execution: {}", e)))?;
 
+  // Apply execution changes and compute the new state root.
+  let hashed_post_state = reth_trie::HashedPostState::from_bundle_state::<reth_trie::KeccakKeyHasher>(
+    &output.state.state,
+  );
+  trie_db.update(&hashed_post_state);
+  let new_state_root = trie_db.compute_state_root();
+
+  // Validate the state root after execution.
+  let expected_root = recovered_block.header().state_root;
+  if new_state_root != expected_root {
+    return Err(Error::Validation(format!(
+      "State root mismatch after execution: expected {}, got {}",
+      expected_root, new_state_root
+    )));
+  }
+
   Ok(output)
 }
 
