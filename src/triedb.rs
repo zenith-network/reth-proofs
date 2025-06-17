@@ -70,44 +70,36 @@ impl TrieDB {
       alloy_primitives::B256,
       crate::mpt::MptNode,
     > = alloy_primitives::map::HashMap::default();
+    for (hashed_address, storage_root) in storage_tries_detected {
+      let root_node = node_by_hash.get(&storage_root).cloned().unwrap();
+      let storage_trie = crate::mpt::resolve_nodes(&root_node, &node_map);
 
-    for key in &witness.keys {
-      if key.0.len() != 20 {
-        continue; // Not an address preimage
+      if storage_trie.is_digest() {
+        panic!("Could not resolve storage trie for {storage_root}");
       }
 
-      let address = alloy_primitives::Address::from_slice(&key.0);
-      let address_hash = alloy_primitives::keccak256(address);
+      // Insert resolved storage trie.
+      storage_tries.insert(hashed_address, storage_trie);
+    }
 
-      if storage_tries.contains_key(&address_hash) {
-        continue;
-      }
+    // Step 3b: Verify that each storage trie matches the declared storage_root in the state trie
+    for (hashed_address, storage_trie) in storage_tries.iter() {
+      let account = state_trie
+        .get_rlp::<reth_trie::TrieAccount>(hashed_address.as_slice())
+        .map_err(|_| "Failed to decode account from state trie")?
+        .ok_or("Account not found in state trie")?;
 
-      let account_opt = state_trie
-        .get_rlp::<reth_trie::TrieAccount>(address_hash.as_slice())
-        .ok()
-        .flatten();
+      let storage_root = account.storage_root;
+      let actual_hash = storage_trie.hash();
 
-      // For each account we care about
-      if let Some(account) = account_opt {
-        let storage_root = account.storage_root;
-
-        let storage_trie = if storage_root == alloy_primitives::B256::ZERO {
-          crate::mpt::MptNode::default()
-        } else if let Some(root_node) = node_by_hash.get(&storage_root).cloned() {
-          let resolved = crate::mpt::resolve_nodes(&root_node, &node_map);
-          if resolved.is_digest() {
-            eprintln!("⚠️ Could not fully resolve storage trie for {address}");
-            crate::mpt::MptNodeData::Digest(storage_root).into()
-          } else {
-            resolved
-          }
-        } else {
-          eprintln!("⚠️ Missing storage root node for {address} (hash: {storage_root:?})");
-          crate::mpt::MptNodeData::Digest(storage_root).into()
-        };
-
-        storage_tries.insert(address_hash, storage_trie);
+      if storage_root != actual_hash {
+        return Err(
+          format!(
+            "Mismatched storage root for address hash {:?}: expected {:?}, got {:?}",
+            hashed_address, storage_root, actual_hash
+          )
+          .into(),
+        );
       }
     }
 
