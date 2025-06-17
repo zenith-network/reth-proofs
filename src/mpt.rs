@@ -894,3 +894,81 @@ fn node_from_digest(digest: alloy_primitives::B256) -> MptNode {
     _ => MptNodeData::Digest(digest).into(),
   }
 }
+
+/// Creates a new MPT trie where all the digests contained in `node_store` are resolved.
+/// NOTE: We had to duplicate resolve_nodes function, as only *state* leafs has TrieAccount inside.
+/// Originally resolve_nodes was used both for state and storage tries.
+pub fn resolve_state_nodes(
+  root: &MptNode,
+  node_store: &alloy_primitives::map::HashMap<MptNodeReference, MptNode>,
+  storage_roots_detected: &mut Vec<(
+    alloy_primitives::FixedBytes<32>,
+    alloy_primitives::FixedBytes<32>,
+  )>,
+  path: reth_trie::Nibbles,
+) -> MptNode {
+  let trie = match root.as_data() {
+    MptNodeData::Null => root.clone(),
+    MptNodeData::Leaf(_key, _value) => {
+      // We need to track address path for storage roots!
+      let mut full_path = path.clone();
+      // Convert _key to nibbles, as it is a leaf.
+      let key_nibs = prefix_nibs(_key);
+      full_path.extend_from_slice_unchecked(&key_nibs);
+      let hashed_address = alloy_primitives::B256::from_slice(&full_path.pack());
+
+      let account =
+        <reth_trie::TrieAccount as alloy_rlp::Decodable>::decode(&mut &_value[..]).unwrap();
+      if account.storage_root != reth_trie::EMPTY_ROOT_HASH {
+        storage_roots_detected.push((hashed_address, account.storage_root));
+      }
+
+      root.clone()
+    }
+    MptNodeData::Branch(children) => {
+      let children: Vec<_> = children
+        .iter()
+        .enumerate()
+        .map(|(idx, child)| {
+          child.as_ref().map(|node| {
+            let mut child_path = path.clone();
+            child_path.push_unchecked(idx as u8);
+            Box::new(resolve_state_nodes(
+              node,
+              node_store,
+              storage_roots_detected,
+              child_path,
+            ))
+          })
+        })
+        .collect();
+      MptNodeData::Branch(children.try_into().unwrap()).into()
+    }
+    MptNodeData::Extension(prefix, target) => {
+      let mut child_path = path.clone();
+      let prefix_nibs = prefix_nibs(prefix);
+      child_path.extend_from_slice_unchecked(&prefix_nibs);
+      MptNodeData::Extension(
+        prefix.clone(),
+        Box::new(resolve_state_nodes(
+          target,
+          node_store,
+          storage_roots_detected,
+          child_path,
+        )),
+      )
+      .into()
+    }
+    MptNodeData::Digest(digest) => {
+      if let Some(node) = node_store.get(&MptNodeReference::Digest(*digest)) {
+        resolve_state_nodes(node, node_store, storage_roots_detected, path)
+      } else {
+        root.clone()
+      }
+    }
+  };
+  // the root hash must not change
+  debug_assert_eq!(root.hash(), trie.hash());
+
+  trie
+}
