@@ -21,7 +21,6 @@ impl TrieDB {
         <alloy_consensus::Header as alloy_rlp::Decodable>::decode(&mut &header_bytes[..])?;
       let number = header.number;
       let hash = alloy_primitives::keccak256(alloy_rlp::encode(&header));
-      println!("Block number: {number}, header: {header:?}");
       block_hashes.insert(number, hash);
 
       if number > highest_block_number {
