@@ -26,6 +26,7 @@ reth-ethereum-consensus = { git = "https://github.com/paradigmxyz/reth", tag = "
 reth-execution-types = { git = "https://github.com/paradigmxyz/reth", tag = "v1.4.8", default-features = false }
 reth-primitives-traits = { git = "https://github.com/paradigmxyz/reth", tag = "v1.4.8", default-features = false }
 reth-trie = { git = "https://github.com/paradigmxyz/reth", tag = "v1.4.8", default-features = false }
+reth-stateless = { git = "https://github.com/paradigmxyz/reth", tag = "v1.4.8", default-features = false }
 
 # Asynchronous runtime.
 tokio = { version = "1.45.1", default-features = false, features = ["rt-multi-thread"] }
