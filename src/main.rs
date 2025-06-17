@@ -3,9 +3,10 @@ async fn main() {
   // store_latest_block_and_witness().await;
   // debug_local_block_and_witness(22694900_u64).await;
   // reth_proofs::execute_block_reth_stateless(22694900_u64).await;
-  reth_proofs::execute_block_offline(22694900_u64)
-    .await
-    .unwrap();
+  // reth_proofs::execute_block_offline(22694900_u64)
+  //   .await
+  //   .unwrap();
+  execute_latest_block_with_rpc().await;
 }
 
 async fn store_latest_block_and_witness() {
@@ -79,4 +80,19 @@ async fn debug_local_block_and_witness(block_number: u64) {
     "Witness and trie debug saved successfully for block {}",
     block_number
   );
+}
+
+async fn execute_latest_block_with_rpc() {
+  // Fetch the latest block number.
+  let provider = reth_proofs::create_provider("http://130.250.187.55:8545").unwrap();
+  let block_number = reth_proofs::get_last_block_number(&provider).await.unwrap();
+  println!("Latest block number: {}", block_number);
+
+  // Execute the block using RPC.
+  let result =
+    reth_proofs::execute_block_with_rpc("http://130.250.187.55:8545", block_number).await;
+  match result {
+    Ok(_) => println!("Block {} executed successfully!", block_number),
+    Err(e) => eprintln!("Error executing block {}: {}", block_number, e),
+  }
 }
