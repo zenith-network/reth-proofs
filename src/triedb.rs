@@ -169,6 +169,77 @@ impl TrieDB {
   pub fn compute_state_root(&self) -> alloy_primitives::B256 {
     self.state_trie.hash()
   }
+
+  /// Mutates state based on diffs provided in [`HashedPostState`].
+  pub fn update(&mut self, post_state: &reth_trie::HashedPostState) {
+    // Apply *all* storage-slot updates first and remember new roots.
+    let mut new_storage_roots: alloy_primitives::map::HashMap<Vec<u8>, alloy_primitives::B256> =
+      alloy_primitives::map::HashMap::default(); // TODO: Use `with_capacity(post_state.storages.len())`.
+    for (hashed_addr, storage) in post_state.storages.iter() {
+      // Take existing storage trie or create an empty one.
+      let storage_trie = self
+        .storage_tries
+        .entry(hashed_addr.clone())
+        .or_insert_with(crate::mpt::MptNode::default);
+
+      // Wipe the trie if requested.
+      if storage.wiped {
+        storage_trie.clear();
+      }
+
+      // Apply slot-level changes.
+      for (slot, value) in storage.storage.iter() {
+        let key = slot.as_slice();
+        if value.is_zero() {
+          storage_trie.delete(key).unwrap();
+        } else {
+          storage_trie.insert_rlp(key, *value).unwrap();
+        }
+      }
+
+      // Memorise the freshly-computed root.
+      new_storage_roots.insert(hashed_addr.to_vec(), storage_trie.hash());
+    }
+
+    // Walk the accounts, using the roots computed above.
+    for (hashed_addr, maybe_acct) in post_state.accounts.iter() {
+      let addr = hashed_addr.as_slice();
+
+      match maybe_acct {
+        // Handle account update / creation.
+        Some(acct) => {
+          // Which storage root should we encode?
+          let storage_root = new_storage_roots
+            .get(addr)
+            .copied() // root from step 1
+            .or_else(|| self.storage_tries.get(addr).map(|t| t.hash()))
+            .unwrap_or(crate::mpt::EMPTY_ROOT);
+
+          // If both the account and its storage are empty we simply delete.
+          if acct.is_empty() && storage_root == crate::mpt::EMPTY_ROOT {
+            self.state_trie.delete(addr).unwrap();
+            self.storage_tries.remove(addr); // keep maps in sync
+            continue;
+          }
+
+          // Encode and insert the account leaf.
+          let trie_acct = reth_trie::TrieAccount {
+            nonce: acct.nonce,
+            balance: acct.balance,
+            storage_root,
+            code_hash: acct.get_bytecode_hash(),
+          };
+          self.state_trie.insert_rlp(addr, trie_acct).unwrap();
+        }
+
+        // Handle account deletion.
+        None => {
+          self.state_trie.delete(addr).unwrap();
+          self.storage_tries.remove(addr); // NOTE: Could be skipped in zkVM.
+        }
+      }
+    }
+  }
 }
 
 impl revm::DatabaseRef for TrieDB {
