@@ -102,18 +102,38 @@ pub async fn prepare_block_trie_db(
   Ok(trie_db)
 }
 
-// TODO: Split into core functions.
-pub async fn execute_block(
-  http_rpc_url: &str,
-  block_number: u64,
-) -> Result<reth_execution_types::BlockExecutionOutput<reth_ethereum::Receipt>, Error> {
-  let config = create_mainnet_evm_config();
+pub async fn execute_block_offline(block_number: u64) -> Result<(), Error> {
+  let block = load_block_from_file(block_number).await?;
+  let witness = load_block_witness_from_file(block_number).await?;
+
+  execute_block(block, witness)
+    .await
+    .map(|_| ())
+    .map_err(|e| Error::Execution(format!("Failed to execute block: {}", e)))
+}
+
+pub async fn execute_block_with_rpc(http_rpc_url: &str, block_number: u64) -> Result<(), Error> {
   let provider = create_provider(http_rpc_url)?;
   let block = fetch_full_block(&provider, block_number)
     .await?
     .ok_or_else(|| Error::RPC("Block not found".to_string()))?;
-  let trie_db = prepare_block_trie_db(&provider, &block).await?;
-  let db = revm::database::WrapDatabaseRef(trie_db);
+  let witness = fetch_block_witness(&provider, block_number).await?;
+
+  execute_block(block, witness)
+    .await
+    .map(|_| ())
+    .map_err(|e| Error::Execution(format!("Failed to execute block: {}", e)))
+}
+
+// TODO: Split into core functions.
+pub async fn execute_block(
+  block: alloy_rpc_types_eth::Block,
+  witness: alloy_rpc_types_debug::ExecutionWitness,
+) -> Result<reth_execution_types::BlockExecutionOutput<reth_ethereum::Receipt>, Error> {
+  let config = create_mainnet_evm_config();
+  let mut trie_db =
+    triedb::TrieDB::from_execution_witness(witness).map_err(|e| Error::TrieDB(format!("{}", e)))?;
+  let db = revm::database::WrapDatabaseRef(&trie_db);
   let block_executor =
     reth_ethereum::evm::primitives::execute::BasicBlockExecutor::new(config.clone(), db);
 
@@ -313,7 +333,7 @@ mod tests {
     let provider = create_provider(MAINNET_RETH_RPC_EL).unwrap();
     let block_number = get_last_block_number(&provider).await.unwrap();
 
-    let result = execute_block(MAINNET_RETH_RPC_EL, block_number).await;
+    let result = execute_block_with_rpc(MAINNET_RETH_RPC_EL, block_number).await;
     assert!(
       result.is_ok(),
       "Failed to execute block: {:?}",
