@@ -129,42 +129,6 @@ impl TrieDB {
     Ok(trie)
   }
 
-  // NOTE: This function can be probably removed, as RSP uses this only in the host
-  // for constructing before/after storage proofs.
-  pub fn get_state_requests(
-    witness: &alloy_rpc_types_debug::ExecutionWitness,
-  ) -> alloy_primitives::map::HashMap<alloy_primitives::Address, Vec<alloy_primitives::U256>> {
-    let mut requests: alloy_primitives::map::HashMap<
-      alloy_primitives::Address,
-      std::collections::HashSet<alloy_primitives::U256>,
-    > = alloy_primitives::map::HashMap::default();
-
-    for key in &witness.keys {
-      match key.0.len() {
-        20 => {
-          // alloy_primitives::Address only (no storage slot)
-          let address = alloy_primitives::Address::from_slice(&key.0);
-          requests.entry(address).or_default();
-        }
-        52 => {
-          // alloy_primitives::Address + slot
-          let address = alloy_primitives::Address::from_slice(&key.0[..20]);
-          let slot = alloy_primitives::U256::from_be_bytes::<32>(key.0[20..].try_into().unwrap());
-          requests.entry(address).or_default().insert(slot);
-        }
-        _ => {
-          // Ignore anything else
-        }
-      }
-    }
-
-    // Convert to Vec<U256>
-    requests
-      .into_iter()
-      .map(|(addr, slots)| (addr, slots.into_iter().collect()))
-      .collect()
-  }
-
   /// Computes the state root (over state trie).
   pub fn compute_state_root(&self) -> alloy_primitives::B256 {
     self.state_trie.hash()
