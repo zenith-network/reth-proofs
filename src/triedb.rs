@@ -71,7 +71,14 @@ impl TrieDB {
       crate::mpt::MptNode,
     > = alloy_primitives::map::HashMap::default();
     for (hashed_address, storage_root) in storage_tries_detected {
-      let root_node = node_by_hash.get(&storage_root).cloned().unwrap();
+      let root_node = match node_by_hash.get(&storage_root).cloned() {
+        Some(node) => node,
+        None => {
+          // An execution witness can include an account leaf (with non-empty storageRoot), but omit
+          // its entire storage trie when that account's storage was NOT touched during the block.
+          continue;
+        }
+      };
       let storage_trie = crate::mpt::resolve_nodes(&root_node, &node_map);
 
       if storage_trie.is_digest() {
