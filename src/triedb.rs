@@ -263,19 +263,37 @@ impl revm::DatabaseRef for TrieDB {
     let hashed_address = alloy_primitives::keccak256(address);
     let hashed_address = hashed_address.as_slice();
 
-    let storage_trie = self
-      .storage_tries
-      .get(hashed_address)
-      .expect("A storage trie must be provided for each account");
+    // Usual case, where given storage slot is present.
+    if let Some(storage_trie) = self.storage_tries.get(hashed_address) {
+      return Ok(
+        storage_trie
+          .get_rlp::<alloy_primitives::U256>(
+            alloy_primitives::keccak256(index.to_be_bytes::<32>()).as_slice(),
+          )
+          .expect("Can get storage from MPT")
+          .unwrap_or_default(),
+      );
+    }
 
-    Ok(
-      storage_trie
-        .get_rlp::<alloy_primitives::U256>(
-          alloy_primitives::keccak256(index.to_be_bytes::<32>()).as_slice(),
-        )
-        .expect("Can get from MPT")
-        .unwrap_or_default(),
-    )
+    // Storage slot value is not present in the trie, validate that the witness is complete.
+    // TODO: Implement witness checks like in reth - https://github.com/paradigmxyz/reth/blob/127595e23079de2c494048d0821ea1f1107eb624/crates/stateless/src/trie.rs#L68C9-L87.
+    let account = self
+      .state_trie
+      .get_rlp::<reth_trie::TrieAccount>(hashed_address)
+      .expect("Can get account from MPT");
+    match account {
+      Some(account) => {
+        if account.storage_root != crate::mpt::EMPTY_ROOT {
+          todo!("Validate that storage witness is valid");
+        }
+      }
+      None => {
+        todo!("Validate that account witness is valid");
+      }
+    }
+
+    // Account doesn't exist or has empty storage root.
+    Ok(alloy_primitives::U256::ZERO)
   }
 
   /// Get block hash by block number.
