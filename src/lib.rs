@@ -146,6 +146,23 @@ pub async fn execute_block(
   Ok(output)
 }
 
+// NOTE: Useful for debugging `reth-stateless` behavior.
+pub async fn execute_offline_block_with_reth_stateless(block_number: u64) {
+  let current_block = load_block_from_file(block_number).await.unwrap();
+  let mut witness = load_block_witness_from_file(block_number).await.unwrap();
+  witness.keys.clear();
+  let chain_spec = std::sync::Arc::new(reth_chainspec::MAINNET.as_ref().clone());
+  let evm_config = create_mainnet_evm_config();
+  reth_stateless::validation::stateless_validation(
+    current_block.into(),
+    witness,
+    chain_spec,
+    evm_config,
+  )
+  .map_err(|e| Error::Validation(format!("Stateless validation failed: {}", e)))
+  .unwrap();
+}
+
 pub async fn save_block_in_file(block: &alloy_rpc_types_eth::Block) -> Result<(), Error> {
   let block_number = block.header.number;
   let file_name = format!("assets/{}_full-block.json", block_number);

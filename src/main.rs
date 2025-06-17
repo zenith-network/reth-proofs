@@ -2,6 +2,7 @@
 async fn main() {
   // store_latest_block_and_witness().await;
   debug_local_block_and_witness(22694900_u64).await;
+  // reth_proofs::execute_block_reth_stateless(22694900_u64).await;
 }
 
 async fn store_latest_block_and_witness() {
