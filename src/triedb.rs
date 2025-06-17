@@ -33,6 +33,7 @@ impl TrieDB {
       highest_state_root.expect("At least one block header must be present in the witness");
 
     // Step 1: Decode all RLP-encoded trie nodes and index by hash
+    // IMPORTANT: Witness state contains both *state trie* nodes and *storage tries* nodes!
     let mut node_map: alloy_primitives::map::HashMap<
       crate::mpt::MptNodeReference,
       crate::mpt::MptNode,
@@ -56,7 +57,14 @@ impl TrieDB {
     // Step 2: Use root_node or fallback to Digest
     let root = root_node.unwrap_or_else(|| crate::mpt::MptNodeData::Digest(pre_state_root).into());
 
-    let state_trie = crate::mpt::resolve_nodes(&root, &node_map);
+    // Build state trie.
+    let mut storage_tries_detected = vec![];
+    let state_trie = crate::mpt::resolve_state_nodes(
+      &root,
+      &node_map,
+      &mut storage_tries_detected,
+      reth_trie::Nibbles::default(),
+    );
 
     // Step 3: Build storage tries per account efficiently
     let mut storage_tries: alloy_primitives::map::HashMap<
