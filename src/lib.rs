@@ -74,7 +74,7 @@ pub fn create_mainnet_evm_config() -> reth_ethereum::evm::EthEvmConfig {
 }
 
 // TODO: Consider if this implementation is done in a sane way.
-pub async fn recover_block(
+pub fn recover_block(
   block: alloy_rpc_types_eth::Block,
 ) -> Result<
   reth_primitives_traits::RecoveredBlock<alloy_consensus::Block<reth_ethereum::TransactionSigned>>,
@@ -147,7 +147,7 @@ pub async fn execute_block(
 
   let recovered_block: reth_primitives_traits::RecoveredBlock<
     alloy_consensus::Block<reth_ethereum::TransactionSigned>,
-  > = recover_block(block).await?;
+  > = recover_block(block)?;
 
   let output =
     reth_ethereum::evm::primitives::execute::Executor::execute(block_executor, &recovered_block)
@@ -320,7 +320,7 @@ mod tests {
       .unwrap()
       .unwrap();
 
-    let recovered_block = recover_block(block).await;
+    let recovered_block = recover_block(block);
     assert!(
       recovered_block.is_ok(),
       "Failed to recover block: {:?}",
