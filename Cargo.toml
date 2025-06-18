@@ -2,6 +2,7 @@
 members = [
   "core",
   "zkvm/sp1-guest",
+  "zkvm/sp1-host",
   "prototype",
 ]
 resolver = "3"

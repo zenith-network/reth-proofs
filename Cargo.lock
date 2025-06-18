@@ -3383,6 +3383,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "reth-proofs-zkvm-sp1-host"
+version = "0.1.0"
+
+[[package]]
 name = "reth-prune-types"
 version = "1.4.8"
 source = "git+https://github.com/paradigmxyz/reth?tag=v1.4.8#127595e23079de2c494048d0821ea1f1107eb624"
