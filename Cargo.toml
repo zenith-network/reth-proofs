@@ -1,6 +1,7 @@
 [workspace]
 members = [
   "core",
+  "guest/sp1",
   "prototype",
 ]
 resolver = "3"
