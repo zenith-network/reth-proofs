@@ -1,0 +1,43 @@
+[package]
+name = "reth-proofs"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+
+# NOTE: Version of alloy/revm/reth crates is based on reth v1.4.8:
+# - https://github.com/paradigmxyz/reth/blob/v1.4.8/Cargo.toml
+
+# alloy
+alloy-consensus = { version = "1.0.9", default-features = false }
+alloy-rlp = { version = "0.3.10", default-features = false }
+alloy-primitives = { version = "1.1.0", default-features = false, features = ["map-foldhash", "sha3-keccak"] }
+alloy-provider = { version = "1.0.9", default-features = false, features = ["reqwest", "debug-api"] }
+alloy-rpc-types-debug = { version = "1.0.9", default-features = false }
+alloy-rpc-types-eth = { version = "1.0.9", default-features = false }
+
+# revm
+revm = { version = "24.0.1",  default-features = false, features = ["serde", "kzg-rs", "bn"] }
+
+# reth
+reth-chainspec = { git = "https://github.com/paradigmxyz/reth", tag = "v1.4.8", default-features = false }
+reth-ethereum = { git = "https://github.com/paradigmxyz/reth", tag = "v1.4.8", default-features = false, features = ["evm"] }
+reth-ethereum-consensus = { git = "https://github.com/paradigmxyz/reth", tag = "v1.4.8", default-features = false }
+reth-execution-types = { git = "https://github.com/paradigmxyz/reth", tag = "v1.4.8", default-features = false }
+reth-primitives-traits = { git = "https://github.com/paradigmxyz/reth", tag = "v1.4.8", default-features = false }
+reth-trie = { git = "https://github.com/paradigmxyz/reth", tag = "v1.4.8", default-features = false }
+reth-stateless = { git = "https://github.com/paradigmxyz/reth", tag = "v1.4.8", default-features = false }
+
+# Asynchronous runtime.
+tokio = { version = "1.45.1", default-features = false, features = ["rt-multi-thread"] }
+
+# Ethereum serialization.
+# TODO: Remove once switched to `alloy-rlp` in MPT implementation.
+rlp = { version = "0.6.1", default-features = false, features = ["std"] }
+
+# Error handling.
+thiserror = { version = "2.0.12", default-features = false }
+
+# Serialization.
+serde = { version = "1.0.219", default-features = false }
+serde_json = { version = "1.0.140", default-features = false }
