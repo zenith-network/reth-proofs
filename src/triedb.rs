@@ -148,7 +148,7 @@ impl TrieDB {
       alloy_primitives::map::HashMap::default(); // TODO: Use `with_capacity(post_state.storages.len())`.
     for (hashed_addr, storage) in post_state.storages.iter() {
       // Take existing storage trie or create an empty one.
-      let storage_trie = self.storage_tries.entry(hashed_addr.clone()).or_default();
+      let storage_trie = self.storage_tries.entry(*hashed_addr).or_default();
 
       // Wipe the trie if requested.
       if storage.wiped {
