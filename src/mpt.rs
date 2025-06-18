@@ -29,13 +29,6 @@ pub const EMPTY_ROOT: alloy_primitives::B256 =
 
 extern crate alloc;
 
-/// Represents the Keccak-256 hash of an empty byte slice.
-///
-/// This is a constant value and can be used as a default or placeholder
-/// in various cryptographic operations.
-pub const KECCAK_EMPTY: alloy_primitives::B256 =
-  alloy_primitives::b256!("c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470");
-
 /// Computes the Keccak-256 hash of the provided data.
 ///
 /// This function is a thin wrapper around the Keccak256 hashing algorithm
