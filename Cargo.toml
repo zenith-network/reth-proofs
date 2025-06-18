@@ -1,7 +1,7 @@
 [workspace]
 members = [
   "core",
-  "guest/sp1",
+  "zkvm/sp1-guest",
   "prototype",
 ]
 resolver = "3"

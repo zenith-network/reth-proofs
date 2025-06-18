@@ -3376,7 +3376,7 @@ name = "reth-proofs-core"
 version = "0.1.0"
 
 [[package]]
-name = "reth-proofs-guest-sp1"
+name = "reth-proofs-zkvm-sp1-guest"
 version = "0.1.0"
 dependencies = [
  "sp1-zkvm",
