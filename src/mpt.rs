@@ -880,14 +880,6 @@ pub fn resolve_nodes(
   trie
 }
 
-/// Creates a new MPT node from a digest.
-fn node_from_digest(digest: alloy_primitives::B256) -> MptNode {
-  match digest {
-    EMPTY_ROOT | alloy_primitives::B256::ZERO => MptNode::default(),
-    _ => MptNodeData::Digest(digest).into(),
-  }
-}
-
 /// Creates a new MPT trie where all the digests contained in `node_store` are resolved.
 /// NOTE: We had to duplicate resolve_nodes function, as only *state* leafs has TrieAccount inside.
 /// Originally resolve_nodes was used both for state and storage tries.
