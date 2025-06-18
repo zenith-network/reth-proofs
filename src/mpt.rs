@@ -1,4 +1,3 @@
-#![allow(dead_code)]
 /// This code is a stripped down MPT from RSP.
 /// - https://github.com/succinctlabs/rsp/blob/4081e40833aebece5958518724a327ede100f6cd/crates/mpt/src/mpt.rs
 ///
