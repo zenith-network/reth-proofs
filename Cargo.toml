@@ -6,3 +6,6 @@ members = [
   "prototype",
 ]
 resolver = "3"
+
+[workspace.dependencies]
+reth-proofs-core = { path = "./core" }
