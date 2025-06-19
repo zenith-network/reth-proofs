@@ -69,10 +69,6 @@ pub async fn fetch_block_witness(
   Ok(witness)
 }
 
-pub fn create_mainnet_evm_config() -> reth_ethereum::evm::EthEvmConfig {
-  reth_ethereum::evm::EthEvmConfig::mainnet()
-}
-
 // TODO: Consider if this implementation is done in a sane way.
 pub fn recover_block(
   block: alloy_rpc_types_eth::Block,
@@ -130,7 +126,7 @@ pub async fn execute_block(
   block: alloy_rpc_types_eth::Block,
   witness: alloy_rpc_types_debug::ExecutionWitness,
 ) -> Result<reth_execution_types::BlockExecutionOutput<reth_ethereum::Receipt>, Error> {
-  let config = create_mainnet_evm_config();
+  let config = reth_proofs_core::create_mainnet_evm_config();
   let mut trie_db =
     triedb::TrieDB::from_execution_witness(witness).map_err(|e| Error::TrieDB(format!("{}", e)))?;
   let db = revm::database::WrapDatabaseRef(&trie_db);
@@ -188,7 +184,7 @@ pub async fn execute_offline_block_with_reth_stateless(block_number: u64) {
   let mut witness = load_block_witness_from_file(block_number).await.unwrap();
   witness.keys.clear();
   let chain_spec = std::sync::Arc::new(reth_chainspec::MAINNET.as_ref().clone());
-  let evm_config = create_mainnet_evm_config();
+  let evm_config = reth_proofs_core::create_mainnet_evm_config();
   reth_stateless::validation::stateless_validation(
     current_block.into(),
     witness,
@@ -299,15 +295,6 @@ mod tests {
       witness.is_ok(),
       "Failed to fetch block witness: {:?}",
       witness.err()
-    );
-  }
-
-  #[test]
-  fn test_create_mainnet_evm_config() {
-    let config = create_mainnet_evm_config();
-    assert_eq!(
-      reth_ethereum::chainspec::EthChainSpec::chain_id(&config.chain_spec()),
-      1
     );
   }
 
