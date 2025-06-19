@@ -4623,6 +4623,7 @@ name = "reth-proofs"
 version = "0.1.0"
 dependencies = [
  "alloy-consensus",
+ "alloy-genesis",
  "alloy-primitives",
  "alloy-provider",
  "alloy-rlp",
@@ -4655,6 +4656,7 @@ dependencies = [
 name = "reth-proofs-zkvm-sp1-guest"
 version = "0.1.0"
 dependencies = [
+ "reth-proofs",
  "reth-proofs-core",
  "sp1-zkvm",
 ]
