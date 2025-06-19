@@ -4609,6 +4609,9 @@ dependencies = [
 [[package]]
 name = "reth-proofs-core"
 version = "0.1.0"
+dependencies = [
+ "reth-ethereum",
+]
 
 [[package]]
 name = "reth-proofs-zkvm-sp1-guest"
