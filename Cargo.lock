@@ -4656,7 +4656,6 @@ dependencies = [
 name = "reth-proofs-zkvm-sp1-guest"
 version = "0.1.0"
 dependencies = [
- "reth-proofs",
  "reth-proofs-core",
  "sp1-zkvm",
 ]
@@ -4665,6 +4664,7 @@ dependencies = [
 name = "reth-proofs-zkvm-sp1-host"
 version = "0.1.0"
 dependencies = [
+ "reth-proofs-core",
  "sp1-build",
  "sp1-sdk",
 ]
