@@ -4596,6 +4596,7 @@ dependencies = [
  "reth-ethereum-consensus",
  "reth-execution-types",
  "reth-primitives-traits",
+ "reth-proofs-core",
  "reth-stateless",
  "reth-trie",
  "revm",
