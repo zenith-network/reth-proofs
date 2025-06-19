@@ -1,5 +1,11 @@
 #![no_std]
 
+// It is used in the `BasicBlockExecutor` as "strategy factory", implementing `ConfigureEvm` trait.
+// Measured SP1 performance:
+// - no precompiles - 501M cycles (deserialization took 64M)
+// - enabled `tiny-keccak` feature in `alloy_primitives` + added `tiny-keccak` precompile - 501M cycles (deserialization took 64M)
+// - enabled `sha3-keccak` feature in `alloy_primitives` + added `sha3` precompile - 136M cycles (deserialization took 64M)
+// - enabled `sha3-keccak` feature in alloy_primitives + no precompiles - 501M cycles (deserialization took 64M)
 pub fn create_mainnet_evm_config() -> reth_ethereum::evm::EthEvmConfig {
   reth_ethereum::evm::EthEvmConfig::mainnet()
 }

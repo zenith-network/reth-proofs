@@ -2,5 +2,7 @@
 sp1_zkvm::entrypoint!(main);
 
 pub fn main() {
-  // TODO
+  println!("cycle-tracker-start: compute");
+  reth_proofs_core::create_mainnet_evm_config();
+  println!("cycle-tracker-end: compute");
 }
