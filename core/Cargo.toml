@@ -9,4 +9,5 @@ edition = "2024"
 # - https://github.com/paradigmxyz/reth/blob/v1.4.8/Cargo.toml
 
 # reth
+reth-chainspec = { git = "https://github.com/paradigmxyz/reth", tag = "v1.4.8", default-features = false }
 reth-ethereum = { git = "https://github.com/paradigmxyz/reth", tag = "v1.4.8", default-features = false, features = ["evm"] }

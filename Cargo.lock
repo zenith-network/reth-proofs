@@ -4649,6 +4649,7 @@ dependencies = [
 name = "reth-proofs-core"
 version = "0.1.0"
 dependencies = [
+ "reth-chainspec",
  "reth-ethereum",
 ]
 
