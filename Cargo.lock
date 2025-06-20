@@ -4652,6 +4652,7 @@ dependencies = [
  "alloy-consensus",
  "reth-chainspec",
  "reth-ethereum",
+ "serde",
 ]
 
 [[package]]

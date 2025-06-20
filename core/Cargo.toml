@@ -14,3 +14,6 @@ alloy-consensus = { version = "1.0.9", default-features = false }
 # reth
 reth-chainspec = { git = "https://github.com/paradigmxyz/reth", tag = "v1.4.8", default-features = false }
 reth-ethereum = { git = "https://github.com/paradigmxyz/reth", tag = "v1.4.8", default-features = false, features = ["evm"] }
+
+# Serialization.
+serde = { version = "1.0.219", default-features = false }
