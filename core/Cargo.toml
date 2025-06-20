@@ -5,18 +5,15 @@ edition = "2024"
 
 [dependencies]
 
-# NOTE: Version of alloy/revm/reth crates is based on reth v1.4.8:
-# - https://github.com/paradigmxyz/reth/blob/v1.4.8/Cargo.toml
-
 # alloy
-alloy-consensus = { version = "1.0.9", default-features = false, features = ["serde", "serde-bincode-compat"] }
+alloy-consensus = { workspace = true }
 
 # reth
-reth-chainspec = { git = "https://github.com/paradigmxyz/reth", tag = "v1.4.8", default-features = false }
-reth-ethereum = { git = "https://github.com/paradigmxyz/reth", tag = "v1.4.8", default-features = false, features = ["evm"] }
-reth-ethereum-primitives = { git = "https://github.com/paradigmxyz/reth", tag = "v1.4.8", default-features = false, features = ["serde", "serde-bincode-compat"] }
-reth-primitives-traits = { git = "https://github.com/paradigmxyz/reth", tag = "v1.4.8", default-features = false, features = ["serde", "serde-bincode-compat"] }
+reth-chainspec = { workspace = true }
+reth-ethereum = { workspace = true }
+reth-ethereum-primitives = { workspace = true }
+reth-primitives-traits = { workspace = true }
 
 # Serialization.
-serde = { version = "1.0.219", default-features = false }
-serde_with = { version = "3.13.0", default-features = false }
+serde = { workspace = true }
+serde_with = { workspace = true }

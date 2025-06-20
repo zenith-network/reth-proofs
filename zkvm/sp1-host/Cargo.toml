@@ -4,20 +4,20 @@ name = "reth-proofs-zkvm-sp1-host"
 edition = "2024"
 
 [dependencies]
-sp1-sdk = { version = "5.0.6", default-features = false, features = ["profiling"] }
+sp1-sdk = { workspace = true }
 
 # alloy
-alloy-consensus = { version = "1.0.9", default-features = false, features = ["serde", "serde-bincode-compat"] }
+alloy-consensus = { workspace = true }
 
 # Asynchronous runtime.
-tokio = { version = "1.45.1", default-features = false, features = ["rt-multi-thread"] }
+tokio = { workspace = true }
 
 # Reth Proofs
 reth-proofs-core = { workspace = true }
 reth-proofs = { workspace = true }
 
 # Serialization.
-bincode = { version = "1.3.3", default-features = false }
+bincode = { workspace = true }
 
 [build-dependencies]
-sp1-build = { version = "5.0.5", default-features = false }
+sp1-build = { workspace = true }

@@ -5,10 +5,10 @@ edition = "2024"
 
 [dependencies]
 # zkVM.
-sp1-zkvm = { version = "5.0.5", default-features = false, features = ["lib"] }
+sp1-zkvm = { workspace = true }
 
 # Reth Proofs
 reth-proofs-core = { workspace = true }
 
 # Serialization.
-bincode = { version = "1.3.3", default-features = false }
+bincode = { workspace = true }
