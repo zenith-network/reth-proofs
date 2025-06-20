@@ -4,7 +4,8 @@ use sp1_sdk::{Prover, SP1Stdin, include_elf};
 /// The ELF (executable and linkable format) file for the Succinct RISC-V zkVM.
 pub const GUEST_ELF: &[u8] = include_elf!("reth-proofs-zkvm-sp1-guest");
 
-fn main() {
+#[tokio::main]
+async fn main() {
   let stdin = SP1Stdin::new();
 
   println!("Creating GPU prover...");
