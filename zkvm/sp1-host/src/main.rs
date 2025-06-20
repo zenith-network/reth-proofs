@@ -1,3 +1,4 @@
+use reth_proofs::load_block_witness_from_file;
 use sp1_sdk::client::ProverClient;
 use sp1_sdk::{Prover, SP1Stdin, include_elf};
 
@@ -6,7 +7,11 @@ pub const GUEST_ELF: &[u8] = include_elf!("reth-proofs-zkvm-sp1-guest");
 
 #[tokio::main]
 async fn main() {
-  let stdin = SP1Stdin::new();
+  let mut stdin = SP1Stdin::new();
+  let witness = load_block_witness_from_file(22724090_u64).await.unwrap();
+  let ancestor_headers = reth_proofs::ancestor_headers_from_execution_witness(&witness);
+  let ancestor_headers_bytes = bincode::serialize(&ancestor_headers).unwrap();
+  stdin.write_vec(ancestor_headers_bytes);
 
   println!("Creating GPU prover...");
   let prover = ProverClient::builder().cuda().build();

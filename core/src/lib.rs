@@ -52,6 +52,13 @@ pub fn create_mainnet_chainspec() -> reth_chainspec::ChainSpec {
   mainnet
 }
 
+// One of four main inputs for zkVM execution
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+pub struct AncestorHeaders {
+  // List of ancestors. SHOULD be sorted by block number descending, otherwise validation will fail.
+  pub headers: alloc::vec::Vec<alloy_consensus::Header>,
+}
+
 #[cfg(test)]
 mod tests {
   use super::*;
