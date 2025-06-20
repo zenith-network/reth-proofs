@@ -6,6 +6,9 @@ edition = "2024"
 [dependencies]
 sp1-sdk = { version = "5.0.6", default-features = false, features = ["profiling"] }
 
+# alloy
+alloy-consensus = { version = "1.0.9", default-features = false, features = ["serde", "serde-bincode-compat"] }
+
 # Asynchronous runtime.
 tokio = { version = "1.45.1", default-features = false, features = ["rt-multi-thread"] }
 

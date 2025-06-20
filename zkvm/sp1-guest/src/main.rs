@@ -10,10 +10,14 @@ pub fn main() {
   // reth_proofs_core::create_mainnet_evm_config_from(chainspec_arc);
 
   // 2. Reading ancestor headers from stdin - 17K cycles.
-  let buffer = sp1_zkvm::io::read_vec();
-  let ancestor_headers =
-    bincode::deserialize::<reth_proofs_core::AncestorHeaders>(&buffer).unwrap();
+  // let buffer = sp1_zkvm::io::read_vec();
+  // let ancestor_headers =
+  //   bincode::deserialize::<reth_proofs_core::AncestorHeaders>(&buffer).unwrap();
 
   // 3. Sealing and validating ancestor headers - 27K cycles.
-  ancestor_headers.seal_and_validate();
+  // ancestor_headers.seal_and_validate();
+
+  // 4. Reading current block from stdin - 3.3M cycles.
+  let buffer = sp1_zkvm::io::read_vec();
+  let _current_block = bincode::deserialize::<reth_proofs_core::CurrentBlock>(&buffer).unwrap();
 }

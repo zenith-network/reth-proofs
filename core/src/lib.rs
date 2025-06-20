@@ -103,6 +103,19 @@ impl AncestorHeaders {
   }
 }
 
+/// Second main input for zkVM.
+#[serde_with::serde_as]
+#[derive(serde::Serialize, serde::Deserialize)]
+pub struct CurrentBlock {
+  #[serde_as(
+    as = "reth_primitives_traits::serde_bincode_compat::Block<'_, alloy_consensus::EthereumTxEnvelope<alloy_consensus::TxEip4844>, alloy_consensus::Header>"
+  )]
+  pub body: alloy_consensus::Block<
+    alloy_consensus::EthereumTxEnvelope<alloy_consensus::TxEip4844>,
+    alloy_consensus::Header,
+  >,
+}
+
 #[cfg(test)]
 mod tests {
   use super::*;

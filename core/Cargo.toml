@@ -9,11 +9,14 @@ edition = "2024"
 # - https://github.com/paradigmxyz/reth/blob/v1.4.8/Cargo.toml
 
 # alloy
-alloy-consensus = { version = "1.0.9", default-features = false }
+alloy-consensus = { version = "1.0.9", default-features = false, features = ["serde", "serde-bincode-compat"] }
 
 # reth
 reth-chainspec = { git = "https://github.com/paradigmxyz/reth", tag = "v1.4.8", default-features = false }
 reth-ethereum = { git = "https://github.com/paradigmxyz/reth", tag = "v1.4.8", default-features = false, features = ["evm"] }
+reth-ethereum-primitives = { git = "https://github.com/paradigmxyz/reth", tag = "v1.4.8", default-features = false, features = ["serde", "serde-bincode-compat"] }
+reth-primitives-traits = { git = "https://github.com/paradigmxyz/reth", tag = "v1.4.8", default-features = false, features = ["serde", "serde-bincode-compat"] }
 
 # Serialization.
 serde = { version = "1.0.219", default-features = false }
+serde_with = { version = "3.13.0", default-features = false }

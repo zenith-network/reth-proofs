@@ -8,10 +8,28 @@ pub const GUEST_ELF: &[u8] = include_elf!("reth-proofs-zkvm-sp1-guest");
 #[tokio::main]
 async fn main() {
   let mut stdin = SP1Stdin::new();
-  let witness = load_block_witness_from_file(22724090_u64).await.unwrap();
-  let ancestor_headers = reth_proofs::ancestor_headers_from_execution_witness(&witness);
-  let ancestor_headers_bytes = bincode::serialize(&ancestor_headers).unwrap();
-  stdin.write_vec(ancestor_headers_bytes);
+
+  // 1. Write ancestor headers to stdin.
+  // let witness = load_block_witness_from_file(22724090_u64).await.unwrap();
+  // let ancestor_headers = reth_proofs::ancestor_headers_from_execution_witness(&witness);
+  // let ancestor_headers_bytes = bincode::serialize(&ancestor_headers).unwrap();
+  // stdin.write_vec(ancestor_headers_bytes);
+
+  // 2. Write current block to stdin.
+  let block_rpc = reth_proofs::load_block_from_file(22724090_u64)
+    .await
+    .unwrap();
+  let block_consensus: alloy_consensus::Block<
+    alloy_consensus::EthereumTxEnvelope<alloy_consensus::TxEip4844>,
+    alloy_consensus::Header,
+  > = block_rpc
+    .map_transactions(|tx| alloy_consensus::EthereumTxEnvelope::from(tx))
+    .into_consensus();
+  let block_consensus_bincode = reth_proofs_core::CurrentBlock {
+    body: block_consensus.clone(),
+  };
+  let block_bytes = bincode::serialize(&block_consensus_bincode).unwrap();
+  stdin.write_vec(block_bytes);
 
   println!("Creating GPU prover...");
   let prover = ProverClient::builder().cuda().build();
