@@ -6072,6 +6072,7 @@ dependencies = [
  "lazy_static",
  "rand 0.8.5",
  "sha2",
+ "sp1-lib",
  "sp1-primitives",
 ]
 
