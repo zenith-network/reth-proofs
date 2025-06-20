@@ -65,6 +65,7 @@ use alloy_consensus::BlockHeader;
 impl AncestorHeaders {
   /// Validates that headers (current block + ancestors) are connected correctly (parent-child relationship),
   /// seals them (to get hash), and returns a map of block numbers to block hashes.
+  /// TODO: See if BTreeMap is not slower than HashMap.
   pub fn seal_and_validate(
     &self,
     current_block: &CurrentBlock,
