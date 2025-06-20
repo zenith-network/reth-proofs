@@ -4670,6 +4670,7 @@ dependencies = [
  "reth-proofs-core",
  "sp1-build",
  "sp1-sdk",
+ "tokio",
 ]
 
 [[package]]
