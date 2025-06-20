@@ -63,9 +63,11 @@ pub struct AncestorHeaders {
 use alloy_consensus::BlockHeader;
 
 impl AncestorHeaders {
-  // TODO: Chain with current block once we implement it as the input.
+  /// Validates that headers (current block + ancestors) are connected correctly (parent-child relationship),
+  /// seals them (to get hash), and returns a map of block numbers to block hashes.
   pub fn seal_and_validate(
     &self,
+    current_block: &CurrentBlock,
   ) -> alloc::collections::btree_map::BTreeMap<
     u64,
     reth_ethereum::evm::revm::primitives::FixedBytes<32>,
@@ -73,9 +75,11 @@ impl AncestorHeaders {
     let mut block_hashes = alloc::collections::btree_map::BTreeMap::new();
     let mut sealed_prev: Option<reth_ethereum::primitives::SealedHeader> = None;
 
-    // panic!("{:?}", self.headers);
+    // Chain current block header with ancestor headers.
+    let current_header = &current_block.body.header;
+    let headers = core::iter::once(current_header).chain(self.headers.iter());
 
-    for header in self.headers.iter() {
+    for header in headers {
       // TODO: Consider avoiding clone.
       let sealed = reth_ethereum::primitives::SealedHeader::seal_slow(header.clone());
       if let Some(prev) = &sealed_prev {
