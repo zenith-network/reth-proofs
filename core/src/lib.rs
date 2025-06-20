@@ -59,6 +59,50 @@ pub struct AncestorHeaders {
   pub headers: alloc::vec::Vec<alloy_consensus::Header>,
 }
 
+// Required for `.number()` calls on sealed blocks.
+use alloy_consensus::BlockHeader;
+
+impl AncestorHeaders {
+  // TODO: Chain with current block once we implement it as the input.
+  pub fn seal_and_validate(
+    &self,
+  ) -> alloc::collections::btree_map::BTreeMap<
+    u64,
+    reth_ethereum::evm::revm::primitives::FixedBytes<32>,
+  > {
+    let mut block_hashes = alloc::collections::btree_map::BTreeMap::new();
+    let mut sealed_prev: Option<reth_ethereum::primitives::SealedHeader> = None;
+
+    // panic!("{:?}", self.headers);
+
+    for header in self.headers.iter() {
+      // TODO: Consider avoiding clone.
+      let sealed = reth_ethereum::primitives::SealedHeader::seal_slow(header.clone());
+      if let Some(prev) = &sealed_prev {
+        if sealed.number() != prev.number() - 1 {
+          panic!(
+            "InvalidHeaderBlockNumber({}, {})",
+            prev.number() - 1,
+            sealed.number()
+          );
+        }
+        if sealed.hash() != prev.parent_hash() {
+          panic!(
+            "InvalidHeaderParentHash({}, {})",
+            sealed.hash(),
+            prev.parent_hash()
+          );
+        }
+        block_hashes.insert(prev.number(), prev.hash());
+      }
+
+      sealed_prev = Some(sealed);
+    }
+
+    block_hashes
+  }
+}
+
 #[cfg(test)]
 mod tests {
   use super::*;

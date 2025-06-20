@@ -11,6 +11,9 @@ pub fn main() {
 
   // 2. Reading ancestor headers from stdin - 17K cycles.
   let buffer = sp1_zkvm::io::read_vec();
-  let _ancestor_headers =
+  let ancestor_headers =
     bincode::deserialize::<reth_proofs_core::AncestorHeaders>(&buffer).unwrap();
+
+  // 3. Sealing and validating ancestor headers - 27K cycles.
+  ancestor_headers.seal_and_validate();
 }
