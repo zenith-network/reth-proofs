@@ -7,29 +7,42 @@ pub struct TrieDB {
     alloy_primitives::map::HashMap<alloy_primitives::B256, revm::state::Bytecode>,
 }
 
+/// Builds block hashes and locate `pre_state_root`.
+/// NOTE: Do NOT use this function, but rather rely on `AncestorHeaders`.
+fn extract_blocks_from_witness(
+  witness: &alloy_rpc_types_debug::ExecutionWitness,
+) -> (
+  alloy_primitives::map::HashMap<u64, alloy_primitives::B256>,
+  alloy_primitives::FixedBytes<32>,
+) {
+  let mut block_hashes = alloy_primitives::map::HashMap::default();
+  let mut highest_block_number = 0;
+  let mut highest_state_root = None;
+  for header_bytes in &witness.headers {
+    let header =
+      <alloy_consensus::Header as alloy_rlp::Decodable>::decode(&mut &header_bytes[..]).unwrap();
+    let number = header.number;
+    let hash = alloy_primitives::keccak256(alloy_rlp::encode(&header));
+    block_hashes.insert(number, hash);
+
+    if number > highest_block_number {
+      highest_block_number = number;
+      highest_state_root = Some(header.state_root);
+    }
+  }
+  let pre_state_root =
+    highest_state_root.expect("At least one block header must be present in the witness");
+
+  (block_hashes, pre_state_root)
+}
+
 impl TrieDB {
   // Custom integration - written by chatGPT.
   pub fn from_execution_witness(
     witness: alloy_rpc_types_debug::ExecutionWitness,
   ) -> Result<Self, Box<dyn std::error::Error>> {
     // Step 0: Build block hashes and locate `pre_state_root`.
-    let mut block_hashes = alloy_primitives::map::HashMap::default();
-    let mut highest_block_number = 0;
-    let mut highest_state_root = None;
-    for header_bytes in &witness.headers {
-      let header =
-        <alloy_consensus::Header as alloy_rlp::Decodable>::decode(&mut &header_bytes[..])?;
-      let number = header.number;
-      let hash = alloy_primitives::keccak256(alloy_rlp::encode(&header));
-      block_hashes.insert(number, hash);
-
-      if number > highest_block_number {
-        highest_block_number = number;
-        highest_state_root = Some(header.state_root);
-      }
-    }
-    let pre_state_root =
-      highest_state_root.expect("At least one block header must be present in the witness");
+    let (block_hashes, pre_state_root) = extract_blocks_from_witness(&witness);
 
     // Step 1: Decode all RLP-encoded trie nodes and index by hash
     // IMPORTANT: Witness state contains both *state trie* nodes and *storage tries* nodes!
