@@ -1,5 +1,6 @@
-# Ignore everything except the non-debug example and this gitignore.
+# Ignore everything except the non-debug examples and this gitignore.
 *
 !.gitignore
 !22694900_*
+!22724090_*
 *-debug.txt
