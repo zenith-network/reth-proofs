@@ -7,7 +7,7 @@ pub struct TrieDB {
     alloy_primitives::map::HashMap<alloy_primitives::B256, revm::state::Bytecode>,
 }
 
-/// Builds block hashes and locate `pre_state_root`.
+/// Builds block hashes and locates `pre_state_root`.
 /// NOTE: Do NOT use this function, but rather rely on `AncestorHeaders`.
 fn extract_blocks_from_witness(
   witness: &alloy_rpc_types_debug::ExecutionWitness,
