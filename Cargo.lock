@@ -4670,6 +4670,7 @@ name = "reth-proofs-core"
 version = "0.1.0"
 dependencies = [
  "alloy-consensus",
+ "alloy-primitives",
  "reth-chainspec",
  "reth-ethereum",
  "reth-ethereum-primitives",
