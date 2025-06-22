@@ -2,6 +2,8 @@
 
 extern crate alloc;
 
+pub mod mpt;
+
 // It is used in the `BasicBlockExecutor` as "strategy factory", implementing `ConfigureEvm` trait.
 // Measured SP1 performance:
 // - no precompiles - 501M cycles (deserialization took 64M)

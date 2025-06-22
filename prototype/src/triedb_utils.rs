@@ -110,10 +110,10 @@ fn print_mpt_node(out: &mut String, node: &crate::mpt::MptNode, indent: usize) {
   }
 }
 
-fn print_node_reference(out: &mut String, reference: &crate::mpt::MptNodeReference, indent: usize) {
+fn print_node_reference(out: &mut String, reference: &reth_proofs_core::mpt::MptNodeReference, indent: usize) {
   let pad = " ".repeat(indent);
   match reference {
-    crate::mpt::MptNodeReference::Bytes(b) => {
+    reth_proofs_core::mpt::MptNodeReference::Bytes(b) => {
       writeln!(
         out,
         "{}Ref::Bytes({})",
@@ -122,7 +122,7 @@ fn print_node_reference(out: &mut String, reference: &crate::mpt::MptNodeReferen
       )
       .unwrap();
     }
-    crate::mpt::MptNodeReference::Digest(h) => {
+    reth_proofs_core::mpt::MptNodeReference::Digest(h) => {
       writeln!(
         out,
         "{}Ref::Digest({})",

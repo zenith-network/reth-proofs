@@ -47,7 +47,7 @@ impl TrieDB {
     // Step 1: Decode all RLP-encoded trie nodes and index by hash
     // IMPORTANT: Witness state contains both *state trie* nodes and *storage tries* nodes!
     let mut node_map: alloy_primitives::map::HashMap<
-      crate::mpt::MptNodeReference,
+      reth_proofs_core::mpt::MptNodeReference,
       crate::mpt::MptNode,
     > = alloy_primitives::map::HashMap::default();
     let mut node_by_hash: alloy_primitives::map::HashMap<
