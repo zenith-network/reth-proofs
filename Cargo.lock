@@ -4691,6 +4691,7 @@ name = "reth-proofs-zkvm-sp1-guest"
 version = "0.1.0"
 dependencies = [
  "bincode",
+ "reth-ethereum",
  "reth-proofs-core",
  "sp1-zkvm",
 ]
