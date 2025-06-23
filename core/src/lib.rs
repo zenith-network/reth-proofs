@@ -58,6 +58,7 @@ pub fn create_mainnet_chainspec() -> reth_chainspec::ChainSpec {
 #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub struct AncestorHeaders {
   // List of ancestors. SHOULD be sorted by block number descending, otherwise validation will fail.
+  // NOTE: First item is the 'highest' block from which we get the pre state root hash.
   pub headers: alloc::vec::Vec<alloy_consensus::Header>,
 }
 
