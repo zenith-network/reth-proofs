@@ -4676,6 +4676,7 @@ dependencies = [
  "reth-ethereum",
  "reth-ethereum-primitives",
  "reth-primitives-traits",
+ "rlp 0.6.1",
  "serde",
  "serde_with",
 ]
