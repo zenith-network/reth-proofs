@@ -70,16 +70,22 @@ pub async fn fetch_block_witness(
   Ok(witness)
 }
 
+pub fn rpc_block_to_consensus_block(
+  block: alloy_rpc_types_eth::Block,
+) -> alloy_consensus::Block<reth_ethereum::TransactionSigned> {
+  block
+    .map_transactions(|tx| alloy_consensus::TxEnvelope::from(tx).into())
+    .into_consensus()
+}
+
 // TODO: Consider if this implementation is done in a sane way.
-pub fn recover_block(
+pub fn recover_rpc_block(
   block: alloy_rpc_types_eth::Block,
 ) -> Result<
   reth_primitives_traits::RecoveredBlock<alloy_consensus::Block<reth_ethereum::TransactionSigned>>,
   Error,
 > {
-  let block: alloy_consensus::Block<reth_ethereum::TransactionSigned> = block
-    .map_transactions(|tx| alloy_consensus::TxEnvelope::from(tx).into())
-    .into_consensus();
+  let block = rpc_block_to_consensus_block(block);
   let recovered_block = reth_primitives_traits::RecoveredBlock::try_recover(block)
     .map_err(|e| Error::BlockRecovery(format!("{}", e)))?;
 
@@ -92,9 +98,14 @@ pub async fn prepare_block_trie_db(
 ) -> Result<triedb::TrieDB, Error> {
   let block_number = block.header.number;
   let witness = fetch_block_witness(provider, block_number).await?;
+  let block = fetch_full_block(provider, block_number)
+    .await
+    .unwrap()
+    .unwrap();
 
-  let trie_db =
-    triedb::TrieDB::from_execution_witness(witness).map_err(|e| Error::TrieDB(format!("{}", e)))?;
+  let block = rpc_block_to_consensus_block(block);
+  let trie_db = triedb::TrieDB::from_execution_witness(witness, &block)
+    .map_err(|e| Error::TrieDB(format!("{}", e)))?;
 
   Ok(trie_db)
 }
@@ -128,8 +139,9 @@ pub async fn execute_block(
   witness: alloy_rpc_types_debug::ExecutionWitness,
 ) -> Result<reth_execution_types::BlockExecutionOutput<reth_ethereum::Receipt>, Error> {
   let config = reth_proofs_core::create_mainnet_evm_config();
-  let mut trie_db =
-    triedb::TrieDB::from_execution_witness(witness).map_err(|e| Error::TrieDB(format!("{}", e)))?;
+  let block_copy = rpc_block_to_consensus_block(block.clone());
+  let mut trie_db = triedb::TrieDB::from_execution_witness(witness, &block_copy)
+    .map_err(|e| Error::TrieDB(format!("{}", e)))?;
   let db = revm::database::WrapDatabaseRef(&trie_db);
   let block_executor =
     reth_ethereum::evm::primitives::execute::BasicBlockExecutor::new(config.clone(), db);
@@ -144,7 +156,7 @@ pub async fn execute_block(
 
   let recovered_block: reth_primitives_traits::RecoveredBlock<
     alloy_consensus::Block<reth_ethereum::TransactionSigned>,
-  > = recover_block(block)?;
+  > = recover_rpc_block(block)?;
 
   let output =
     reth_ethereum::evm::primitives::execute::Executor::execute(block_executor, &recovered_block)
@@ -300,7 +312,7 @@ mod tests {
   }
 
   #[tokio::test]
-  async fn test_recover_block() {
+  async fn test_recover_rpc_block() {
     let provider = create_provider(MAINNET_RETH_RPC_EL).unwrap();
     let block_number = get_last_block_number(&provider).await.unwrap();
     let block = fetch_full_block(&provider, block_number)
@@ -308,7 +320,7 @@ mod tests {
       .unwrap()
       .unwrap();
 
-    let recovered_block = recover_block(block);
+    let recovered_block = recover_rpc_block(block);
     assert!(
       recovered_block.is_ok(),
       "Failed to recover block: {:?}",

@@ -8,35 +8,6 @@ pub struct TrieDB {
     alloy_primitives::map::HashMap<alloy_primitives::B256, revm::state::Bytecode>,
 }
 
-/// Builds block hashes and locates `pre_state_root`.
-/// NOTE: Do NOT use this function, but rather rely on `AncestorHeaders`.
-fn extract_blocks_from_witness(
-  witness: &alloy_rpc_types_debug::ExecutionWitness,
-) -> (
-  alloy_primitives::map::HashMap<u64, alloy_primitives::B256>,
-  alloy_primitives::FixedBytes<32>,
-) {
-  let mut block_hashes = alloy_primitives::map::HashMap::default();
-  let mut highest_block_number = 0;
-  let mut highest_state_root = None;
-  for header_bytes in &witness.headers {
-    let header =
-      <alloy_consensus::Header as alloy_rlp::Decodable>::decode(&mut &header_bytes[..]).unwrap();
-    let number = header.number;
-    let hash = alloy_primitives::keccak256(alloy_rlp::encode(&header));
-    block_hashes.insert(number, hash);
-
-    if number > highest_block_number {
-      highest_block_number = number;
-      highest_state_root = Some(header.state_root);
-    }
-  }
-  let pre_state_root =
-    highest_state_root.expect("At least one block header must be present in the witness");
-
-  (block_hashes, pre_state_root)
-}
-
 fn build_tries(
   witness: &alloy_rpc_types_debug::ExecutionWitness,
   pre_state_root: alloy_primitives::FixedBytes<32>,
@@ -132,11 +103,18 @@ fn build_tries(
 
 impl TrieDB {
   // Custom integration - written by chatGPT.
+  // This is constructing a *valid* TrieDB.
   pub fn from_execution_witness(
     witness: alloy_rpc_types_debug::ExecutionWitness,
+    block: &alloy_consensus::Block<reth_ethereum::TransactionSigned>,
   ) -> Result<Self, Box<dyn std::error::Error>> {
     // Step 0: Build block hashes and locate `pre_state_root`.
-    let (block_hashes, pre_state_root) = extract_blocks_from_witness(&witness);
+    let ancestor_headers = reth_proofs_core::AncestorHeaders::from_execution_witness(&witness);
+    let block = reth_proofs_core::CurrentBlock {
+      body: block.clone(),
+    };
+    let block_hashes = ancestor_headers.seal_and_validate(&block);
+    let pre_state_root = ancestor_headers.headers.first().unwrap().state_root;
 
     // Step 1-3: Build state trie and storage tries.
     let (state_trie, storage_tries) = build_tries(&witness, pre_state_root)?;
@@ -344,11 +322,16 @@ mod tests {
     let mainnet_reth_nr10 = "http://130.250.187.55:8545";
     let provider = crate::create_provider(mainnet_reth_nr10).unwrap();
     let block_number = crate::get_last_block_number(&provider).await.unwrap();
+    let block = crate::fetch_full_block(&provider, block_number)
+      .await
+      .unwrap()
+      .unwrap();
     let witness = crate::fetch_block_witness(&provider, block_number)
       .await
       .unwrap();
 
-    let _trie_db = TrieDB::from_execution_witness(witness)
+    let block = crate::rpc_block_to_consensus_block(block);
+    let _trie_db = TrieDB::from_execution_witness(witness, &block)
       .expect("Failed to create TrieDB from execution witness");
   }
 }

@@ -89,15 +89,11 @@ impl AncestorHeaders {
 
   /// Validates that headers (current block + ancestors) are connected correctly (parent-child relationship),
   /// seals them (to get hash), and returns a map of block numbers to block hashes.
-  /// TODO: See if BTreeMap is not slower than HashMap.
   pub fn seal_and_validate(
     &self,
     current_block: &CurrentBlock,
-  ) -> alloc::collections::btree_map::BTreeMap<
-    u64,
-    reth_ethereum::evm::revm::primitives::FixedBytes<32>,
-  > {
-    let mut block_hashes = alloc::collections::btree_map::BTreeMap::new();
+  ) -> alloy_primitives::map::HashMap<u64, reth_ethereum::evm::revm::primitives::FixedBytes<32>> {
+    let mut block_hashes = alloy_primitives::map::HashMap::default();
     let mut sealed_prev: Option<reth_ethereum::primitives::SealedHeader> = None;
 
     // Chain current block header with ancestor headers.
