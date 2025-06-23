@@ -4672,6 +4672,7 @@ dependencies = [
  "alloy-consensus",
  "alloy-primitives",
  "alloy-rlp",
+ "alloy-trie",
  "nybbles",
  "reth-chainspec",
  "reth-ethereum",
