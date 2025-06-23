@@ -4672,6 +4672,7 @@ dependencies = [
  "alloy-consensus",
  "alloy-primitives",
  "alloy-rlp",
+ "alloy-rpc-types-debug",
  "alloy-trie",
  "nybbles",
  "reth-chainspec",
