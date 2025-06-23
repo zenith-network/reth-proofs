@@ -5,9 +5,9 @@ extern crate alloc;
 
 pub fn main() {
   // 1. Creating a mainnet EVM config - 32K cycles.
-  // let chainspec = reth_proofs_core::create_mainnet_chainspec();
-  // let chainspec_arc = alloc::sync::Arc::new(chainspec);
-  // reth_proofs_core::create_mainnet_evm_config_from(chainspec_arc);
+  let chainspec = reth_proofs_core::create_mainnet_chainspec();
+  let chainspec_arc = alloc::sync::Arc::new(chainspec);
+  let evm_config = reth_proofs_core::create_mainnet_evm_config_from(chainspec_arc);
 
   // 2. Reading ancestor headers from stdin - 17K cycles.
   let buffer = sp1_zkvm::io::read_vec();
@@ -51,4 +51,8 @@ pub fn main() {
     block_hashes,
   };
   let db = reth_proofs_core::triedb::wrap_into_database(&trie_db);
+
+  // 11. Create block executor.
+  let block_executor =
+    reth_ethereum::evm::primitives::execute::BasicBlockExecutor::new(&evm_config, db);
 }
