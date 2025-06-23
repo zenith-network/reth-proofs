@@ -42,4 +42,13 @@ pub fn main() {
 
   // 9. Building bytecode map - 42K cycles.
   let bytecode_by_hash = bytecodes.build_map();
+
+  // 10. Prepare database for EVM execution.
+  let trie_db = reth_proofs_core::triedb::TrieDB {
+    state_trie: ethereum_state.state_trie,
+    storage_tries: ethereum_state.storage_tries,
+    bytecode_by_hash,
+    block_hashes,
+  };
+  let db = reth_proofs_core::triedb::wrap_into_database(&trie_db);
 }
