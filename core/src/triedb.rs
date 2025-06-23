@@ -1,8 +1,7 @@
 #[derive(Debug)]
 pub struct TrieDB {
-  pub state_trie: reth_proofs_core::mpt::MptNode,
-  pub storage_tries:
-    alloy_primitives::map::HashMap<alloy_primitives::B256, reth_proofs_core::mpt::MptNode>,
+  pub state_trie: crate::mpt::MptNode,
+  pub storage_tries: alloy_primitives::map::HashMap<alloy_primitives::B256, crate::mpt::MptNode>,
   pub block_hashes: alloy_primitives::map::HashMap<u64, alloy_primitives::B256>,
   pub bytecode_by_hash:
     alloy_primitives::map::HashMap<alloy_primitives::B256, revm::state::Bytecode>,
@@ -14,10 +13,10 @@ impl TrieDB {
   pub fn from_execution_witness(
     witness: alloy_rpc_types_debug::ExecutionWitness,
     block: &alloy_consensus::Block<reth_ethereum::TransactionSigned>,
-  ) -> Result<Self, Box<dyn std::error::Error>> {
+  ) -> Result<Self, alloc::string::String> {
     // Step 0: Build block hashes and locate `pre_state_root`.
-    let ancestor_headers = reth_proofs_core::AncestorHeaders::from_execution_witness(&witness);
-    let block = reth_proofs_core::CurrentBlock {
+    let ancestor_headers = crate::AncestorHeaders::from_execution_witness(&witness);
+    let block = crate::CurrentBlock {
       body: block.clone(),
     };
     let block_hashes = ancestor_headers.seal_and_validate(&block);
@@ -25,11 +24,10 @@ impl TrieDB {
 
     // Step 1-3: Build state trie and storage tries.
     // NOTE: Tries are validated during construction.
-    let ethereum_state =
-      reth_proofs_core::EthereumState::from_execution_witness(&witness, pre_state_root);
+    let ethereum_state = crate::EthereumState::from_execution_witness(&witness, pre_state_root);
 
     // Step 4: Build bytecode map.
-    let bytecodes = reth_proofs_core::Bytecodes::from_execution_witness(&witness);
+    let bytecodes = crate::Bytecodes::from_execution_witness(&witness);
     let bytecode_by_hash = bytecodes.build_map();
 
     let trie = Self {
@@ -48,10 +46,12 @@ impl TrieDB {
   }
 
   /// Mutates state based on diffs provided in [`HashedPostState`].
-  pub fn update(&mut self, post_state: &reth_trie::HashedPostState) {
+  pub fn update(&mut self, post_state: &reth_trie_common::HashedPostState) {
     // Apply *all* storage-slot updates first and remember new roots.
-    let mut new_storage_roots: alloy_primitives::map::HashMap<Vec<u8>, alloy_primitives::B256> =
-      alloy_primitives::map::HashMap::default(); // TODO: Use `with_capacity(post_state.storages.len())`.
+    let mut new_storage_roots: alloy_primitives::map::HashMap<
+      alloc::vec::Vec<u8>,
+      alloy_primitives::B256,
+    > = alloy_primitives::map::HashMap::default(); // TODO: Use `with_capacity(post_state.storages.len())`.
     for (hashed_addr, storage) in post_state.storages.iter() {
       // Take existing storage trie or create an empty one.
       let storage_trie = self.storage_tries.entry(*hashed_addr).or_default();
@@ -87,17 +87,17 @@ impl TrieDB {
             .get(addr)
             .copied() // root from step 1
             .or_else(|| self.storage_tries.get(addr).map(|t| t.hash()))
-            .unwrap_or(reth_proofs_core::mpt::EMPTY_ROOT);
+            .unwrap_or(crate::mpt::EMPTY_ROOT);
 
           // If both the account and its storage are empty we simply delete.
-          if acct.is_empty() && storage_root == reth_proofs_core::mpt::EMPTY_ROOT {
+          if acct.is_empty() && storage_root == crate::mpt::EMPTY_ROOT {
             self.state_trie.delete(addr).unwrap();
             self.storage_tries.remove(addr); // keep maps in sync
             continue;
           }
 
           // Encode and insert the account leaf.
-          let trie_acct = reth_trie::TrieAccount {
+          let trie_acct = alloy_trie::TrieAccount {
             nonce: acct.nonce,
             balance: acct.balance,
             storage_root,
@@ -130,7 +130,7 @@ impl revm::DatabaseRef for TrieDB {
 
     let account_in_trie = self
       .state_trie
-      .get_rlp::<reth_trie::TrieAccount>(hashed_address)
+      .get_rlp::<alloy_trie::TrieAccount>(hashed_address)
       .unwrap();
 
     let account = account_in_trie.map(|account_in_trie| revm::state::AccountInfo {
@@ -182,11 +182,11 @@ impl revm::DatabaseRef for TrieDB {
     // TODO: Implement witness checks like in reth - https://github.com/paradigmxyz/reth/blob/127595e23079de2c494048d0821ea1f1107eb624/crates/stateless/src/trie.rs#L68C9-L87.
     let account = self
       .state_trie
-      .get_rlp::<reth_trie::TrieAccount>(hashed_address)
+      .get_rlp::<alloy_trie::TrieAccount>(hashed_address)
       .expect("Can get account from MPT");
     match account {
       Some(account) => {
-        if account.storage_root != reth_proofs_core::mpt::EMPTY_ROOT {
+        if account.storage_root != crate::mpt::EMPTY_ROOT {
           todo!("Validate that storage witness is valid");
         }
       }
@@ -210,25 +210,7 @@ impl revm::DatabaseRef for TrieDB {
   }
 }
 
-#[cfg(test)]
-mod tests {
-  use super::*;
-
-  #[tokio::test]
-  async fn test_triedb_from_execution_witness() {
-    let mainnet_reth_nr10 = "http://130.250.187.55:8545";
-    let provider = crate::create_provider(mainnet_reth_nr10).unwrap();
-    let block_number = crate::get_last_block_number(&provider).await.unwrap();
-    let block = crate::fetch_full_block(&provider, block_number)
-      .await
-      .unwrap()
-      .unwrap();
-    let witness = crate::fetch_block_witness(&provider, block_number)
-      .await
-      .unwrap();
-
-    let block = crate::rpc_block_to_consensus_block(block);
-    let _trie_db = TrieDB::from_execution_witness(witness, &block)
-      .expect("Failed to create TrieDB from execution witness");
-  }
+pub fn wrap_into_database(trie_db: &TrieDB) -> revm::database::WrapDatabaseRef<&TrieDB> {
+  let db = revm::database::WrapDatabaseRef(trie_db);
+  db
 }

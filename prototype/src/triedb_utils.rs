@@ -1,6 +1,6 @@
 use std::fmt::Write;
 
-pub fn format_trie(trie: &crate::triedb::TrieDB) -> String {
+pub fn format_trie(trie: &reth_proofs_core::triedb::TrieDB) -> String {
   let mut out = String::new();
 
   writeln!(&mut out, "TrieDB {{").unwrap();

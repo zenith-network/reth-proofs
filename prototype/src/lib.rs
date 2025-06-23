@@ -1,6 +1,6 @@
 extern crate alloc;
 
-pub mod triedb;
+pub mod triedb_tests;
 pub mod triedb_utils;
 pub mod utils;
 
@@ -95,7 +95,7 @@ pub fn recover_rpc_block(
 pub async fn prepare_block_trie_db(
   provider: &alloy_provider::RootProvider,
   block: &alloy_rpc_types_eth::Block,
-) -> Result<triedb::TrieDB, Error> {
+) -> Result<reth_proofs_core::triedb::TrieDB, Error> {
   let block_number = block.header.number;
   let witness = fetch_block_witness(provider, block_number).await?;
   let block = fetch_full_block(provider, block_number)
@@ -104,7 +104,7 @@ pub async fn prepare_block_trie_db(
     .unwrap();
 
   let block = rpc_block_to_consensus_block(block);
-  let trie_db = triedb::TrieDB::from_execution_witness(witness, &block)
+  let trie_db = reth_proofs_core::triedb::TrieDB::from_execution_witness(witness, &block)
     .map_err(|e| Error::TrieDB(format!("{}", e)))?;
 
   Ok(trie_db)
@@ -140,9 +140,9 @@ pub async fn execute_block(
 ) -> Result<reth_execution_types::BlockExecutionOutput<reth_ethereum::Receipt>, Error> {
   let config = reth_proofs_core::create_mainnet_evm_config();
   let block_copy = rpc_block_to_consensus_block(block.clone());
-  let mut trie_db = triedb::TrieDB::from_execution_witness(witness, &block_copy)
+  let mut trie_db = reth_proofs_core::triedb::TrieDB::from_execution_witness(witness, &block_copy)
     .map_err(|e| Error::TrieDB(format!("{}", e)))?;
-  let db = revm::database::WrapDatabaseRef(&trie_db);
+  let db = reth_proofs_core::triedb::wrap_into_database(&trie_db);
   let block_executor =
     reth_ethereum::evm::primitives::execute::BasicBlockExecutor::new(config.clone(), db);
 

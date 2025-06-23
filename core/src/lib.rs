@@ -3,6 +3,7 @@
 extern crate alloc;
 
 pub mod mpt;
+pub mod triedb;
 
 // It is used in the `BasicBlockExecutor` as "strategy factory", implementing `ConfigureEvm` trait.
 // Measured SP1 performance:
