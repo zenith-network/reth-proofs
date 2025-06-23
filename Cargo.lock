@@ -4671,6 +4671,7 @@ version = "0.1.0"
 dependencies = [
  "alloy-consensus",
  "alloy-primitives",
+ "alloy-rlp",
  "reth-chainspec",
  "reth-ethereum",
  "reth-ethereum-primitives",

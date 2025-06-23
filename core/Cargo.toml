@@ -8,6 +8,7 @@ edition = "2024"
 # alloy
 alloy-consensus = { workspace = true }
 alloy-primitives = { workspace = true }
+alloy-rlp = { workspace = true }
 
 # reth
 reth-chainspec = { workspace = true }
