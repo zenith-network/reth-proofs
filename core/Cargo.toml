@@ -17,6 +17,9 @@ reth-ethereum-primitives = { workspace = true }
 reth-primitives-traits = { workspace = true }
 reth-trie = { workspace = true }
 
+# misc
+nybbles = { workspace = true }
+
 # Ethereum serialization.
 # TODO: Remove once switched to `alloy-rlp` in MPT implementation.
 rlp = { workspace = true }
