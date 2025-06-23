@@ -37,6 +37,99 @@ fn extract_blocks_from_witness(
   (block_hashes, pre_state_root)
 }
 
+fn build_tries(
+  witness: &alloy_rpc_types_debug::ExecutionWitness,
+  pre_state_root: alloy_primitives::FixedBytes<32>,
+) -> Result<
+  (
+    reth_proofs_core::mpt::MptNode,
+    alloy_primitives::map::HashMap<alloy_primitives::B256, reth_proofs_core::mpt::MptNode>,
+  ),
+  Box<dyn std::error::Error>,
+> {
+  // Step 1: Decode all RLP-encoded trie nodes and index by hash
+  // IMPORTANT: Witness state contains both *state trie* nodes and *storage tries* nodes!
+  let mut node_map: alloy_primitives::map::HashMap<
+    reth_proofs_core::mpt::MptNodeReference,
+    reth_proofs_core::mpt::MptNode,
+  > = alloy_primitives::map::HashMap::default();
+  let mut node_by_hash: alloy_primitives::map::HashMap<
+    alloy_primitives::B256,
+    reth_proofs_core::mpt::MptNode,
+  > = alloy_primitives::map::HashMap::default();
+  let mut root_node: Option<reth_proofs_core::mpt::MptNode> = None;
+
+  for encoded in &witness.state {
+    let node = reth_proofs_core::mpt::MptNode::decode(encoded).expect("Valid MPT node in witness");
+    let hash = alloy_primitives::keccak256(encoded);
+    if hash == pre_state_root {
+      root_node = Some(node.clone());
+    }
+    node_by_hash.insert(hash, node.clone());
+    node_map.insert(node.reference(), node);
+  }
+
+  // Step 2: Use root_node or fallback to Digest
+  let root =
+    root_node.unwrap_or_else(|| reth_proofs_core::mpt::MptNodeData::Digest(pre_state_root).into());
+
+  // Build state trie.
+  let mut storage_tries_detected = vec![];
+  let state_trie = reth_proofs_core::mpt::resolve_state_nodes(
+    &root,
+    &node_map,
+    &mut storage_tries_detected,
+    reth_trie::Nibbles::default(),
+  );
+
+  // Step 3: Build storage tries per account efficiently
+  let mut storage_tries: alloy_primitives::map::HashMap<
+    alloy_primitives::B256,
+    reth_proofs_core::mpt::MptNode,
+  > = alloy_primitives::map::HashMap::default();
+  for (hashed_address, storage_root) in storage_tries_detected {
+    let root_node = match node_by_hash.get(&storage_root).cloned() {
+      Some(node) => node,
+      None => {
+        // An execution witness can include an account leaf (with non-empty storageRoot), but omit
+        // its entire storage trie when that account's storage was NOT touched during the block.
+        continue;
+      }
+    };
+    let storage_trie = reth_proofs_core::mpt::resolve_nodes(&root_node, &node_map);
+
+    if storage_trie.is_digest() {
+      panic!("Could not resolve storage trie for {storage_root}");
+    }
+
+    // Insert resolved storage trie.
+    storage_tries.insert(hashed_address, storage_trie);
+  }
+
+  // Step 3b: Verify that each storage trie matches the declared storage_root in the state trie
+  for (hashed_address, storage_trie) in storage_tries.iter() {
+    let account = state_trie
+      .get_rlp::<reth_trie::TrieAccount>(hashed_address.as_slice())
+      .map_err(|_| "Failed to decode account from state trie")?
+      .ok_or("Account not found in state trie")?;
+
+    let storage_root = account.storage_root;
+    let actual_hash = storage_trie.hash();
+
+    if storage_root != actual_hash {
+      return Err(
+        format!(
+          "Mismatched storage root for address hash {:?}: expected {:?}, got {:?}",
+          hashed_address, storage_root, actual_hash
+        )
+        .into(),
+      );
+    }
+  }
+
+  Ok((state_trie, storage_tries))
+}
+
 impl TrieDB {
   // Custom integration - written by chatGPT.
   pub fn from_execution_witness(
@@ -45,86 +138,8 @@ impl TrieDB {
     // Step 0: Build block hashes and locate `pre_state_root`.
     let (block_hashes, pre_state_root) = extract_blocks_from_witness(&witness);
 
-    // Step 1: Decode all RLP-encoded trie nodes and index by hash
-    // IMPORTANT: Witness state contains both *state trie* nodes and *storage tries* nodes!
-    let mut node_map: alloy_primitives::map::HashMap<
-      reth_proofs_core::mpt::MptNodeReference,
-      reth_proofs_core::mpt::MptNode,
-    > = alloy_primitives::map::HashMap::default();
-    let mut node_by_hash: alloy_primitives::map::HashMap<
-      alloy_primitives::B256,
-      reth_proofs_core::mpt::MptNode,
-    > = alloy_primitives::map::HashMap::default();
-    let mut root_node: Option<reth_proofs_core::mpt::MptNode> = None;
-
-    for encoded in &witness.state {
-      let node =
-        reth_proofs_core::mpt::MptNode::decode(encoded).expect("Valid MPT node in witness");
-      let hash = alloy_primitives::keccak256(encoded);
-      if hash == pre_state_root {
-        root_node = Some(node.clone());
-      }
-      node_by_hash.insert(hash, node.clone());
-      node_map.insert(node.reference(), node);
-    }
-
-    // Step 2: Use root_node or fallback to Digest
-    let root = root_node
-      .unwrap_or_else(|| reth_proofs_core::mpt::MptNodeData::Digest(pre_state_root).into());
-
-    // Build state trie.
-    let mut storage_tries_detected = vec![];
-    let state_trie = reth_proofs_core::mpt::resolve_state_nodes(
-      &root,
-      &node_map,
-      &mut storage_tries_detected,
-      reth_trie::Nibbles::default(),
-    );
-
-    // Step 3: Build storage tries per account efficiently
-    let mut storage_tries: alloy_primitives::map::HashMap<
-      alloy_primitives::B256,
-      reth_proofs_core::mpt::MptNode,
-    > = alloy_primitives::map::HashMap::default();
-    for (hashed_address, storage_root) in storage_tries_detected {
-      let root_node = match node_by_hash.get(&storage_root).cloned() {
-        Some(node) => node,
-        None => {
-          // An execution witness can include an account leaf (with non-empty storageRoot), but omit
-          // its entire storage trie when that account's storage was NOT touched during the block.
-          continue;
-        }
-      };
-      let storage_trie = reth_proofs_core::mpt::resolve_nodes(&root_node, &node_map);
-
-      if storage_trie.is_digest() {
-        panic!("Could not resolve storage trie for {storage_root}");
-      }
-
-      // Insert resolved storage trie.
-      storage_tries.insert(hashed_address, storage_trie);
-    }
-
-    // Step 3b: Verify that each storage trie matches the declared storage_root in the state trie
-    for (hashed_address, storage_trie) in storage_tries.iter() {
-      let account = state_trie
-        .get_rlp::<reth_trie::TrieAccount>(hashed_address.as_slice())
-        .map_err(|_| "Failed to decode account from state trie")?
-        .ok_or("Account not found in state trie")?;
-
-      let storage_root = account.storage_root;
-      let actual_hash = storage_trie.hash();
-
-      if storage_root != actual_hash {
-        return Err(
-          format!(
-            "Mismatched storage root for address hash {:?}: expected {:?}, got {:?}",
-            hashed_address, storage_root, actual_hash
-          )
-          .into(),
-        );
-      }
-    }
+    // Step 1-3: Build state trie and storage tries.
+    let (state_trie, storage_tries) = build_tries(&witness, pre_state_root)?;
 
     // Step 4: Build bytecode map
     let mut bytecode_by_hash: alloy_primitives::map::HashMap<
