@@ -19,5 +19,13 @@ pub fn main() {
   let current_block = bincode::deserialize::<reth_proofs_core::CurrentBlock>(&buffer).unwrap();
 
   // 4. Sealing and validating all headers - 41K cycles.
-  ancestor_headers.seal_and_validate(&current_block);
+  let block_hashes = ancestor_headers.seal_and_validate(&current_block);
+  let pre_state_root = ancestor_headers.headers.first().unwrap().state_root;
+
+  // 5. Reading witness state from stdin - 6.3M (6,300ms) cycles.
+  let buffer = sp1_zkvm::io::read_vec();
+  let witness_state = bincode::deserialize::<reth_proofs_core::WitnessState>(&buffer).unwrap();
+
+  // 6. Building state trie and storage tries - 524M cycles.
+  let (state_trie, storage_tries) = witness_state.build_validated_tries(pre_state_root).unwrap();
 }

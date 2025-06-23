@@ -31,6 +31,12 @@ async fn main() {
   let block_bytes = bincode::serialize(&block_consensus_bincode).unwrap();
   stdin.write_vec(block_bytes);
 
+  // 3. Write witness state to stdin.
+  let witness = load_block_witness_from_file(22724090_u64).await.unwrap();
+  let witness_state = reth_proofs_core::WitnessState::from_execution_witness(&witness);
+  let witness_state_bytes = bincode::serialize(&witness_state).unwrap();
+  stdin.write_vec(witness_state_bytes);
+
   println!("Creating GPU prover...");
   let prover = ProverClient::builder().cuda().build();
 
