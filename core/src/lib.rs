@@ -143,23 +143,33 @@ pub struct CurrentBlock {
 
 /// Third main input for zkVM.
 #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
-pub struct WitnessState {
-  // `state` field from `ExectuionWitness`
-  pub state: alloc::vec::Vec<alloy_primitives::Bytes>,
+pub struct EthereumState {
+  pub state_trie: mpt::MptNode,
+  pub storage_tries: alloy_primitives::map::hash_map::HashMap<
+    alloy_primitives::FixedBytes<32>,
+    mpt::MptNode,
+    alloy_primitives::map::foldhash::fast::RandomState,
+  >,
 }
 
-impl WitnessState {
-  /// Prepares one of four zkVM inputs - witness state (RLP-encoded account states).
-  /// Validated data could be retrieved later in zkVM, using `build_tries`.
-  pub fn from_execution_witness(witness: &alloy_rpc_types_debug::ExecutionWitness) -> Self {
+impl EthereumState {
+  /// Prepares one of four zkVM inputs - Ethereum state (state trie, and storage tries).
+  /// Deserialized data should be validated in zkVM, using `validate_storage_tries`.
+  pub fn from_execution_witness(
+    witness: &alloy_rpc_types_debug::ExecutionWitness,
+    pre_state_root: alloy_primitives::FixedBytes<32>,
+  ) -> Self {
+    let (state_trie, storage_tries) = Self::build_validated_tries(witness, pre_state_root).unwrap();
     Self {
-      state: witness.state.clone(),
+      state_trie,
+      storage_tries,
     }
   }
 
   // Builds tries from the witness state.
+  // NOTE: This method should be called outside zkVM! In general you construct tries, then validate them inside zkVM.
   pub fn build_validated_tries(
-    &self,
+    witness: &alloy_rpc_types_debug::ExecutionWitness,
     pre_state_root: alloy_primitives::FixedBytes<32>,
   ) -> Result<
     (
@@ -184,9 +194,7 @@ impl WitnessState {
     > = alloy_primitives::map::HashMap::default();
     let mut root_node: Option<crate::mpt::MptNode> = None;
 
-    // 190M cycles alone spent on decoding
-    // 80M calcing references
-    for encoded in &self.state {
+    for encoded in &witness.state {
       let node = crate::mpt::MptNode::decode(encoded).expect("Valid MPT node in witness");
       let hash = alloy_primitives::keccak256(encoded);
       if hash == pre_state_root {
@@ -200,7 +208,6 @@ impl WitnessState {
     let root = root_node.unwrap_or_else(|| crate::mpt::MptNodeData::Digest(pre_state_root).into());
 
     // Build state trie.
-    // 75M cycles
     let mut storage_tries_detected = alloc::vec![];
     let state_trie = crate::mpt::resolve_state_nodes(
       &root,
@@ -210,7 +217,6 @@ impl WitnessState {
     );
 
     // Step 3: Build storage tries per account efficiently
-    // 92M cycles
     let mut storage_tries: alloy_primitives::map::HashMap<
       alloy_primitives::B256,
       crate::mpt::MptNode,
@@ -235,32 +241,46 @@ impl WitnessState {
       storage_tries.insert(hashed_address, storage_trie);
     }
 
-    // Step 3b: Verify that each storage trie matches the declared storage_root in the state trie
-    // 33M cycles
-    for (hashed_address, storage_trie) in storage_tries.iter() {
-      let account = state_trie
-        .get_rlp::<alloy_trie::TrieAccount>(hashed_address.as_slice())
-        .map_err(|_| "Failed to decode account from state trie")?
-        .ok_or("Account not found in state trie")?;
-
-      let storage_root = account.storage_root;
-      let actual_hash = storage_trie.hash();
-
-      if storage_root != actual_hash {
-        return Err(
-          alloc::format!(
-            "Mismatched storage root for address hash {:?}: expected {:?}, got {:?}",
-            hashed_address,
-            storage_root,
-            actual_hash
-          )
-          .into(),
-        );
-      }
-    }
+    // Step 3b: Verify that each storage trie matches the declared storage_root in the state trie.
+    validate_storage_tries(&state_trie, &storage_tries)?;
 
     Ok((state_trie, storage_tries))
   }
+}
+
+// Validates that each storage trie matches the declared storage_root in the state trie.
+// Measured SP1 performance: ~33M cycles.
+pub fn validate_storage_tries(
+  state_trie: &mpt::MptNode,
+  storage_tries: &alloy_primitives::map::hash_map::HashMap<
+    alloy_primitives::FixedBytes<32>,
+    mpt::MptNode,
+    alloy_primitives::map::foldhash::fast::RandomState,
+  >,
+) -> Result<(), alloc::string::String> {
+  for (hashed_address, storage_trie) in storage_tries.iter() {
+    let account = state_trie
+      .get_rlp::<alloy_trie::TrieAccount>(hashed_address.as_slice())
+      .map_err(|_| "Failed to decode account from state trie")?
+      .ok_or("Account not found in state trie")?;
+
+    let storage_root = account.storage_root;
+    let actual_hash = storage_trie.hash();
+
+    if storage_root != actual_hash {
+      return Err(
+        alloc::format!(
+          "Mismatched storage root for address hash {:?}: expected {:?}, got {:?}",
+          hashed_address,
+          storage_root,
+          actual_hash
+        )
+        .into(),
+      );
+    }
+  }
+
+  Ok(())
 }
 
 #[cfg(test)]

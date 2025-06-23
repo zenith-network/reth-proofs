@@ -24,8 +24,8 @@ impl TrieDB {
     let pre_state_root = ancestor_headers.headers.first().unwrap().state_root;
 
     // Step 1-3: Build state trie and storage tries.
-    let witness_state = reth_proofs_core::WitnessState::from_execution_witness(&witness);
-    let (state_trie, storage_tries) = witness_state.build_validated_tries(pre_state_root)?;
+    let ethereum_state =
+      reth_proofs_core::EthereumState::from_execution_witness(&witness, pre_state_root);
 
     // Step 4: Build bytecode map
     let mut bytecode_by_hash: alloy_primitives::map::HashMap<
@@ -38,8 +38,8 @@ impl TrieDB {
     }
 
     let trie = Self {
-      state_trie,
-      storage_tries,
+      state_trie: ethereum_state.state_trie,
+      storage_tries: ethereum_state.storage_tries,
       bytecode_by_hash,
       block_hashes,
     };
