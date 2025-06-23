@@ -4679,6 +4679,7 @@ dependencies = [
  "reth-ethereum",
  "reth-ethereum-primitives",
  "reth-primitives-traits",
+ "reth-trie-common",
  "revm",
  "rlp 0.6.1",
  "serde",

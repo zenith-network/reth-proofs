@@ -56,6 +56,7 @@ reth-ethereum-primitives = { git = "https://github.com/paradigmxyz/reth", tag = 
 reth-execution-types = { git = "https://github.com/paradigmxyz/reth", tag = "v1.4.8", default-features = false }
 reth-primitives-traits = { git = "https://github.com/paradigmxyz/reth", tag = "v1.4.8", default-features = false, features = ["serde", "serde-bincode-compat"] }
 reth-trie = { git = "https://github.com/paradigmxyz/reth", tag = "v1.4.8", default-features = false }
+reth-trie-common = { git = "https://github.com/paradigmxyz/reth", tag = "v1.4.8", default-features = false }
 reth-stateless = { git = "https://github.com/paradigmxyz/reth", tag = "v1.4.8", default-features = false }
 
 # misc
