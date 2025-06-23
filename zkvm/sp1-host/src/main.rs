@@ -39,6 +39,11 @@ async fn main() {
   let ethereum_state_bytes = bincode::serialize(&etherum_state).unwrap();
   stdin.write_vec(ethereum_state_bytes);
 
+  // 4. Write bytecodes to stdin.
+  let bytecodes = reth_proofs_core::Bytecodes::from_execution_witness(&witness);
+  let bytecodes_bytes = bincode::serialize(&bytecodes).unwrap();
+  stdin.write_vec(bytecodes_bytes);
+
   println!("Creating GPU prover...");
   let prover = ProverClient::builder().cuda().build();
 

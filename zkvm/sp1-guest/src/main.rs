@@ -35,4 +35,11 @@ pub fn main() {
     &ethereum_state.storage_tries,
   )
   .unwrap();
+
+  // 8. Reading bytecodes from stdin - 3K cycles.
+  let buffer = sp1_zkvm::io::read_vec();
+  let bytecodes = bincode::deserialize::<reth_proofs_core::Bytecodes>(&buffer).unwrap();
+
+  // 9. Building bytecode map - 42K cycles.
+  let bytecode_by_hash = bytecodes.build_map();
 }

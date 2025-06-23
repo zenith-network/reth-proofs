@@ -28,15 +28,9 @@ impl TrieDB {
     let ethereum_state =
       reth_proofs_core::EthereumState::from_execution_witness(&witness, pre_state_root);
 
-    // Step 4: Build bytecode map
-    let mut bytecode_by_hash: alloy_primitives::map::HashMap<
-      alloy_primitives::B256,
-      revm::state::Bytecode,
-    > = alloy_primitives::map::HashMap::default();
-    for encoded in &witness.codes {
-      let hash = alloy_primitives::keccak256(encoded);
-      bytecode_by_hash.insert(hash, revm::state::Bytecode::new_raw(encoded.clone()));
-    }
+    // Step 4: Build bytecode map.
+    let bytecodes = reth_proofs_core::Bytecodes::from_execution_witness(&witness);
+    let bytecode_by_hash = bytecodes.build_map();
 
     let trie = Self {
       state_trie: ethereum_state.state_trie,

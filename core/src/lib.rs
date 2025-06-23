@@ -296,6 +296,35 @@ pub fn validate_storage_tries(
   Ok(())
 }
 
+// Fourth main input for zkVM.
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+pub struct Bytecodes {
+  codes: alloc::vec::Vec<alloy_primitives::Bytes>,
+}
+
+impl Bytecodes {
+  /// Prepares one of four zkVM inputs - bytecodes.
+  pub fn from_execution_witness(witness: &alloy_rpc_types_debug::ExecutionWitness) -> Self {
+    Self {
+      codes: witness.codes.clone(),
+    }
+  }
+
+  pub fn build_map(
+    &self,
+  ) -> alloy_primitives::map::HashMap<alloy_primitives::B256, revm::state::Bytecode> {
+    let mut bytecode_by_hash: alloy_primitives::map::HashMap<
+      alloy_primitives::B256,
+      revm::state::Bytecode,
+    > = alloy_primitives::map::HashMap::default();
+    for encoded in &self.codes {
+      let hash = alloy_primitives::keccak256(encoded);
+      bytecode_by_hash.insert(hash, revm::state::Bytecode::new_raw(encoded.clone()));
+    }
+    bytecode_by_hash
+  }
+}
+
 #[cfg(test)]
 mod tests {
   use super::*;
