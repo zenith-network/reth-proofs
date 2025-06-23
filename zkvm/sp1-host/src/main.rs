@@ -11,7 +11,7 @@ async fn main() {
 
   // 1. Write ancestor headers to stdin.
   let witness = load_block_witness_from_file(22724090_u64).await.unwrap();
-  let ancestor_headers = reth_proofs::ancestor_headers_from_execution_witness(&witness);
+  let ancestor_headers = reth_proofs_core::AncestorHeaders::from_execution_witness(&witness);
   let ancestor_headers_bytes = bincode::serialize(&ancestor_headers).unwrap();
   stdin.write_vec(ancestor_headers_bytes);
 

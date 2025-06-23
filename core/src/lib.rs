@@ -66,6 +66,27 @@ pub struct AncestorHeaders {
 use alloy_consensus::BlockHeader;
 
 impl AncestorHeaders {
+  /// Prepares one of four zkVM inputs - ancestor headers.
+  /// Validated data could be retrieved later in zkVM, using `seal_and_validate`.
+  pub fn from_execution_witness(witness: &alloy_rpc_types_debug::ExecutionWitness) -> Self {
+    // Get headers from the witness, we reverse them to get the desired order.
+    // NOTE: Reth provides `ExecutionWitness` with headers sorted by block number ascending:
+    // - https://github.com/paradigmxyz/reth/blob/127595e23079de2c494048d0821ea1f1107eb624/crates/rpc/rpc/src/debug.rs#L665-L677
+    let mut headers = witness.headers.clone();
+    headers.reverse();
+
+    // Decode headers.
+    let headers: alloc::vec::Vec<alloy_consensus::Header> = headers
+      .into_iter()
+      .map(|header_bytes| {
+        <alloy_consensus::Header as alloy_rlp::Decodable>::decode(&mut &header_bytes[..])
+          .expect("Failed to decode header; witness should be valid")
+      })
+      .collect();
+
+    Self { headers }
+  }
+
   /// Validates that headers (current block + ancestors) are connected correctly (parent-child relationship),
   /// seals them (to get hash), and returns a map of block numbers to block hashes.
   /// TODO: See if BTreeMap is not slower than HashMap.
