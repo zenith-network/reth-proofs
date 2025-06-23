@@ -24,6 +24,7 @@ impl TrieDB {
     let pre_state_root = ancestor_headers.headers.first().unwrap().state_root;
 
     // Step 1-3: Build state trie and storage tries.
+    // NOTE: Tries are validated during construction.
     let ethereum_state =
       reth_proofs_core::EthereumState::from_execution_witness(&witness, pre_state_root);
 
@@ -43,12 +44,6 @@ impl TrieDB {
       bytecode_by_hash,
       block_hashes,
     };
-
-    // Extra check to validate that state_trie was built correctly - confirm tree hash with pre state root.
-    // Do NOT use this inside zkVM!
-    if trie.compute_state_root() != pre_state_root {
-      panic!("Error in TrieDB build logic: computed root does not match pre_state_root");
-    }
 
     Ok(trie)
   }

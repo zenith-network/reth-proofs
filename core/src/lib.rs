@@ -241,10 +241,23 @@ impl EthereumState {
       storage_tries.insert(hashed_address, storage_trie);
     }
 
+    // Step 3a: Verify that state_trie was built correctly - confirm tree hash with pre state root.
+    validate_state_trie(&state_trie, pre_state_root);
+
     // Step 3b: Verify that each storage trie matches the declared storage_root in the state trie.
     validate_storage_tries(&state_trie, &storage_tries)?;
 
     Ok((state_trie, storage_tries))
+  }
+}
+
+// Validate that state_trie was built correctly - confirm tree hash with pre state root.
+pub fn validate_state_trie(
+  state_trie: &mpt::MptNode,
+  pre_state_root: alloy_primitives::FixedBytes<32>,
+) {
+  if state_trie.hash() != pre_state_root {
+    panic!("Computed state root does not match pre_state_root");
   }
 }
 

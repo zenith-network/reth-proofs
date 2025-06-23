@@ -26,7 +26,10 @@ pub fn main() {
   let buffer = sp1_zkvm::io::read_vec();
   let ethereum_state = bincode::deserialize::<reth_proofs_core::EthereumState>(&buffer).unwrap();
 
-  // 6. Validating storage tries - 47.4M cycles.
+  // 6. Validating state trie - 31.5M cycles.
+  reth_proofs_core::validate_state_trie(&ethereum_state.state_trie, pre_state_root);
+
+  // 7. Validating storage tries - 47.4M cycles.
   reth_proofs_core::validate_storage_tries(
     &ethereum_state.state_trie,
     &ethereum_state.storage_tries,
