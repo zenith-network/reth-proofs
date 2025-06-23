@@ -20,11 +20,11 @@ pub fn format_execution_witness(witness: &alloy_rpc_types_debug::ExecutionWitnes
     let hash = alloy_primitives::keccak256(encoded);
     output.push_str(&format!("  [{}] node hash: {:#x}\n", i, hash));
 
-    match crate::mpt::MptNode::decode(encoded) {
+    match reth_proofs_core::mpt::MptNode::decode(encoded) {
       Ok(node) => match node.as_data() {
-        crate::mpt::MptNodeData::Null => output.push_str("      MPT: Null\n"),
-        crate::mpt::MptNodeData::Branch(_) => output.push_str("      MPT: Branch\n"),
-        crate::mpt::MptNodeData::Leaf(_, val) => {
+        reth_proofs_core::mpt::MptNodeData::Null => output.push_str("      MPT: Null\n"),
+        reth_proofs_core::mpt::MptNodeData::Branch(_) => output.push_str("      MPT: Branch\n"),
+        reth_proofs_core::mpt::MptNodeData::Leaf(_, val) => {
           if let Ok(account) =
             <reth_trie::TrieAccount as alloy_rlp::Decodable>::decode(&mut &val[..])
           {
@@ -45,12 +45,14 @@ pub fn format_execution_witness(witness: &alloy_rpc_types_debug::ExecutionWitnes
             output.push_str("      MPT: Leaf (Unknown RLP value)\n");
           }
         }
-        crate::mpt::MptNodeData::Extension(_, _) => output.push_str("      MPT: Extension\n"),
-        crate::mpt::MptNodeData::Digest(d) => {
+        reth_proofs_core::mpt::MptNodeData::Extension(_, _) => {
+          output.push_str("      MPT: Extension\n")
+        }
+        reth_proofs_core::mpt::MptNodeData::Digest(d) => {
           output.push_str(&format!("      MPT: Digest: {:#x}\n", d))
         }
       },
-      Err(e) => output.push_str(&format!("      ❌ Failed to decode MPT node: {e}\n")),
+      Err(e) => output.push_str(&format!("      ❌ Failed to decode MPT node: {:?}\n", e)),
     }
   }
 

@@ -54,14 +54,14 @@ pub fn format_trie(trie: &crate::triedb::TrieDB) -> String {
   out
 }
 
-fn print_mpt_node(out: &mut String, node: &crate::mpt::MptNode, indent: usize) {
+fn print_mpt_node(out: &mut String, node: &reth_proofs_core::mpt::MptNode, indent: usize) {
   let pad = " ".repeat(indent);
   writeln!(out, "{}MptNode:", pad).unwrap();
 
   match &node.data {
-    crate::mpt::MptNodeData::Null => writeln!(out, "{}  Null", pad).unwrap(),
+    reth_proofs_core::mpt::MptNodeData::Null => writeln!(out, "{}  Null", pad).unwrap(),
 
-    crate::mpt::MptNodeData::Leaf(k, v) => {
+    reth_proofs_core::mpt::MptNodeData::Leaf(k, v) => {
       writeln!(
         out,
         "{}  Leaf: key={}, value={}",
@@ -72,7 +72,7 @@ fn print_mpt_node(out: &mut String, node: &crate::mpt::MptNode, indent: usize) {
       .unwrap();
     }
 
-    crate::mpt::MptNodeData::Extension(k, child) => {
+    reth_proofs_core::mpt::MptNodeData::Extension(k, child) => {
       writeln!(
         out,
         "{}  Extension: key={}",
@@ -83,7 +83,7 @@ fn print_mpt_node(out: &mut String, node: &crate::mpt::MptNode, indent: usize) {
       print_mpt_node(out, child, indent + 4);
     }
 
-    crate::mpt::MptNodeData::Digest(h) => {
+    reth_proofs_core::mpt::MptNodeData::Digest(h) => {
       writeln!(
         out,
         "{}  Digest: {}",
@@ -93,7 +93,7 @@ fn print_mpt_node(out: &mut String, node: &crate::mpt::MptNode, indent: usize) {
       .unwrap();
     }
 
-    crate::mpt::MptNodeData::Branch(children) => {
+    reth_proofs_core::mpt::MptNodeData::Branch(children) => {
       writeln!(out, "{}  Branch:", pad).unwrap();
       for (i, child) in children.iter().enumerate() {
         if let Some(c) = child {
@@ -110,7 +110,11 @@ fn print_mpt_node(out: &mut String, node: &crate::mpt::MptNode, indent: usize) {
   }
 }
 
-fn print_node_reference(out: &mut String, reference: &reth_proofs_core::mpt::MptNodeReference, indent: usize) {
+fn print_node_reference(
+  out: &mut String,
+  reference: &reth_proofs_core::mpt::MptNodeReference,
+  indent: usize,
+) {
   let pad = " ".repeat(indent);
   match reference {
     reth_proofs_core::mpt::MptNodeReference::Bytes(b) => {

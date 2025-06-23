@@ -1,6 +1,5 @@
 extern crate alloc;
 
-mod mpt;
 pub mod triedb;
 pub mod triedb_utils;
 pub mod utils;

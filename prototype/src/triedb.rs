@@ -1,7 +1,8 @@
 #[derive(Debug)]
 pub struct TrieDB {
-  pub state_trie: crate::mpt::MptNode,
-  pub storage_tries: alloy_primitives::map::HashMap<alloy_primitives::B256, crate::mpt::MptNode>,
+  pub state_trie: reth_proofs_core::mpt::MptNode,
+  pub storage_tries:
+    alloy_primitives::map::HashMap<alloy_primitives::B256, reth_proofs_core::mpt::MptNode>,
   pub block_hashes: alloy_primitives::map::HashMap<u64, alloy_primitives::B256>,
   pub bytecode_by_hash:
     alloy_primitives::map::HashMap<alloy_primitives::B256, revm::state::Bytecode>,
@@ -48,16 +49,17 @@ impl TrieDB {
     // IMPORTANT: Witness state contains both *state trie* nodes and *storage tries* nodes!
     let mut node_map: alloy_primitives::map::HashMap<
       reth_proofs_core::mpt::MptNodeReference,
-      crate::mpt::MptNode,
+      reth_proofs_core::mpt::MptNode,
     > = alloy_primitives::map::HashMap::default();
     let mut node_by_hash: alloy_primitives::map::HashMap<
       alloy_primitives::B256,
-      crate::mpt::MptNode,
+      reth_proofs_core::mpt::MptNode,
     > = alloy_primitives::map::HashMap::default();
-    let mut root_node: Option<crate::mpt::MptNode> = None;
+    let mut root_node: Option<reth_proofs_core::mpt::MptNode> = None;
 
     for encoded in &witness.state {
-      let node = crate::mpt::MptNode::decode(encoded)?;
+      let node =
+        reth_proofs_core::mpt::MptNode::decode(encoded).expect("Valid MPT node in witness");
       let hash = alloy_primitives::keccak256(encoded);
       if hash == pre_state_root {
         root_node = Some(node.clone());
@@ -67,11 +69,12 @@ impl TrieDB {
     }
 
     // Step 2: Use root_node or fallback to Digest
-    let root = root_node.unwrap_or_else(|| crate::mpt::MptNodeData::Digest(pre_state_root).into());
+    let root = root_node
+      .unwrap_or_else(|| reth_proofs_core::mpt::MptNodeData::Digest(pre_state_root).into());
 
     // Build state trie.
     let mut storage_tries_detected = vec![];
-    let state_trie = crate::mpt::resolve_state_nodes(
+    let state_trie = reth_proofs_core::mpt::resolve_state_nodes(
       &root,
       &node_map,
       &mut storage_tries_detected,
@@ -81,7 +84,7 @@ impl TrieDB {
     // Step 3: Build storage tries per account efficiently
     let mut storage_tries: alloy_primitives::map::HashMap<
       alloy_primitives::B256,
-      crate::mpt::MptNode,
+      reth_proofs_core::mpt::MptNode,
     > = alloy_primitives::map::HashMap::default();
     for (hashed_address, storage_root) in storage_tries_detected {
       let root_node = match node_by_hash.get(&storage_root).cloned() {
@@ -92,7 +95,7 @@ impl TrieDB {
           continue;
         }
       };
-      let storage_trie = crate::mpt::resolve_nodes(&root_node, &node_map);
+      let storage_trie = reth_proofs_core::mpt::resolve_nodes(&root_node, &node_map);
 
       if storage_trie.is_digest() {
         panic!("Could not resolve storage trie for {storage_root}");
@@ -194,10 +197,10 @@ impl TrieDB {
             .get(addr)
             .copied() // root from step 1
             .or_else(|| self.storage_tries.get(addr).map(|t| t.hash()))
-            .unwrap_or(crate::mpt::EMPTY_ROOT);
+            .unwrap_or(reth_proofs_core::mpt::EMPTY_ROOT);
 
           // If both the account and its storage are empty we simply delete.
-          if acct.is_empty() && storage_root == crate::mpt::EMPTY_ROOT {
+          if acct.is_empty() && storage_root == reth_proofs_core::mpt::EMPTY_ROOT {
             self.state_trie.delete(addr).unwrap();
             self.storage_tries.remove(addr); // keep maps in sync
             continue;
@@ -293,7 +296,7 @@ impl revm::DatabaseRef for TrieDB {
       .expect("Can get account from MPT");
     match account {
       Some(account) => {
-        if account.storage_root != crate::mpt::EMPTY_ROOT {
+        if account.storage_root != reth_proofs_core::mpt::EMPTY_ROOT {
           todo!("Validate that storage witness is valid");
         }
       }
