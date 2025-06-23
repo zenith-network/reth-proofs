@@ -18,6 +18,9 @@ reth-ethereum = { workspace = true }
 reth-ethereum-primitives = { workspace = true }
 reth-primitives-traits = { workspace = true }
 
+# revm
+revm = { workspace = true }
+
 # misc
 nybbles = { workspace = true }
 
