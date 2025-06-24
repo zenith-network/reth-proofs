@@ -13,7 +13,7 @@ reth-proofs-core = { path = "./core" }
 reth-proofs = { path = "./prototype" }
 
 # Asynchronous runtime.
-tokio = { version = "1.45.1", default-features = false, features = ["rt-multi-thread"] }
+tokio = { version = "1.45.1", default-features = false, features = ["rt-multi-thread", "macros"] }
 
 # Ethereum serialization.
 # TODO: Remove once switched to `alloy-rlp` in MPT implementation.
