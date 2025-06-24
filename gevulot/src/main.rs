@@ -1,11 +1,33 @@
 use futures::StreamExt;
+use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 mod cli;
 
 mod sp1;
 
+// NOTE: Since `RUST_LOG` is already used by SP1's moongate container (spawned as subprocess)
+// we use different env to be able to control log levels separately.
+const LOG_ENV: &str = "RUST_RSP_LOG";
+
 #[tokio::main]
 pub async fn main() -> eyre::Result<()> {
+  // Default log level.
+  if std::env::var(LOG_ENV).is_err() {
+    unsafe {
+      std::env::set_var(LOG_ENV, "info");
+    }
+  }
+
+  // Initialize the logger.
+  tracing_subscriber::registry()
+    .with(tracing_subscriber::fmt::layer())
+    .with(
+      tracing_subscriber::EnvFilter::from_env(LOG_ENV), // .add_directive("sp1_core_machine=warn".parse().unwrap())
+                                                        // .add_directive("sp1_core_executor=warn".parse().unwrap())
+                                                        // .add_directive("sp1_prover=warn".parse().unwrap()),
+    )
+    .init();
+
   // Parse the command line arguments.
   let args = <cli::Args as clap::Parser>::parse();
   let args = match args.command {
