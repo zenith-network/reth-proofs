@@ -18,6 +18,9 @@ clap = { version = "4.5.40", features = ["derive", "env"] }
 # Error handling.
 eyre = { version = "0.6.12", default-features = false }
 
+# Logging.
+tracing = { version = "0.1.41", default-features = false }
+
 # Serialization.
 bincode = { workspace = true }
 
