@@ -4701,6 +4701,7 @@ dependencies = [
  "nybbles",
  "reth-chainspec",
  "reth-ethereum",
+ "reth-ethereum-consensus",
  "reth-ethereum-primitives",
  "reth-primitives-traits",
  "reth-trie-common",
