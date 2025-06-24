@@ -31,12 +31,18 @@ pub async fn main() -> eyre::Result<()> {
   let ws_provider = alloy_provider::ProviderBuilder::new()
     .connect_ws(ws)
     .await?;
-  // let http_provider = create_provider::<alloy_network::Ethereum>(args.http_rpc_url);
+  let http_provider = reth_proofs::create_provider(args.http_rpc_url.as_str()).unwrap();
 
   // Subscribe to block headers.
   let subscription = alloy_provider::Provider::subscribe_blocks(&ws_provider).await?;
   let mut stream = subscription.into_stream().map(|h| h.number);
 
+  tracing::info!(
+    "Latest block number in HTTP RPC: {}",
+    alloy_provider::Provider::get_block_number(&http_provider).await?
+  );
+
+  // Listen to the notifications about new blocks (WebSocket).
   loop {
     tokio::select! {
       _ = tokio::signal::ctrl_c() => {
