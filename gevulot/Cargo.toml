@@ -7,6 +7,9 @@ edition = "2024"
 # alloy
 alloy-provider = { workspace = true, features = ["ws", "reqwest-default-tls"] }
 
+# Asynchronous channels.
+async-channel = { version = "2.3.1", default-features = false }
+
 # Asynchronous runtime.
 tokio = { workspace = true }
 tokio-util = { version = "0.7", default-features = false }
