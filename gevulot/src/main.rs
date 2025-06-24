@@ -5,6 +5,19 @@ mod cli;
 
 mod sp1;
 
+// Preparing block is only matter of seconds, no need to parellelize it.
+const NUM_WORKERS_PREPARE: u8 = 1;
+
+struct WorkerPrepareJob {
+  block_number: u64,
+}
+
+impl From<u64> for WorkerPrepareJob {
+  fn from(block_number: u64) -> Self {
+    Self { block_number }
+  }
+}
+
 // NOTE: Since `RUST_LOG` is already used by SP1's moongate container (spawned as subprocess)
 // we use different env to be able to control log levels separately.
 const LOG_ENV: &str = "RUST_RSP_LOG";
@@ -58,6 +71,10 @@ pub async fn main() -> eyre::Result<()> {
   // Subscribe to block headers.
   let subscription = alloy_provider::Provider::subscribe_blocks(&ws_provider).await?;
   let mut stream = subscription.into_stream().map(|h| h.number);
+
+  // Queue for WorkerPrepare.
+  let (job_prepare_queue_tx, job_prepare_queue_rx) =
+    async_channel::bounded::<WorkerPrepareJob>(NUM_WORKERS_PREPARE as usize);
 
   tracing::info!(
     "Latest block number in HTTP RPC: {}",
