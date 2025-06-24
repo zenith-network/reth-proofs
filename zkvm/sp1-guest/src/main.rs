@@ -63,4 +63,7 @@ pub fn main() {
   let output =
     reth_ethereum::evm::primitives::execute::Executor::execute(block_executor, &recovered_block)
       .unwrap();
+
+  // So far 504M cycles.
+  // TODO: Post execution checks.
 }
