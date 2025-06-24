@@ -4814,6 +4814,7 @@ dependencies = [
  "sp1-build",
  "sp1-sdk",
  "tokio",
+ "url",
 ]
 
 [[package]]
