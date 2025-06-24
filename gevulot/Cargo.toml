@@ -9,3 +9,6 @@ tokio = { workspace = true }
 
 # CLI parsing.
 clap = { version = "4.5.40", features = ["derive", "env"] }
+
+# zkVM.
+sp1-sdk = { workspace = true }
