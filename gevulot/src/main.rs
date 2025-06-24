@@ -1,3 +1,5 @@
+use futures::StreamExt;
+
 mod cli;
 
 mod sp1;
@@ -25,5 +27,34 @@ pub async fn main() -> eyre::Result<()> {
   let proving_key_bytes = std::fs::read(&args.proving_key_path)?;
   let proving_key: sp1_sdk::SP1ProvingKey = bincode::deserialize(&proving_key_bytes)?;
 
+  let ws = alloy_provider::WsConnect::new(args.ws_rpc_url);
+  let ws_provider = alloy_provider::ProviderBuilder::new()
+    .connect_ws(ws)
+    .await?;
+  // let http_provider = create_provider::<alloy_network::Ethereum>(args.http_rpc_url);
+
+  // Subscribe to block headers.
+  let subscription = alloy_provider::Provider::subscribe_blocks(&ws_provider).await?;
+  let mut stream = subscription.into_stream().map(|h| h.number);
+
+  loop {
+    tokio::select! {
+      // _ = signal::ctrl_c() => {
+      //     println!("Ctrl-C received, cancelling main loop...");
+      //     break;
+      // },
+      block_number = stream.next() => {
+        match block_number {
+          Some(block_number) => {
+            println!("New block {} reported by WS provider", block_number);
+          }
+          None => {
+            //warn!("WS stream closed");
+            break;
+          }
+        }
+      }
+    }
+  }
   Ok(())
 }

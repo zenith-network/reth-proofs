@@ -28,6 +28,10 @@ pub struct GeneratePkArgs {
 
 #[derive(Debug, Clone, Parser)]
 pub struct RunArgs {
+  /// The WS rpc url used to fetch data about the block.
+  #[clap(long, env)]
+  pub ws_rpc_url: url::Url,
+
   /// Pregenerated Proving Key (includes the ELF and Verification Key).
   #[clap(long, env)]
   pub proving_key_path: std::path::PathBuf,
