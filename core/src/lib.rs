@@ -142,6 +142,16 @@ pub struct CurrentBlock {
   >,
 }
 
+impl CurrentBlock {
+  pub fn recover_senders(
+    &self,
+  ) -> reth_primitives_traits::RecoveredBlock<
+    alloy_consensus::Block<alloy_consensus::EthereumTxEnvelope<alloy_consensus::TxEip4844>>,
+  > {
+    reth_primitives_traits::RecoveredBlock::try_recover(self.body.clone()).unwrap()
+  }
+}
+
 /// Third main input for zkVM.
 #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub struct EthereumState {
