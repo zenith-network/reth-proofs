@@ -39,10 +39,10 @@ pub async fn main() -> eyre::Result<()> {
 
   loop {
     tokio::select! {
-      // _ = signal::ctrl_c() => {
-      //     println!("Ctrl-C received, cancelling main loop...");
-      //     break;
-      // },
+      _ = tokio::signal::ctrl_c() => {
+        println!("Ctrl-C received, cancelling main loop...");
+        break;
+      },
       block_number = stream.next() => {
         match block_number {
           Some(block_number) => {
