@@ -56,6 +56,6 @@ pub fn main() {
   let block_executor =
     reth_ethereum::evm::primitives::execute::BasicBlockExecutor::new(&evm_config, db);
 
-  // 12. Recover block signatures - 3.3B cycles.
+  // 12. Recover block signatures - 15M cycles.
   let recovered_block = current_block.recover_senders();
 }
