@@ -6,3 +6,6 @@ edition = "2024"
 [dependencies]
 # Asynchronous runtime.
 tokio = { workspace = true }
+
+# CLI parsing.
+clap = { version = "4.5.40", features = ["derive", "env"] }
