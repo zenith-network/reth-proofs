@@ -3,6 +3,7 @@ sp1_zkvm::entrypoint!(main);
 
 extern crate alloc;
 
+// For mainnet block 22724090, we got 552M cycles in SP1.
 pub fn main() {
   // 1. Creating a mainnet EVM config - 32K cycles.
   let chainspec = reth_proofs_core::create_mainnet_chainspec();
