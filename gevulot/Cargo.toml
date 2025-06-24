@@ -13,6 +13,9 @@ clap = { version = "4.5.40", features = ["derive", "env"] }
 # Error handling.
 eyre = { version = "0.6.12", default-features = false }
 
+# Serialization.
+bincode = { workspace = true }
+
 # zkVM.
 sp1-sdk = { workspace = true }
 

@@ -4730,6 +4730,7 @@ dependencies = [
 name = "reth-proofs-gevulot"
 version = "0.1.0"
 dependencies = [
+ "bincode",
  "clap",
  "eyre",
  "sp1-build",
