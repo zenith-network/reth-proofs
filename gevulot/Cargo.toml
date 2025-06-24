@@ -4,6 +4,9 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+# alloy
+alloy-provider = { workspace = true, features = ["ws"] }
+
 # Asynchronous runtime.
 tokio = { workspace = true }
 
