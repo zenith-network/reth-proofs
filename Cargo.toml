@@ -1,6 +1,7 @@
 [workspace]
 members = [
   "core",
+  "gevulot",
   "zkvm/sp1-guest",
   "zkvm/sp1-host",
   "prototype",
