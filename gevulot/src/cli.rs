@@ -28,5 +28,7 @@ pub struct GeneratePkArgs {
 
 #[derive(Debug, Clone, Parser)]
 pub struct RunArgs {
-  // TODO
+  /// Pregenerated Proving Key (includes the ELF and Verification Key).
+  #[clap(long, env)]
+  pub proving_key_path: std::path::PathBuf,
 }

@@ -20,5 +20,10 @@ pub async fn main() -> eyre::Result<()> {
     cli::Command::Run(args) => args,
   };
 
+  // Load pregenerated proving "key" from the file.
+  // NOTE: Even called "key", it contains both PK, and ELF itself!
+  let proving_key_bytes = std::fs::read(&args.proving_key_path)?;
+  let proving_key: sp1_sdk::SP1ProvingKey = bincode::deserialize(&proving_key_bytes)?;
+
   Ok(())
 }
