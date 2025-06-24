@@ -58,4 +58,9 @@ pub fn main() {
 
   // 12. Recover block signatures - 15M cycles.
   let recovered_block = current_block.recover_senders();
+
+  // 13. Execute block - 284.3M cycles.
+  let output =
+    reth_ethereum::evm::primitives::execute::Executor::execute(block_executor, &recovered_block)
+      .unwrap();
 }
