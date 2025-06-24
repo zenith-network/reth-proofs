@@ -4729,6 +4729,9 @@ dependencies = [
 [[package]]
 name = "reth-proofs-gevulot"
 version = "0.1.0"
+dependencies = [
+ "tokio",
+]
 
 [[package]]
 name = "reth-proofs-zkvm-sp1-guest"
