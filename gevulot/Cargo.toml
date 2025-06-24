@@ -21,6 +21,9 @@ eyre = { version = "0.6.12", default-features = false }
 # Logging.
 tracing = { version = "0.1.41", default-features = false }
 
+# Reth Proofs.
+reth-proofs = { workspace = true }
+
 # Serialization.
 bincode = { workspace = true }
 
