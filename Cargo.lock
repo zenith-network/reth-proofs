@@ -4731,6 +4731,7 @@ name = "reth-proofs-gevulot"
 version = "0.1.0"
 dependencies = [
  "clap",
+ "sp1-build",
  "sp1-sdk",
  "tokio",
 ]
