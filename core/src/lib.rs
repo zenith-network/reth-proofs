@@ -356,6 +356,16 @@ pub fn validate_block_post_execution(
   }
 }
 
+pub fn get_hashed_post_state(
+  output: &reth_execution_types::BlockExecutionOutput<reth_ethereum_primitives::Receipt>,
+) -> reth_trie_common::HashedPostState {
+  // Convert the post state from the output to a hashed post state.
+  // This is used for further validation or execution.
+  reth_trie_common::HashedPostState::from_bundle_state::<reth_trie_common::KeccakKeyHasher>(
+    &output.state.state,
+  )
+}
+
 #[cfg(test)]
 mod tests {
   use super::*;

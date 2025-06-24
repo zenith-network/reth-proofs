@@ -71,6 +71,6 @@ pub fn main() {
     &output,
   );
 
-  // So far 512M cycles.
-  // TODO: Validate new state root.
+  // 15. Get hashed post state - 3.3M cycles.
+  let hashed_post_state = reth_proofs_core::get_hashed_post_state(&output);
 }

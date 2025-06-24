@@ -167,9 +167,7 @@ pub async fn execute_block(
   reth_proofs_core::validate_block_post_execution(&recovered_block, chain_spec, &output);
 
   // Apply execution changes and compute the new state root.
-  let hashed_post_state = reth_trie::HashedPostState::from_bundle_state::<reth_trie::KeccakKeyHasher>(
-    &output.state.state,
-  );
+  let hashed_post_state = reth_proofs_core::get_hashed_post_state(&output);
   trie_db.update(&hashed_post_state);
   let new_state_root = trie_db.compute_state_root();
 
