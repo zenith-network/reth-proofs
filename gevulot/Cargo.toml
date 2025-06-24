@@ -10,6 +10,9 @@ tokio = { workspace = true }
 # CLI parsing.
 clap = { version = "4.5.40", features = ["derive", "env"] }
 
+# Error handling.
+eyre = { version = "0.6.12", default-features = false }
+
 # zkVM.
 sp1-sdk = { workspace = true }
 
