@@ -63,6 +63,9 @@ reth-stateless = { git = "https://github.com/paradigmxyz/reth", tag = "v1.4.8", 
 nybbles = { version = "0.3.0", default-features = false }
 
 [patch.crates-io]
-# SP1 precompiles.
+# Two crucial SP1 precompiles.
 sha3 = { git = "https://github.com/sp1-patches/RustCrypto-hashes", tag = "patch-sha3-0.10.8-sp1-4.0.0" }
 k256 = { git = "https://github.com/sp1-patches/elliptic-curves", tag = "patch-k256-13.4-sp1-5.0.0" }
+
+# Additional SP1 precompiles.
+bn = { git = "https://github.com/sp1-patches/bn", tag = "patch-0.6.0-sp1-5.0.0", package = "substrate-bn" } # Only 100k cycles improvement.
