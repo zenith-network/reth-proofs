@@ -4810,6 +4810,7 @@ dependencies = [
  "bincode",
  "clap",
  "eyre",
+ "futures",
  "sp1-build",
  "sp1-sdk",
  "tokio",
