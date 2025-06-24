@@ -47,6 +47,16 @@ pub async fn main() -> eyre::Result<()> {
         match block_number {
           Some(block_number) => {
             tracing::info!("New block {} reported by WS provider", block_number);
+
+            // Temporarily hardcoded block number.
+            // let block_number = 22187923;
+
+            // Simple coordination logic.
+            let target_worker_pos = (block_number % args.total_workers) + 1;
+            if target_worker_pos != args.worker_pos {
+              tracing::info!("Skipping, block {} is for worker {}", block_number, target_worker_pos);
+              continue;
+            }
           }
           None => {
             tracing::warn!("WS stream closed");

@@ -35,4 +35,13 @@ pub struct RunArgs {
   /// Pregenerated Proving Key (includes the ELF and Verification Key).
   #[clap(long, env)]
   pub proving_key_path: std::path::PathBuf,
+
+  /// Number of all workers in the Gevulot pool.
+  #[clap(long, env)]
+  pub total_workers: u64,
+
+  /// Assignment of current worker - value between <1, workers>.
+  /// Used to split the work between multiple instances.
+  #[clap(long, env)]
+  pub worker_pos: u64,
 }
