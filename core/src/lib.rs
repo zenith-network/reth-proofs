@@ -119,7 +119,7 @@ impl AncestorHeaders {
             prev.parent_hash()
           );
         }
-        block_hashes.insert(prev.number(), prev.hash());
+        block_hashes.insert(sealed.number(), sealed.hash());
       }
 
       sealed_prev = Some(sealed);
