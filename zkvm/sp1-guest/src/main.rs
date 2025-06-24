@@ -77,6 +77,13 @@ pub fn main() {
   // 16. Apply state updates - 21.2M cycles.
   trie_db.update(&hashed_post_state);
 
-  // 17. Compute new state root and verify - ??? cycles.
-  // TODO
+  // 17. Compute new state root and verify - 15.5M cycles.
+  let new_state_root = trie_db.compute_state_root();
+  let expected_root = recovered_block.header().state_root;
+  if new_state_root != expected_root {
+    panic!(
+      "New state root does not match expected root: {:?} != {:?}",
+      new_state_root, expected_root
+    );
+  }
 }
