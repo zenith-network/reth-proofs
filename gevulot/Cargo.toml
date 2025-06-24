@@ -9,6 +9,7 @@ alloy-provider = { workspace = true, features = ["ws"] }
 
 # Asynchronous runtime.
 tokio = { workspace = true }
+tokio-util = { version = "0.7", default-features = false }
 futures = { version = "0.3.31", default-features = false }
 
 # CLI parsing.
