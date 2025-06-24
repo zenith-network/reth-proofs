@@ -46,10 +46,10 @@ pub async fn main() -> eyre::Result<()> {
       block_number = stream.next() => {
         match block_number {
           Some(block_number) => {
-            println!("New block {} reported by WS provider", block_number);
+            tracing::info!("New block {} reported by WS provider", block_number);
           }
           None => {
-            //warn!("WS stream closed");
+            tracing::warn!("WS stream closed");
             break;
           }
         }
