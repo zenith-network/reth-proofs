@@ -336,6 +336,26 @@ impl Bytecodes {
   }
 }
 
+pub fn validate_block_post_execution(
+  recovered_block: &reth_primitives_traits::RecoveredBlock<
+    alloy_consensus::Block<alloy_consensus::EthereumTxEnvelope<alloy_consensus::TxEip4844>>,
+  >,
+  chain_spec: &reth_chainspec::ChainSpec,
+  execution_output: &reth_execution_types::BlockExecutionOutput<reth_ethereum_primitives::Receipt>,
+) {
+  if let Err(e) = reth_ethereum_consensus::validate_block_post_execution(
+    recovered_block,
+    chain_spec,
+    &execution_output.result.receipts,
+    &execution_output.result.requests,
+  ) {
+    panic!(
+      "Error::Validation(\"Block validation failed after execution: {}\")",
+      e
+    );
+  }
+}
+
 #[cfg(test)]
 mod tests {
   use super::*;

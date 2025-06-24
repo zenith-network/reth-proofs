@@ -7,7 +7,7 @@ pub fn main() {
   // 1. Creating a mainnet EVM config - 32K cycles.
   let chainspec = reth_proofs_core::create_mainnet_chainspec();
   let chainspec_arc = alloc::sync::Arc::new(chainspec);
-  let evm_config = reth_proofs_core::create_mainnet_evm_config_from(chainspec_arc);
+  let evm_config = reth_proofs_core::create_mainnet_evm_config_from(chainspec_arc.clone());
 
   // 2. Reading ancestor headers from stdin - 17K cycles.
   let buffer = sp1_zkvm::io::read_vec();
@@ -64,6 +64,13 @@ pub fn main() {
     reth_ethereum::evm::primitives::execute::Executor::execute(block_executor, &recovered_block)
       .unwrap();
 
-  // So far 504M cycles.
-  // TODO: Post execution checks.
+  // 14. Validate block post execution - 7.8M cycles.
+  reth_proofs_core::validate_block_post_execution(
+    &recovered_block,
+    chainspec_arc.as_ref(),
+    &output,
+  );
+
+  // So far 512M cycles.
+  // TODO: Validate new state root.
 }

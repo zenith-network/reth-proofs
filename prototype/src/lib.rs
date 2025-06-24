@@ -164,13 +164,7 @@ pub async fn execute_block(
 
   // Validate the block post execution.
   let chain_spec = reth_chainspec::MAINNET.as_ref();
-  reth_ethereum_consensus::validate_block_post_execution(
-    &recovered_block,
-    chain_spec,
-    &output.result.receipts,
-    &output.result.requests,
-  )
-  .map_err(|e| Error::Validation(format!("Block validation failed after execution: {}", e)))?;
+  reth_proofs_core::validate_block_post_execution(&recovered_block, chain_spec, &output);
 
   // Apply execution changes and compute the new state root.
   let hashed_post_state = reth_trie::HashedPostState::from_bundle_state::<reth_trie::KeccakKeyHasher>(
