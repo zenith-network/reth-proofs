@@ -5,7 +5,7 @@ edition = "2024"
 
 [dependencies]
 # alloy
-alloy-provider = { workspace = true, features = ["ws"] }
+alloy-provider = { workspace = true, features = ["ws", "reqwest-default-tls"] }
 
 # Asynchronous runtime.
 tokio = { workspace = true }
