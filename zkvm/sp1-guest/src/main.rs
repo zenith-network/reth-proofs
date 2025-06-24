@@ -52,7 +52,7 @@ pub fn main() {
   };
   let db = reth_proofs_core::triedb::wrap_into_database(&trie_db);
 
-  // 11. Create block executor.
+  // 11. Create block executor - 0 cycles.
   let block_executor =
     reth_ethereum::evm::primitives::execute::BasicBlockExecutor::new(&evm_config, db);
 }
