@@ -4703,6 +4703,7 @@ dependencies = [
  "reth-ethereum",
  "reth-ethereum-consensus",
  "reth-ethereum-primitives",
+ "reth-execution-types",
  "reth-primitives-traits",
  "reth-trie-common",
  "revm",
