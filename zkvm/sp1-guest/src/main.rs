@@ -44,7 +44,7 @@ pub fn main() {
   let bytecode_by_hash = bytecodes.build_map();
 
   // 10. Prepare database for EVM execution.
-  let trie_db = reth_proofs_core::triedb::TrieDB {
+  let mut trie_db = reth_proofs_core::triedb::TrieDB {
     state_trie: ethereum_state.state_trie,
     storage_tries: ethereum_state.storage_tries,
     bytecode_by_hash,
@@ -73,4 +73,10 @@ pub fn main() {
 
   // 15. Get hashed post state - 3.3M cycles.
   let hashed_post_state = reth_proofs_core::get_hashed_post_state(&output);
+
+  // 16. Apply state updates - 21.2M cycles.
+  trie_db.update(&hashed_post_state);
+
+  // 17. Compute new state root and verify - ??? cycles.
+  // TODO
 }
