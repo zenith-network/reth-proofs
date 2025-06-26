@@ -254,48 +254,48 @@ pub async fn load_block_witness_from_file(
 
 #[cfg(test)]
 mod tests {
-  use super::*;
-
   // NOTE: This MUST be a Reth archive node.
   const MAINNET_RETH_RPC_EL: &str = "http://130.250.187.55:8545";
 
   #[test]
   fn test_create_provider() {
     let mock_url = "https://google.com";
-    create_provider(mock_url).unwrap();
+    super::create_provider(mock_url).unwrap();
   }
 
   #[test]
   fn test_create_provider_with_invalid_url() {
     let invalid_mock_url = "foo-bar";
-    let maybe_provider = create_provider(invalid_mock_url);
+    let maybe_provider = super::create_provider(invalid_mock_url);
     assert!(maybe_provider.is_err());
   }
 
   #[tokio::test]
   async fn test_get_last_block_number() {
-    let provider = create_provider(MAINNET_RETH_RPC_EL).unwrap();
+    let provider = super::create_provider(MAINNET_RETH_RPC_EL).unwrap();
 
-    let block_number = get_last_block_number(&provider).await.unwrap();
+    let block_number = super::get_last_block_number(&provider).await.unwrap();
     assert!(block_number > 0);
   }
 
   #[tokio::test]
   async fn test_fetch_block() {
-    let provider = create_provider(MAINNET_RETH_RPC_EL).unwrap();
+    let provider = super::create_provider(MAINNET_RETH_RPC_EL).unwrap();
 
     let block_number: u64 = 1;
-    fetch_full_block(&provider, block_number).await.unwrap();
+    super::fetch_full_block(&provider, block_number)
+      .await
+      .unwrap();
   }
 
   #[tokio::test]
   async fn test_fetch_block_witness() {
-    let provider = create_provider(MAINNET_RETH_RPC_EL).unwrap();
+    let provider = super::create_provider(MAINNET_RETH_RPC_EL).unwrap();
 
     // NOTE: We fetch witness for the latest block, as every single older one is slower to compute.
-    let block_number = get_last_block_number(&provider).await.unwrap();
+    let block_number = super::get_last_block_number(&provider).await.unwrap();
 
-    let witness = fetch_block_witness(&provider, block_number).await;
+    let witness = super::fetch_block_witness(&provider, block_number).await;
     assert!(
       witness.is_ok(),
       "Failed to fetch block witness: {:?}",
@@ -305,14 +305,14 @@ mod tests {
 
   #[tokio::test]
   async fn test_recover_rpc_block() {
-    let provider = create_provider(MAINNET_RETH_RPC_EL).unwrap();
-    let block_number = get_last_block_number(&provider).await.unwrap();
-    let block = fetch_full_block(&provider, block_number)
+    let provider = super::create_provider(MAINNET_RETH_RPC_EL).unwrap();
+    let block_number = super::get_last_block_number(&provider).await.unwrap();
+    let block = super::fetch_full_block(&provider, block_number)
       .await
       .unwrap()
       .unwrap();
 
-    let recovered_block = recover_rpc_block(block);
+    let recovered_block = super::recover_rpc_block(block);
     assert!(
       recovered_block.is_ok(),
       "Failed to recover block: {:?}",
@@ -322,10 +322,10 @@ mod tests {
 
   #[tokio::test]
   async fn test_execute_block() {
-    let provider = create_provider(MAINNET_RETH_RPC_EL).unwrap();
-    let block_number = get_last_block_number(&provider).await.unwrap();
+    let provider = super::create_provider(MAINNET_RETH_RPC_EL).unwrap();
+    let block_number = super::get_last_block_number(&provider).await.unwrap();
 
-    let result = execute_block_with_rpc(MAINNET_RETH_RPC_EL, block_number).await;
+    let result = super::execute_block_with_rpc(MAINNET_RETH_RPC_EL, block_number).await;
     assert!(
       result.is_ok(),
       "Failed to execute block: {:?}",

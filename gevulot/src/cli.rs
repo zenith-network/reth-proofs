@@ -1,7 +1,5 @@
-use clap::{Parser, Subcommand};
-
 /// The arguments for the cli.
-#[derive(Debug, Parser)]
+#[derive(Debug, clap::Parser)]
 #[command(name = "myapp")]
 #[command(about = "My CLI with subcommands", long_about = None)]
 pub struct Args {
@@ -9,7 +7,7 @@ pub struct Args {
   pub command: Command,
 }
 
-#[derive(Debug, Subcommand)]
+#[derive(Debug, clap::Subcommand)]
 pub enum Command {
   /// Generate a proving key and store it to a file.
   GeneratePk(GeneratePkArgs),
@@ -19,14 +17,14 @@ pub enum Command {
 }
 
 /// Args specific to the `generate-pk` command.
-#[derive(Debug, Parser)]
+#[derive(Debug, clap::Parser)]
 pub struct GeneratePkArgs {
   /// Path where the proving key should be saved.
   #[clap(long, default_value = "pk.bin")]
   pub output_path: std::path::PathBuf,
 }
 
-#[derive(Debug, Clone, Parser)]
+#[derive(Debug, Clone, clap::Parser)]
 pub struct RunArgs {
   /// The HTTP rpc url used to fetch data about the block.
   #[clap(long, env)]

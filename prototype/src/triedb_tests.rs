@@ -1,9 +1,5 @@
-use reth_proofs_core::triedb::TrieDB;
-
 #[cfg(test)]
 mod tests {
-  use super::*;
-
   #[tokio::test]
   async fn test_triedb_from_execution_witness() {
     let mainnet_reth_nr10 = "http://130.250.187.55:8545";
@@ -18,7 +14,7 @@ mod tests {
       .unwrap();
 
     let block = crate::rpc_block_to_consensus_block(block);
-    let _trie_db = TrieDB::from_execution_witness(witness, &block)
+    let _trie_db = reth_proofs_core::triedb::TrieDB::from_execution_witness(witness, &block)
       .expect("Failed to create TrieDB from execution witness");
   }
 }

@@ -368,11 +368,9 @@ pub fn get_hashed_post_state(
 
 #[cfg(test)]
 mod tests {
-  use super::*;
-
   #[test]
   fn test_create_mainnet_evm_config() {
-    let config = create_mainnet_evm_config();
+    let config = super::create_mainnet_evm_config();
     assert_eq!(
       reth_ethereum::chainspec::EthChainSpec::chain_id(&config.chain_spec()),
       1
