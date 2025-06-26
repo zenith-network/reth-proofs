@@ -4959,6 +4959,7 @@ dependencies = [
  "eyre",
  "futures",
  "reth-proofs",
+ "reth-proofs-core",
  "sp1-build",
  "sp1-sdk",
  "tokio",
