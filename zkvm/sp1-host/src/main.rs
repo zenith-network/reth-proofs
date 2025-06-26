@@ -13,12 +13,7 @@ async fn main() {
   let block_rpc = reth_proofs::load_block_from_file(block_number)
     .await
     .unwrap();
-  let block_consensus: alloy_consensus::Block<
-    alloy_consensus::EthereumTxEnvelope<alloy_consensus::TxEip4844>,
-    alloy_consensus::Header,
-  > = block_rpc
-    .map_transactions(|tx| alloy_consensus::EthereumTxEnvelope::from(tx))
-    .into_consensus();
+  let block_consensus = reth_proofs::rpc_block_to_consensus_block(block_rpc);
   let input = reth_proofs_core::input::ZkvmInput::from_offline_rpc_data(block_consensus, &witness);
 
   println!("Creating GPU prover...");
