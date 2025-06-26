@@ -5,18 +5,12 @@ pub const GUEST_ELF: &[u8] = sp1_sdk::include_elf!("reth-proofs-zkvm-sp1-guest")
 
 #[tokio::main]
 async fn main() {
-  let mut stdin = sp1_sdk::SP1Stdin::new();
-
-  // 1. Write ancestor headers to stdin.
-  let witness = reth_proofs::load_block_witness_from_file(22724090_u64)
+  // Prepare zkVM input from offline RPC data.
+  let block_number = 22724090_u64;
+  let witness = reth_proofs::load_block_witness_from_file(block_number)
     .await
     .unwrap();
-  let ancestor_headers = reth_proofs_core::AncestorHeaders::from_execution_witness(&witness);
-  let ancestor_headers_bytes = bincode::serialize(&ancestor_headers).unwrap();
-  stdin.write_vec(ancestor_headers_bytes);
-
-  // 2. Write current block to stdin.
-  let block_rpc = reth_proofs::load_block_from_file(22724090_u64)
+  let block_rpc = reth_proofs::load_block_from_file(block_number)
     .await
     .unwrap();
   let block_consensus: alloy_consensus::Block<
@@ -25,32 +19,18 @@ async fn main() {
   > = block_rpc
     .map_transactions(|tx| alloy_consensus::EthereumTxEnvelope::from(tx))
     .into_consensus();
-  let block_consensus_bincode = reth_proofs_core::CurrentBlock {
-    body: block_consensus.clone(),
-  };
-  let block_bytes = bincode::serialize(&block_consensus_bincode).unwrap();
-  stdin.write_vec(block_bytes);
-
-  // 3. Write witness state to stdin.
-  let witness = reth_proofs::load_block_witness_from_file(22724090_u64)
-    .await
-    .unwrap();
-  let pre_state_root = ancestor_headers.headers.first().unwrap().state_root;
-  let etherum_state: reth_proofs_core::EthereumState =
-    reth_proofs_core::EthereumState::from_execution_witness(&witness, pre_state_root);
-  let ethereum_state_bytes = bincode::serialize(&etherum_state).unwrap();
-  stdin.write_vec(ethereum_state_bytes);
-
-  // 4. Write bytecodes to stdin.
-  let bytecodes = reth_proofs_core::Bytecodes::from_execution_witness(&witness);
-  let bytecodes_bytes = bincode::serialize(&bytecodes).unwrap();
-  stdin.write_vec(bytecodes_bytes);
+  let input = reth_proofs_core::input::ZkvmInput::from_offline_rpc_data(block_consensus, &witness);
 
   println!("Creating GPU prover...");
   let prover = sp1_sdk::client::ProverClient::builder().cuda().build();
 
   println!("Generating proving bundle...");
   let (pk, _vk) = prover.setup(GUEST_ELF);
+
+  // Write input to zkVM stdin.
+  let mut stdin = sp1_sdk::SP1Stdin::new();
+  let input_bytes = bincode::serialize(&input).unwrap();
+  stdin.write_vec(input_bytes);
 
   println!("Proving execution...");
   let _proof = prover.prove(&pk, &stdin).compressed().run().unwrap();

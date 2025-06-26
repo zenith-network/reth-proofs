@@ -10,22 +10,17 @@ pub fn main() {
   let chainspec_arc = alloc::sync::Arc::new(chainspec);
   let evm_config = reth_proofs_core::create_mainnet_evm_config_from(chainspec_arc.clone());
 
-  // 2. Reading ancestor headers from stdin - 17K cycles.
+  // 2. Reading input data from stdin - 80.4M cycles.
   let buffer = sp1_zkvm::io::read_vec();
-  let ancestor_headers =
-    bincode::deserialize::<reth_proofs_core::AncestorHeaders>(&buffer).unwrap();
-
-  // 3. Reading current block from stdin - 3.3M cycles.
-  let buffer = sp1_zkvm::io::read_vec();
-  let current_block = bincode::deserialize::<reth_proofs_core::CurrentBlock>(&buffer).unwrap();
+  let zkvm_input = bincode::deserialize::<reth_proofs_core::input::ZkvmInput>(&buffer).unwrap();
+  let ancestor_headers = zkvm_input.ancestor_headers;
+  let current_block = zkvm_input.current_block;
+  let ethereum_state = zkvm_input.ethereum_state;
+  let bytecodes = zkvm_input.bytecodes;
 
   // 4. Sealing and validating all headers - 41K cycles.
   let block_hashes = ancestor_headers.seal_and_validate(&current_block);
   let pre_state_root = ancestor_headers.headers.first().unwrap().state_root;
-
-  // 5. Reading ethereum state from stdin - 77.1M cycles.
-  let buffer = sp1_zkvm::io::read_vec();
-  let ethereum_state = bincode::deserialize::<reth_proofs_core::EthereumState>(&buffer).unwrap();
 
   // 6. Validating state trie - 31.5M cycles.
   reth_proofs_core::validate_state_trie(&ethereum_state.state_trie, pre_state_root);
@@ -36,10 +31,6 @@ pub fn main() {
     &ethereum_state.storage_tries,
   )
   .unwrap();
-
-  // 8. Reading bytecodes from stdin - 3K cycles.
-  let buffer = sp1_zkvm::io::read_vec();
-  let bytecodes = bincode::deserialize::<reth_proofs_core::Bytecodes>(&buffer).unwrap();
 
   // 9. Building bytecode map - 42K cycles.
   let bytecode_by_hash = bytecodes.build_map();

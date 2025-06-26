@@ -2,6 +2,7 @@
 
 extern crate alloc;
 
+pub mod input;
 pub mod mpt;
 pub mod triedb;
 
