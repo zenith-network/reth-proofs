@@ -68,8 +68,19 @@ pub async fn main() -> eyre::Result<()> {
       return Ok(());
     }
     cli::Command::PrepareBlock(args) => {
-      // Create WokerPrepare.
       let http_provider = reth_proofs::create_provider(args.http_rpc_url.as_str()).unwrap();
+
+      // Prevent working with block older than 100 blocks, as getting witness for it takes ~2.5s, and gets even more slow with older block.
+      let latest_block_number = alloy_provider::Provider::get_block_number(&http_provider).await?;
+      if args.block_number < latest_block_number.saturating_sub(100) {
+        return Err(eyre::eyre!(
+          "Block number {} is too old, please use a block number at least {}",
+          args.block_number,
+          latest_block_number.saturating_sub(100)
+        ));
+      }
+
+      // Create WokerPrepare.
       let worker = worker_prepare::WorkerPrepare::new(http_provider);
 
       // Get block input.
