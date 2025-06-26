@@ -150,6 +150,18 @@ pub async fn main() -> eyre::Result<()> {
   // NOTE: Even called "key", it contains both PK, and ELF itself!
   let proving_key = sp1::read_pk_from_file(&args.proving_key_path)?;
 
+  // Ethproofs clients.
+  let eth_proofs_client = std::sync::Arc::new(eth_proofs::EthProofsClient::new(
+    args.eth_proofs_cluster_id,
+    args.eth_proofs_endpoint,
+    args.eth_proofs_api_token,
+  ));
+  let eth_proofs_staging_client = std::sync::Arc::new(eth_proofs::EthProofsClient::new(
+    args.eth_proofs_staging_cluster_id,
+    args.eth_proofs_staging_endpoint,
+    args.eth_proofs_staging_api_token,
+  ));
+
   // Token for graceful shutdown.
   let stop_token = tokio_util::sync::CancellationToken::new();
   let stop_token_clone = stop_token.clone();
@@ -178,6 +190,8 @@ pub async fn main() -> eyre::Result<()> {
     let http_provider = http_provider.clone();
     let job_prepare_queue_rx = job_prepare_queue_rx.clone();
     let job_prove_queue_tx = job_prove_queue_tx.clone();
+    let eth_proofs_client = eth_proofs_client.clone();
+    let eth_proofs_staging_client = eth_proofs_staging_client.clone();
     let stop_token = stop_token.clone();
     let worker_prepare_handle = tokio::task::spawn(async move {
       let worker = worker_prepare::WorkerPrepare::new(http_provider);
@@ -188,6 +202,13 @@ pub async fn main() -> eyre::Result<()> {
           worker_id,
           block_number
         );
+        {
+          // Before prepare hook.
+          eth_proofs_staging_client.queued(block_number).await;
+          if block_number % 100 == 0 {
+            eth_proofs_client.queued(block_number).await;
+          }
+        }
         let f = || async { worker.get_input(block_number).await };
         let client_input = match f
           .retry(backon::ConstantBuilder::new().with_max_times(3))
@@ -245,6 +266,8 @@ pub async fn main() -> eyre::Result<()> {
   let num_worker_prove = args.gpu_count;
   for worker_id in 0..num_worker_prove {
     let job_prove_queue_rx = job_prove_queue_rx.clone();
+    let eth_proofs_client = eth_proofs_client.clone();
+    let eth_proofs_staging_client = eth_proofs_staging_client.clone();
     let stop_token = stop_token.clone();
     let proving_key = proving_key.clone();
     let worker_prove_handle = tokio::task::spawn(async move {
@@ -261,10 +284,14 @@ pub async fn main() -> eyre::Result<()> {
           block_number
         );
         {
-          // TODO: Before prove hook.
+          // Before prove hook.
+          eth_proofs_staging_client.proving(block_number).await;
+          if block_number % 100 == 0 {
+            eth_proofs_client.proving(block_number).await;
+          }
         }
         let f = || async { worker.prove(&sp1_stdin).await };
-        let (proving_duration, proof_bytes, cycles, _vk) = match f
+        let (proving_duration, proof_bytes, cycles, vk) = match f
           .retry(backon::ConstantBuilder::new().with_max_times(3))
           .notify(|err: &eyre::Report, dur: std::time::Duration| {
             println!(
@@ -281,7 +308,27 @@ pub async fn main() -> eyre::Result<()> {
           }
         };
         {
-          // TODO: After prove hook.
+          // After prove hook.
+          eth_proofs_staging_client
+            .proved(
+              &proof_bytes,
+              block_number,
+              cycles,
+              proving_duration.as_secs_f32(),
+              &vk,
+            )
+            .await;
+          if block_number % 100 == 0 {
+            eth_proofs_client
+              .proved(
+                &proof_bytes,
+                block_number,
+                cycles,
+                proving_duration.as_secs_f32(),
+                &vk,
+              )
+              .await;
+          }
         }
         tracing::info!("WorkerProve_{}: Block {} proved", worker_id, block_number);
         tracing::info!(

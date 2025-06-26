@@ -57,6 +57,30 @@ pub struct RunArgs {
   /// Used to split the work between multiple instances.
   #[clap(long, env)]
   pub worker_pos: u64,
+
+  /// ETH proofs endpoint.
+  #[clap(long, env)]
+  pub eth_proofs_endpoint: String,
+
+  /// ETH proofs API token.
+  #[clap(long, env)]
+  pub eth_proofs_api_token: String,
+
+  /// Optional ETH proofs cluster ID.
+  #[clap(long, default_value_t = 1)]
+  pub eth_proofs_cluster_id: u64,
+
+  /// ETH proofs staging endpoint.
+  #[clap(long, env)]
+  pub eth_proofs_staging_endpoint: String,
+
+  /// ETH proofs staging API token.
+  #[clap(long, env)]
+  pub eth_proofs_staging_api_token: String,
+
+  /// Optional ETH proofs staging cluster ID.
+  #[clap(long, default_value_t = 1)]
+  pub eth_proofs_staging_cluster_id: u64,
 }
 
 /// Args specific to the `prove-block-offline` command.
