@@ -1143,6 +1143,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "backon"
+version = "1.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "302eaff5357a264a2c42f127ecb8bac761cf99749fc3dc95677e2743991f99e7"
+dependencies = [
+ "fastrand",
+ "tokio",
+]
+
+[[package]]
 name = "backtrace"
 version = "0.3.75"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4954,6 +4964,7 @@ version = "0.1.0"
 dependencies = [
  "alloy-provider",
  "async-channel",
+ "backon",
  "bincode",
  "clap",
  "eyre",

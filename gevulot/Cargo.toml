@@ -20,6 +20,7 @@ clap = { version = "4.5.40", features = ["derive", "env"] }
 
 # Error handling.
 eyre = { version = "0.6.12", default-features = false }
+backon = { version = "1.5.1", default-features = false, features = ["tokio-sleep"] }
 
 # Logging.
 tracing = { version = "0.1.41", default-features = false }
