@@ -65,6 +65,10 @@ pub async fn main() -> eyre::Result<()> {
   let proving_key_bytes = std::fs::read(&args.proving_key_path)?;
   let proving_key: sp1_sdk::SP1ProvingKey = bincode::deserialize(&proving_key_bytes)?;
 
+  // Token for graceful shutdown.
+  let stop_token = tokio_util::sync::CancellationToken::new();
+  let stop_token_clone = stop_token.clone();
+
   let ws = alloy_provider::WsConnect::new(args.ws_rpc_url);
   let ws_provider = alloy_provider::ProviderBuilder::new()
     .connect_ws(ws)
@@ -84,6 +88,7 @@ pub async fn main() -> eyre::Result<()> {
   for worker_id in 0..NUM_WORKERS_PREPARE {
     let http_provider = http_provider.clone();
     let job_prepare_queue_rx = job_prepare_queue_rx.clone();
+    let stop_token = stop_token.clone();
     let worker_prepare_handle = tokio::task::spawn(async move {
       let worker = worker_prepare::WorkerPrepare::new(http_provider);
       while let Ok(job) = job_prepare_queue_rx.recv().await {
@@ -120,6 +125,12 @@ pub async fn main() -> eyre::Result<()> {
         );
 
         // TODO: Pass input to next stage.
+
+        // Stop if the token is cancelled.
+        if stop_token.is_cancelled() {
+          tracing::info!("WorkerPrepare_{}: Stopping...", worker_id);
+          break;
+        }
       }
     });
     worker_prepare_handles.push(worker_prepare_handle);
@@ -172,5 +183,13 @@ pub async fn main() -> eyre::Result<()> {
       }
     }
   }
+
+  tracing::info!("Signaling workers to stop...");
+  stop_token_clone.cancel();
+
+  // NOTE: This does NOT really work, as workers are not checking stop condition unless new task arrives...
+  //tracing::info!("Waiting for workers to finish...");
+  //futures::future::join_all(worker_prepare_handles).await;
+
   Ok(())
 }
