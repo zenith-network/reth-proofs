@@ -161,7 +161,8 @@ pub async fn main() -> eyre::Result<()> {
             }
             tracing::info!("Block {} available in the HTTP provider", block_number);
 
-            // TODO: Push the job to the WorkerPrepare queue.
+            // Push block number to prepare queue.
+            job_prepare_queue_tx.send(block_number.into()).await?;
           }
           None => {
             tracing::warn!("WS stream closed");
