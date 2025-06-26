@@ -1,3 +1,4 @@
+use backon::Retryable;
 use futures::StreamExt;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
@@ -77,6 +78,52 @@ pub async fn main() -> eyre::Result<()> {
   // Queue for WorkerPrepare.
   let (job_prepare_queue_tx, job_prepare_queue_rx) =
     async_channel::bounded::<WorkerPrepareJob>(NUM_WORKERS_PREPARE as usize);
+
+  // Spawn WorkerPrepare tasks.
+  let mut worker_prepare_handles = Vec::new();
+  for worker_id in 0..NUM_WORKERS_PREPARE {
+    let http_provider = http_provider.clone();
+    let job_prepare_queue_rx = job_prepare_queue_rx.clone();
+    let worker_prepare_handle = tokio::task::spawn(async move {
+      let worker = worker_prepare::WorkerPrepare::new(http_provider);
+      while let Ok(job) = job_prepare_queue_rx.recv().await {
+        let block_number = job.block_number;
+        tracing::info!(
+          "WorkerPrepare_{}: Processing block {}",
+          worker_id,
+          block_number
+        );
+        let f = || async { worker.get_input(block_number).await };
+        let client_input = match f
+          .retry(backon::ConstantBuilder::new().with_max_times(3))
+          .notify(|err: &eyre::Report, dur: std::time::Duration| {
+            println!(
+              "[block {}] Retrying {:?} after {:?}",
+              block_number, err, dur
+            );
+          })
+          .await
+        {
+          Ok(res) => res,
+          Err(err) => {
+            println!("[block {}] Error while: {:?}", block_number, err);
+            continue;
+          }
+        };
+        {
+          // NOTE: Here could be after_prepare hook.
+        }
+        tracing::info!(
+          "WorkerPrepare_{}: Client input ready for block {}",
+          worker_id,
+          block_number
+        );
+
+        // TODO: Pass input to next stage.
+      }
+    });
+    worker_prepare_handles.push(worker_prepare_handle);
+  }
 
   tracing::info!(
     "Latest block number in HTTP RPC: {}",
