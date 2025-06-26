@@ -64,6 +64,24 @@ pub async fn main() -> eyre::Result<()> {
       let pk = sp1::generate_pk_with_cpu(elf)?;
       sp1::store_pk_to_file(&pk, &output_path)?;
       println!("PK stored to {}", output_path.display());
+
+      return Ok(());
+    }
+    cli::Command::PrepareBlock(args) => {
+      // Create WokerPrepare.
+      let http_provider = reth_proofs::create_provider(args.http_rpc_url.as_str()).unwrap();
+      let worker = worker_prepare::WorkerPrepare::new(http_provider);
+
+      // Get block input.
+      let save_in_cache = true;
+      let block_number = args.block_number;
+      println!(
+        "Generating input for block {} (will be stored in cache)...",
+        block_number
+      );
+      worker.generate_input(block_number, save_in_cache).await?;
+      println!("Input for block {} generated", block_number);
+
       return Ok(());
     }
     cli::Command::Run(args) => args,

@@ -14,6 +14,9 @@ pub enum Command {
 
   /// Run main orchestration loop.
   Run(RunArgs),
+
+  /// Prepare a block for offline proving.
+  PrepareBlock(PrepareBlockArgs),
 }
 
 /// Args specific to the `generate-pk` command.
@@ -50,4 +53,16 @@ pub struct RunArgs {
   /// Used to split the work between multiple instances.
   #[clap(long, env)]
   pub worker_pos: u64,
+}
+
+/// Args specific to the `prepare-block` command.
+#[derive(Debug, clap::Parser)]
+pub struct PrepareBlockArgs {
+  /// Block number.
+  #[clap(long)]
+  pub block_number: u64,
+
+  /// The HTTP rpc url used to fetch data about the block.
+  #[clap(long, env)]
+  pub http_rpc_url: url::Url,
 }
