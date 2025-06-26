@@ -38,6 +38,7 @@ url = { version = "2.5.4", default-features = false }
 
 # zkVM.
 sp1-sdk = { workspace = true }
+sp1-cuda = { workspace = true }
 
 [build-dependencies]
 # zkVM.
