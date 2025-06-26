@@ -15,6 +15,10 @@ pub enum Command {
   /// Run main orchestration loop.
   Run(RunArgs),
 
+  /// Prove a single given block.
+  /// Useful for reproducing SP1 bugs.
+  ProveBlockOffline(ProveBlockOfflineArgs),
+
   /// Prepare a block for offline proving.
   PrepareBlock(PrepareBlockArgs),
 }
@@ -53,6 +57,27 @@ pub struct RunArgs {
   /// Used to split the work between multiple instances.
   #[clap(long, env)]
   pub worker_pos: u64,
+}
+
+/// Args specific to the `prove-block-offline` command.
+#[derive(Debug, clap::Parser)]
+pub struct ProveBlockOfflineArgs {
+  /// Path to the block file, eg. `12345.bin`.
+  /// Base name of the file MUST be the block number.
+  #[clap(long)]
+  pub block_input: std::path::PathBuf,
+
+  /// Path to the proving key file.
+  #[clap(long)]
+  pub proving_key_path: std::path::PathBuf,
+
+  /// GPU id for proof container.
+  #[clap(long, default_value_t = 0)]
+  pub gpu_id: u8,
+
+  /// Path to the output proof file.
+  #[clap(long, default_value = "proof.bin")]
+  pub output_proof_path: std::path::PathBuf,
 }
 
 /// Args specific to the `prepare-block` command.

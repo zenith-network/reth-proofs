@@ -84,6 +84,52 @@ pub async fn main() -> eyre::Result<()> {
 
       return Ok(());
     }
+    cli::Command::ProveBlockOffline(args) => {
+      // Load block input - based on `try_loading_input_from_cache`.
+      // Also get the block number from the file name.
+      println!("Loading block input from {}", args.block_input.display());
+      let block_number_str = args.block_input.file_stem().unwrap().to_str().unwrap();
+      let block_number: u64 = block_number_str.parse()?;
+      let block_input_serialized = std::fs::read(args.block_input)?;
+      tracing::info!("Loaded block input for block {}", block_number);
+
+      // Make sure serialized data is correct.
+      println!("Validating block input...");
+      bincode::deserialize::<reth_proofs_core::input::ZkvmInput>(&block_input_serialized)
+        .expect("Failed to validate block input");
+      println!("Block input validated");
+
+      // Prepare SP1 input (essenetially copy block input to sp1 context).
+      let mut sp1_stdin = sp1_sdk::SP1Stdin::new();
+      sp1_stdin.write_vec(block_input_serialized);
+      println!("SP1 input ready for block {}", block_number);
+
+      // Create proving worker.
+      let gpu_id = args.gpu_id;
+      let pk = sp1::read_pk_from_file(&args.proving_key_path)?;
+      println!("Creating WorkerProve for GPU {}", gpu_id);
+      let worker = worker_prove::WorkerProve::new(gpu_id, &pk).await.unwrap();
+      println!("WorkerProve created for GPU {}", gpu_id);
+
+      // Prove the block.
+      println!("Proving block {}", block_number);
+      let (proving_duration, proof_bytes, cycles, _vk) = worker.prove(&sp1_stdin).await.unwrap();
+      println!(
+        "Block {} proved, duration: {}, proof bytes: {}, cycles: {}",
+        block_number,
+        proving_duration.as_secs_f32(),
+        proof_bytes.len(),
+        cycles
+      );
+
+      // Save the proof to a file.
+      let proof_path = args.output_proof_path;
+      let mut proof_file = std::fs::File::create(proof_path.clone())?;
+      bincode::serialize_into(&mut proof_file, &proof_bytes)?;
+      println!("Proof saved to {}", proof_path.display());
+
+      return Ok(());
+    }
     cli::Command::Run(args) => args,
   };
 
