@@ -22,6 +22,11 @@ impl From<u64> for WorkerPrepareJob {
   }
 }
 
+struct WorkerProveJob {
+  block_number: u64,
+  sp1_stdin: sp1_sdk::SP1Stdin,
+}
+
 // NOTE: Since `RUST_LOG` is already used by SP1's moongate container (spawned as subprocess)
 // we use different env to be able to control log levels separately.
 const LOG_ENV: &str = "RUST_RSP_LOG";
@@ -83,6 +88,10 @@ pub async fn main() -> eyre::Result<()> {
   let (job_prepare_queue_tx, job_prepare_queue_rx) =
     async_channel::bounded::<WorkerPrepareJob>(NUM_WORKERS_PREPARE as usize);
 
+  // Queue for WorkerProve.
+  let (job_prove_queue_tx, job_prove_queue_rx) =
+    async_channel::bounded::<WorkerProveJob>(NUM_WORKERS_PREPARE as usize);
+
   // Spawn WorkerPrepare tasks.
   let mut worker_prepare_handles = Vec::new();
   for worker_id in 0..NUM_WORKERS_PREPARE {
@@ -134,6 +143,67 @@ pub async fn main() -> eyre::Result<()> {
       }
     });
     worker_prepare_handles.push(worker_prepare_handle);
+  }
+
+  // Spawn WorkerProve tasks.
+  let mut worker_prove_handles = Vec::new();
+  let num_worker_prove = args.gpu_count;
+  for worker_id in 0..num_worker_prove {
+    let job_prove_queue_rx = job_prove_queue_rx.clone();
+    let stop_token = stop_token.clone();
+    let proving_key = proving_key.clone();
+    let worker_prove_handle = tokio::task::spawn(async move {
+      let gpu_id = worker_id;
+      let worker = worker_prove::WorkerProve::new(gpu_id, &proving_key)
+        .await
+        .unwrap();
+      while let Ok(job) = job_prove_queue_rx.recv().await {
+        let block_number = job.block_number;
+        let sp1_stdin = job.sp1_stdin;
+        tracing::info!(
+          "WorkerProve_{}: Processing block {}",
+          worker_id,
+          block_number
+        );
+        {
+          // TODO: Before prove hook.
+        }
+        let f = || async { worker.prove(&sp1_stdin).await };
+        let (proving_duration, proof_bytes, cycles, vk) = match f
+          .retry(backon::ConstantBuilder::new().with_max_times(3))
+          .notify(|err: &eyre::Report, dur: std::time::Duration| {
+            println!(
+              "[block {}] retrying {:?} after {:?}",
+              block_number, err, dur
+            );
+          })
+          .await
+        {
+          Ok(res) => res,
+          Err(err) => {
+            println!("[block {}] Error: {:?}", block_number, err);
+            continue;
+          }
+        };
+        {
+          // TODO: After prove hook.
+        }
+        tracing::info!("WorkerProve_{}: Block {} proved", worker_id, block_number);
+        tracing::info!(
+          "Proving duration: {}, Proof bytes: {}, Cycles: {}",
+          proving_duration.as_secs_f32(),
+          proof_bytes.len(),
+          cycles
+        );
+
+        // Handle stop.
+        if stop_token.is_cancelled() {
+          tracing::info!("WorkerProve_{}: Stopping...", worker_id);
+          break;
+        }
+      }
+    });
+    worker_prove_handles.push(worker_prove_handle);
   }
 
   tracing::info!(
