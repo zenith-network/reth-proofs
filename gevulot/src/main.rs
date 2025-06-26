@@ -97,6 +97,7 @@ pub async fn main() -> eyre::Result<()> {
   for worker_id in 0..NUM_WORKERS_PREPARE {
     let http_provider = http_provider.clone();
     let job_prepare_queue_rx = job_prepare_queue_rx.clone();
+    let job_prove_queue_tx = job_prove_queue_tx.clone();
     let stop_token = stop_token.clone();
     let worker_prepare_handle = tokio::task::spawn(async move {
       let worker = worker_prepare::WorkerPrepare::new(http_provider);
@@ -133,7 +134,21 @@ pub async fn main() -> eyre::Result<()> {
           block_number
         );
 
-        // TODO: Pass input to next stage.
+        // Wrap serialized client input in SP1 struct.
+        let mut sp1_stdin = sp1_sdk::SP1Stdin::new();
+        sp1_stdin.write_vec(client_input);
+
+        // Push the job to the prove queue.
+        let prove_job = WorkerProveJob {
+          block_number,
+          sp1_stdin,
+        };
+        job_prove_queue_tx.send(prove_job).await.unwrap();
+        tracing::info!(
+          "WorkerPrepare_{}: Job sent to WorkerProve for block {}",
+          worker_id,
+          block_number
+        );
 
         // Stop if the token is cancelled.
         if stop_token.is_cancelled() {
