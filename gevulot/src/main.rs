@@ -187,7 +187,7 @@ pub async fn main() -> eyre::Result<()> {
           // TODO: Before prove hook.
         }
         let f = || async { worker.prove(&sp1_stdin).await };
-        let (proving_duration, proof_bytes, cycles, vk) = match f
+        let (proving_duration, proof_bytes, cycles, _vk) = match f
           .retry(backon::ConstantBuilder::new().with_max_times(3))
           .notify(|err: &eyre::Report, dur: std::time::Duration| {
             println!(
