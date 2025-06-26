@@ -33,6 +33,9 @@ const LOG_ENV: &str = "RUST_RSP_LOG";
 
 #[tokio::main]
 pub async fn main() -> eyre::Result<()> {
+  // Initialize the environment variables.
+  dotenv::dotenv().ok();
+
   // Default log level.
   if std::env::var(LOG_ENV).is_err() {
     unsafe {
