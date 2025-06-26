@@ -62,8 +62,7 @@ pub async fn main() -> eyre::Result<()> {
 
   // Load pregenerated proving "key" from the file.
   // NOTE: Even called "key", it contains both PK, and ELF itself!
-  let proving_key_bytes = std::fs::read(&args.proving_key_path)?;
-  let proving_key: sp1_sdk::SP1ProvingKey = bincode::deserialize(&proving_key_bytes)?;
+  let proving_key = sp1::read_pk_from_file(&args.proving_key_path)?;
 
   // Token for graceful shutdown.
   let stop_token = tokio_util::sync::CancellationToken::new();
