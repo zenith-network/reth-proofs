@@ -4,6 +4,8 @@ use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 mod cli;
 
+mod eth_proofs;
+
 mod sp1;
 
 mod worker_prepare;
