@@ -164,6 +164,11 @@ pub async fn main() -> eyre::Result<()> {
     args.eth_proofs_staging_api_token,
   ));
 
+  // Alerting client.
+  let alerting_client = args
+    .pager_duty_integration_key
+    .map(|key| std::sync::Arc::new(alerting::AlertingClient::new(key)));
+
   // Token for graceful shutdown.
   let stop_token = tokio_util::sync::CancellationToken::new();
   let stop_token_clone = stop_token.clone();
@@ -194,6 +199,7 @@ pub async fn main() -> eyre::Result<()> {
     let job_prove_queue_tx = job_prove_queue_tx.clone();
     let eth_proofs_client = eth_proofs_client.clone();
     let eth_proofs_staging_client = eth_proofs_staging_client.clone();
+    let alerting_client = alerting_client.clone();
     let stop_token = stop_token.clone();
     let worker_prepare_handle = tokio::task::spawn(async move {
       let worker = worker_prepare::WorkerPrepare::new(http_provider);
@@ -225,6 +231,14 @@ pub async fn main() -> eyre::Result<()> {
           Ok(res) => res,
           Err(err) => {
             println!("[block {}] Error while: {:?}", block_number, err);
+            if let Some(alerting_client) = alerting_client.clone() {
+              alerting_client
+                .send_alert(format!(
+                  "[{}_WorkerPrepare_{}] Getting input for block {} failed: {}",
+                  args.worker_pos, worker_id, block_number, err
+                ))
+                .await;
+            }
             continue;
           }
         };
@@ -270,6 +284,7 @@ pub async fn main() -> eyre::Result<()> {
     let job_prove_queue_rx = job_prove_queue_rx.clone();
     let eth_proofs_client = eth_proofs_client.clone();
     let eth_proofs_staging_client = eth_proofs_staging_client.clone();
+    let alerting_client = alerting_client.clone();
     let stop_token = stop_token.clone();
     let proving_key = proving_key.clone();
     let worker_prove_handle = tokio::task::spawn(async move {
@@ -306,6 +321,14 @@ pub async fn main() -> eyre::Result<()> {
           Ok(res) => res,
           Err(err) => {
             println!("[block {}] Error: {:?}", block_number, err);
+            if let Some(alerting_client) = alerting_client.clone() {
+              alerting_client
+                .send_alert(format!(
+                  "[{}_WorkerProve_{}] Proving block {} failed: {}",
+                  args.worker_pos, worker_id, block_number, err
+                ))
+                .await;
+            }
             continue;
           }
         };

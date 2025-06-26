@@ -81,6 +81,10 @@ pub struct RunArgs {
   /// Optional ETH proofs staging cluster ID.
   #[clap(long, default_value_t = 1)]
   pub eth_proofs_staging_cluster_id: u64,
+
+  /// PagerDuty integration key.
+  #[clap(long, env)]
+  pub pager_duty_integration_key: Option<String>,
 }
 
 /// Args specific to the `prove-block-offline` command.
