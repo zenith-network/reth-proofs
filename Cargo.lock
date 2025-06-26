@@ -5074,6 +5074,7 @@ dependencies = [
  "reqwest-retry",
  "reth-proofs",
  "reth-proofs-core",
+ "serde_json",
  "sp1-build",
  "sp1-cuda",
  "sp1-sdk",
