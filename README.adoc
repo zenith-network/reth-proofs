@@ -8,3 +8,29 @@ Firstly generate SP1 "proving bundle":
 ----
 cargo run -p reth-proofs-gevulot generate-pk --output-path pk.bin
 ----
+
+== Proving Single Block
+
+. Prepare block input:
++
+[source,shell]
+----
+cargo run -p reth-proofs-gevulot \
+  prepare-block \
+  --block-number 22789000 \
+  --http-rpc-url http://130.250.187.55:8545
+----
++
+NOTE: You can generate input up to 100 blocks behind the chain tip, because getting witness of old blocks is getting too slow in Reth node.
++
+At this point you will get file with block input placed at `/tmp/reth_proofs_cache/input/`.
+
+. Prove block:
++
+[source,shell]
+----
+cargo run -p reth-proofs-gevulot \
+  prove-block-offline \
+  --block-input /tmp/reth_proofs_cache/input/22789000.bin \
+  --proving-key-path ./pk.bin
+----
