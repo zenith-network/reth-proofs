@@ -148,6 +148,8 @@ pub async fn main() -> eyre::Result<()> {
     cli::Command::Run(args) => args,
   };
 
+  tracing::info!("Running with args: {:?}", args);
+
   // Load pregenerated proving "key" from the file.
   // NOTE: Even called "key", it contains both PK, and ELF itself!
   let proving_key = sp1::read_pk_from_file(&args.proving_key_path)?;
