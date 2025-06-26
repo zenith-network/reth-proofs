@@ -151,6 +151,17 @@ pub async fn main() -> eyre::Result<()> {
               tracing::info!("Skipping, block {} is for worker {}", block_number, target_worker_pos);
               continue;
             }
+
+            // Make sure the block is avaliable in the HTTP provider.
+            // This could happen if WS provider is faster than HTTP one.
+            let block_number_hex = block_number.into();
+            while alloy_provider::Provider::get_block_by_number(&http_provider, block_number_hex).await?.is_none() {
+                tracing::info!("Block {} not available in the HTTP provider, waiting...", block_number);
+                tokio::time::sleep(std::time::Duration::from_millis(100)).await;
+            }
+            tracing::info!("Block {} available in the HTTP provider", block_number);
+
+            // TODO: Push the job to the WorkerPrepare queue.
           }
           None => {
             tracing::warn!("WS stream closed");
