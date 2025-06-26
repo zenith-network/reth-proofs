@@ -38,6 +38,10 @@ pub struct RunArgs {
   #[clap(long, env)]
   pub proving_key_path: std::path::PathBuf,
 
+  /// Number of GPUs available, affecting the number of prove workers.
+  #[clap(long, env, default_value_t = 1)]
+  pub gpu_count: u8,
+
   /// Number of all workers in the Gevulot pool.
   #[clap(long, env)]
   pub total_workers: u64,
