@@ -1,0 +1,10 @@
+= Reth Proofs - Ethereum Prover with Ethproofs Integration
+
+== Usage
+
+Firstly generate SP1 "proving bundle":
+
+[source,shell]
+----
+cargo run -p reth-proofs-gevulot generate-pk --output-path pk.bin
+----
