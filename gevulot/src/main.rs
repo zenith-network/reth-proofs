@@ -7,6 +7,7 @@ mod cli;
 mod sp1;
 
 mod worker_prepare;
+mod worker_prove;
 
 // Preparing block is only matter of seconds, no need to parellelize it.
 const NUM_WORKERS_PREPARE: u8 = 1;
