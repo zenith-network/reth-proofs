@@ -2,6 +2,8 @@ use backon::Retryable;
 use futures::StreamExt;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
+mod alerting;
+
 mod cli;
 
 mod eth_proofs;
