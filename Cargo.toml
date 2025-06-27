@@ -43,7 +43,7 @@ serde_with = { version = "3.13.0", default-features = false }
 alloy-consensus = { version = "1.0.13", default-features = false, features = ["serde", "serde-bincode-compat"] }
 alloy-genesis = { version = "1.0.13", default-features = false }
 alloy-rlp = { version = "0.3.10", default-features = false }
-alloy-primitives = { version = "1.2.0", default-features = false, features = ["map-foldhash", "sha3-keccak"] } # `sha3-keccak` is required to use SP1 precompile.
+alloy-primitives = { version = "1.2.0", default-features = false, features = ["map-foldhash", "tiny-keccak", "k256"] } # `sha3-keccak` is required to use SP1 precompile; `tiny-keccak` is for Risc0 precompile.
 alloy-provider = { version = "1.0.13", default-features = false, features = ["reqwest", "debug-api"] }
 alloy-rpc-types-debug = { version = "1.0.13", default-features = false }
 alloy-rpc-types-eth = { version = "1.0.13", default-features = false }

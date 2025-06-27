@@ -3,7 +3,7 @@ use risc0_zkvm::guest::env;
 extern crate alloc;
 
 fn main() {
-  // 1. Creating a mainnet EVM config - 32K cycles -> 97K cycles
+  // 1. Creating a mainnet EVM config - 32K cycles -> 39K cycles
   let start = env::cycle_count();
   let chainspec = reth_proofs_core::create_mainnet_chainspec();
   let chainspec_arc = alloc::sync::Arc::new(chainspec);
@@ -11,7 +11,7 @@ fn main() {
   let end = env::cycle_count();
   eprintln!("creating_mainnet_evm_config: {}", end - start);
 
-  // 2. Reading input data from stdin - 80.4M cycles -> 103.9M cycles
+  // 2. Reading input data from stdin - 80.4M cycles -> 85.3M cycles
   let start = env::cycle_count();
   let len: usize = env::read();
   let mut buffer = vec![0u8; len];
@@ -24,20 +24,20 @@ fn main() {
   let end = env::cycle_count();
   eprintln!("reading_input_data: {}", end - start);
 
-  // 4. Sealing and validating all headers - 41K cycles -> 284K cycles
+  // 4. Sealing and validating all headers - 41K cycles -> 63K cycles
   let start = env::cycle_count();
   let block_hashes = ancestor_headers.seal_and_validate(&current_block);
   let pre_state_root = ancestor_headers.headers.first().unwrap().state_root;
   let end = env::cycle_count();
   eprintln!("sealing_and_validating_headers: {}", end - start);
 
-  // 6. Validating state trie - 31.5M cycles -> 260M cycles
+  // 6. Validating state trie - 31.5M cycles -> 52M cycles
   let start = env::cycle_count();
   reth_proofs_core::validate_state_trie(&ethereum_state.state_trie, pre_state_root);
   let end = env::cycle_count();
   eprintln!("validating_state_trie: {}", end - start);
 
-  // 7. Validating storage tries - 47.4M cycles -> 400M cycles
+  // 7. Validating storage tries - 47.4M cycles -> 78M cycles
   let start = env::cycle_count();
   reth_proofs_core::validate_storage_tries(
     &ethereum_state.state_trie,
@@ -47,7 +47,7 @@ fn main() {
   let end = env::cycle_count();
   eprintln!("validating_storage_tries: {}", end - start);
 
-  // 9. Building bytecode map - 42K cycles -> 533M cycles
+  // 9. Building bytecode map - 42K cycles -> 83M cycles
   let start = env::cycle_count();
   let bytecode_by_hash = bytecodes.build_map();
   let end = env::cycle_count();
@@ -66,13 +66,13 @@ fn main() {
   let block_executor =
     reth_ethereum::evm::primitives::execute::BasicBlockExecutor::new(&evm_config, db);
 
-  // 12. Recover block signatures - 15M cycles -> 188M cycles
+  // 12. Recover block signatures - 15M cycles -> 167M cycles
   let start = env::cycle_count();
   let recovered_block = current_block.recover_senders();
   let end = env::cycle_count();
   eprintln!("recovering_senders: {}", end - start);
 
-  // 13. Execute block - 284.3M cycles -> 547M cycles
+  // 13. Execute block - 284.3M cycles -> 347M cycles
   let start = env::cycle_count();
   let output =
     reth_ethereum::evm::primitives::execute::Executor::execute(block_executor, &recovered_block)
@@ -80,7 +80,7 @@ fn main() {
   let end = env::cycle_count();
   eprintln!("executing_block: {}", end - start);
 
-  // 14. Validate block post execution - 7.8M cycles -> 91M cycles
+  // 14. Validate block post execution - 7.8M cycles -> 13.8M cycles
   let start = env::cycle_count();
   reth_proofs_core::validate_block_post_execution(
     &recovered_block,
@@ -90,19 +90,19 @@ fn main() {
   let end = env::cycle_count();
   eprintln!("validating_post_execution: {}", end - start);
 
-  // 15. Get hashed post state - 3.3M cycles -> 27.3M cycles
+  // 15. Get hashed post state - 3.3M cycles -> 5M cycles
   let start = env::cycle_count();
   let hashed_post_state = reth_proofs_core::get_hashed_post_state(&output);
   let end = env::cycle_count();
   eprintln!("getting_hashed_post_state: {}", end - start);
 
-  // 16. Apply state updates - 21.2M cycles -> 186M cycles
+  // 16. Apply state updates - 21.2M cycles -> 35.7M cycles
   let start = env::cycle_count();
   trie_db.update(&hashed_post_state);
   let end = env::cycle_count();
   eprintln!("apply_trie_updates: {}", end - start);
 
-  // 17. Compute new state root and verify - 15.5M cycles -> 170M cycles
+  // 17. Compute new state root and verify - 15.5M cycles -> 29.6M cycles
   let start = env::cycle_count();
   let new_state_root = trie_db.compute_state_root();
   let expected_root = recovered_block.header().state_root;
