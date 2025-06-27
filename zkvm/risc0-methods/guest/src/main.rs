@@ -66,13 +66,13 @@ fn main() {
   let block_executor =
     reth_ethereum::evm::primitives::execute::BasicBlockExecutor::new(&evm_config, db);
 
-  // 12. Recover block signatures - 15M cycles -> 3111M cycles (over 50% of total cycles!!!)
+  // 12. Recover block signatures - 15M cycles -> 188M cycles
   let start = env::cycle_count();
   let recovered_block = current_block.recover_senders();
   let end = env::cycle_count();
   eprintln!("recovering_senders: {}", end - start);
 
-  // 13. Execute block - 284.3M cycles -> 1127M cycles
+  // 13. Execute block - 284.3M cycles -> 547M cycles
   let start = env::cycle_count();
   let output =
     reth_ethereum::evm::primitives::execute::Executor::execute(block_executor, &recovered_block)
