@@ -2,6 +2,7 @@
 members = [
   "core",
   "gevulot",
+  "zkvm/risc0-host",
   "zkvm/risc0-methods",
   "zkvm/sp1-guest",
   "zkvm/sp1-host",
