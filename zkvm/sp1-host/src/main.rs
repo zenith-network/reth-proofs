@@ -28,7 +28,8 @@ async fn main() {
   stdin.write_vec(input_bytes);
 
   println!("Proving execution...");
-  let _proof = prover.prove(&pk, &stdin).compressed().run().unwrap();
-
-  println!("Done!");
+  let (_proof_values, cycles) = prover
+    .prove_with_cycles(&pk, &stdin, sp1_sdk::SP1ProofMode::Compressed)
+    .unwrap();
+  println!("Proof generated with {} cycles.", cycles);
 }
