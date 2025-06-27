@@ -34,32 +34,32 @@ sp1-sdk = { version = "5.0.6", default-features = false, features = ["profiling"
 sp1-build = { version = "5.0.5", default-features = false }
 sp1-zkvm = { version = "5.0.5", default-features = false, features = ["lib"] }
 
-# NOTE: Version of alloy/revm/reth crates is based on reth v1.4.8:
-# - https://github.com/paradigmxyz/reth/blob/v1.4.8/Cargo.toml
+# NOTE: Version of alloy/revm/reth crates is based on reth v1.5.0:
+# - https://github.com/paradigmxyz/reth/blob/v1.5.0/Cargo.toml
 
 # alloy
-alloy-consensus = { version = "1.0.9", default-features = false, features = ["serde", "serde-bincode-compat"] }
-alloy-genesis = { version = "1.0.9", default-features = false }
+alloy-consensus = { version = "1.0.13", default-features = false, features = ["serde", "serde-bincode-compat"] }
+alloy-genesis = { version = "1.0.13", default-features = false }
 alloy-rlp = { version = "0.3.10", default-features = false }
-alloy-primitives = { version = "1.1.0", default-features = false, features = ["map-foldhash", "sha3-keccak"] } # `sha3-keccak` is required to use SP1 precompile.
-alloy-provider = { version = "1.0.9", default-features = false, features = ["reqwest", "debug-api"] }
-alloy-rpc-types-debug = { version = "1.0.9", default-features = false }
-alloy-rpc-types-eth = { version = "1.0.9", default-features = false }
-alloy-trie = { version = "0.8.1", default-features = false }
+alloy-primitives = { version = "1.2.0", default-features = false, features = ["map-foldhash", "sha3-keccak"] } # `sha3-keccak` is required to use SP1 precompile.
+alloy-provider = { version = "1.0.13", default-features = false, features = ["reqwest", "debug-api"] }
+alloy-rpc-types-debug = { version = "1.0.13", default-features = false }
+alloy-rpc-types-eth = { version = "1.0.13", default-features = false }
+alloy-trie = { version = "0.9.0", default-features = false }
 
 # revm
-revm = { version = "24.0.1",  default-features = false, features = ["serde", "kzg-rs", "bn"] }
+revm = { version = "26.0.1",  default-features = false, features = ["serde", "kzg-rs", "bn"] }
 
 # reth
-reth-chainspec = { git = "https://github.com/paradigmxyz/reth", tag = "v1.4.8", default-features = false }
-reth-ethereum = { git = "https://github.com/paradigmxyz/reth", tag = "v1.4.8", default-features = false, features = ["evm"] }
-reth-ethereum-consensus = { git = "https://github.com/paradigmxyz/reth", tag = "v1.4.8", default-features = false }
-reth-ethereum-primitives = { git = "https://github.com/paradigmxyz/reth", tag = "v1.4.8", default-features = false, features = ["serde", "serde-bincode-compat"] }
-reth-execution-types = { git = "https://github.com/paradigmxyz/reth", tag = "v1.4.8", default-features = false }
-reth-primitives-traits = { git = "https://github.com/paradigmxyz/reth", tag = "v1.4.8", default-features = false, features = ["serde", "serde-bincode-compat"] }
-reth-trie = { git = "https://github.com/paradigmxyz/reth", tag = "v1.4.8", default-features = false }
-reth-trie-common = { git = "https://github.com/paradigmxyz/reth", tag = "v1.4.8", default-features = false }
-reth-stateless = { git = "https://github.com/paradigmxyz/reth", tag = "v1.4.8", default-features = false }
+reth-chainspec = { git = "https://github.com/paradigmxyz/reth", tag = "v1.5.0", default-features = false }
+reth-ethereum = { git = "https://github.com/paradigmxyz/reth", tag = "v1.5.0", default-features = false, features = ["evm"] }
+reth-ethereum-consensus = { git = "https://github.com/paradigmxyz/reth", tag = "v1.5.0", default-features = false }
+reth-ethereum-primitives = { git = "https://github.com/paradigmxyz/reth", tag = "v1.5.0", default-features = false, features = ["serde", "serde-bincode-compat"] }
+reth-execution-types = { git = "https://github.com/paradigmxyz/reth", tag = "v1.5.0", default-features = false }
+reth-primitives-traits = { git = "https://github.com/paradigmxyz/reth", tag = "v1.5.0", default-features = false, features = ["serde", "serde-bincode-compat"] }
+reth-trie = { git = "https://github.com/paradigmxyz/reth", tag = "v1.5.0", default-features = false }
+reth-trie-common = { git = "https://github.com/paradigmxyz/reth", tag = "v1.5.0", default-features = false }
+reth-stateless = { git = "https://github.com/paradigmxyz/reth", tag = "v1.5.0", default-features = false }
 
 # misc
 nybbles = { version = "0.3.0", default-features = false }
