@@ -4,6 +4,16 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+# alloy
+alloy-consensus = { workspace = true }
+
+# Asynchronous runtime.
+tokio = { workspace = true }
+
+# Reth Proofs
+reth-proofs-core = { workspace = true }
+reth-proofs = { workspace = true }
+
 # Error handling.
 anyhow = { version = "1.0.98", default-features = false }
 
@@ -15,6 +25,7 @@ tracing-subscriber = { version = "0.3.19", default-features = false, features = 
 
 # Serialization.
 serde = { workspace = true }
+bincode = { workspace = true }
 
 # zkVM.
 risc0-zkvm = { version = "^2.1.0" }

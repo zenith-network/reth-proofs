@@ -5531,10 +5531,15 @@ dependencies = [
 name = "reth-proofs-zkvm-risc0-host"
 version = "0.1.0"
 dependencies = [
+ "alloy-consensus",
  "anyhow",
+ "bincode",
+ "reth-proofs",
+ "reth-proofs-core",
  "reth-proofs-zkvm-risc0-methods",
  "risc0-zkvm",
  "serde",
+ "tokio",
  "tracing-subscriber 0.3.19",
 ]
 
