@@ -6,4 +6,14 @@ edition = "2024"
 [workspace]
 
 [dependencies]
+# zkVM.
 risc0-zkvm = { version = "2.1.0", default-features = false, features = ["std"] }
+
+# reth
+reth-ethereum = { git = "https://github.com/paradigmxyz/reth", tag = "v1.5.0", default-features = false, features = ["evm"] }
+
+# Reth Proofs
+reth-proofs-core = { path = "../../../core" }
+
+# Serialization.
+bincode = { version = "1.3.3", default-features = false }
