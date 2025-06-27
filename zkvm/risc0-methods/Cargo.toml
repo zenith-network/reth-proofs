@@ -1,0 +1,12 @@
+[package]
+version = "0.1.0"
+name = "reth-proofs-zkvm-risc0-methods"
+edition = "2024"
+
+[package.metadata.risc0]
+methods = ["guest"]
+
+[dependencies]
+
+[build-dependencies]
+risc0-build = { version = "2.1.2", default-features = false }
