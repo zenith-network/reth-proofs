@@ -34,3 +34,12 @@ cargo run -p reth-proofs-gevulot \
   --block-input /tmp/reth_proofs_cache/input/22789000.bin \
   --proving-key-path ./pk.bin
 ----
+
+== Core Compatibility with `no_std`
+
+Once a while run the following to make sure Reth Proofs core is **truely** `no_std` compatible:
+
+[source,shell]
+----
+cargo build -p reth-proofs-core --target thumbv7em-none-eabi
+---
