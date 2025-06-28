@@ -29,5 +29,12 @@ async fn main() -> anyhow::Result<()> {
   exec.execute(env, RETH_PROOFS_ZKVM_RISC0_GUEST_ELF)?;
   println!("Done!");
 
+  // Proving test!
+  println!("Creating local prover...");
+  let prover = risc0_zkvm::LocalProver::new("local-prover");
+  println!("Generating proof... {}", std::time::UNIX_EPOCH.elapsed().unwrap().as_millis());
+  let receipt = prover.prove(env, RETH_PROOFS_ZKVM_RISC0_GUEST_ELF).unwrap();
+  print!("Proof ready! {}", std::time::UNIX_EPOCH.elapsed().unwrap().as_millis());
+
   Ok(())
 }
