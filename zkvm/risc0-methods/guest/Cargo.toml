@@ -7,7 +7,7 @@ edition = "2024"
 
 [dependencies]
 # zkVM.
-risc0-zkvm = { version = "2.1.0", default-features = false, features = ["std", "unstable"] }
+risc0-zkvm = { version = "3.0.0-rc.1", default-features = false, features = ["std", "unstable"] }
 
 # reth
 reth-ethereum = { git = "https://github.com/paradigmxyz/reth", tag = "v1.5.0", default-features = false, features = ["evm"] }

@@ -9,4 +9,4 @@ methods = ["guest"]
 [dependencies]
 
 [build-dependencies]
-risc0-build = { version = "2.1.2", default-features = false, features = ["unstable"] }
+risc0-build = { version = "3.0.1-rc.1", default-features = false, features = ["unstable"] }
