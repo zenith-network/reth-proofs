@@ -1,0 +1,11 @@
+*
+!/assets
+!/core
+!/gevulot
+!/prototype
+!/zkvm
+zkvm/risc0-methods/guest/Cargo.lock
+zkvm/risc0-methods/guest/target
+!/Cargo.lock
+!/Cargo.toml
+!/rust-toolchain.toml
