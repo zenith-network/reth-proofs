@@ -8,7 +8,7 @@ async fn main() -> anyhow::Result<()> {
     .init();
 
   // Prepare zkVM input from offline RPC data.
-  let block_number = 22815400_u64;
+  let block_number = 22830000_u64;
   let witness = reth_proofs::load_block_witness_from_file(block_number)
     .await
     .unwrap();
