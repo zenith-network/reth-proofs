@@ -37,8 +37,12 @@ async fn main() -> anyhow::Result<()> {
   // Proving test!
   println!("Creating local prover...");
   let prover = risc0_zkvm::LocalProver::new("local-prover");
-  println!("Generating proof...");
+  let env = ExecutorEnv::builder()
+    .write(&input_bytes_len)?
+    .write_slice(&input_bytes)
+    .build()?;
   let opts = risc0_zkvm::ProverOpts::fast();
+  println!("Generating proof...");
   let start = std::time::Instant::now();
   let receipt = risc0_zkvm::Prover::prove_with_opts(&prover, env, RETH_PROOFS_ZKVM_RISC0_GUEST_ELF, &opts).unwrap();
   let duration = start.elapsed();
