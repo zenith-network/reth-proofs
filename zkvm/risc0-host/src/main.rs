@@ -26,8 +26,13 @@ async fn main() -> anyhow::Result<()> {
     .write_slice(&input_bytes)
     .build()?;
   let exec = default_executor();
-  exec.execute(env, RETH_PROOFS_ZKVM_RISC0_GUEST_ELF)?;
-  println!("Done!");
+  println!("Generating traces...");
+  let start = std::time::Instant::now();
+  let session_info = exec.execute(env, RETH_PROOFS_ZKVM_RISC0_GUEST_ELF)?;
+  let duration = start.elapsed();
+  println!("Traces ready - it took {:.2} seconds", duration.as_secs_f64());
+  println!("- num segments: {}", session_info.segments.len());
+  println!("- total cycles: {}", session_info.cycles());
 
   // Proving test!
   println!("Creating local prover...");
