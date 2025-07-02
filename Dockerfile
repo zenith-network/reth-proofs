@@ -3,7 +3,8 @@ FROM nvidia/cuda:12.2.2-devel-ubuntu20.04
 WORKDIR /app
 
 # Install base dependencies.
-RUN apt update && apt install -y curl nvidia-cuda-toolkit
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt update && apt install --yes --force-yes curl nvidia-cuda-toolkit
 
 # Install Rust.
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
@@ -13,9 +14,6 @@ ENV PATH="/root/.cargo/bin:${PATH}"
 RUN curl -L https://risczero.com/install | bash
 ENV PATH="/root/.risc0/bin:${PATH}"
 RUN rzup install && rzup install r0vm 3.0.0-rc.1
-
-# Install Nvidia CUDA toolkit.
-RUN apt update && apt install -y nvidia-cuda-toolkit
 
 # Copy the project files.
 COPY . /app
