@@ -27,6 +27,9 @@ async fn main() {
   let input_bytes = bincode::serialize(&input).unwrap();
   stdin.write_vec(input_bytes);
 
+  // Execute the program using the `ProverClient.execute` method, without generating a proof.
+  //let (_, report) = prover.execute(GUEST_ELF, &stdin).run().unwrap();
+
   println!("Proving execution...");
   let start = std::time::Instant::now();
   let (_proof_values, cycles) = prover
