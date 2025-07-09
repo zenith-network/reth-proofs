@@ -28,8 +28,11 @@ async fn main() {
   stdin.write_vec(input_bytes);
 
   println!("Proving execution...");
+  let start = std::time::Instant::now();
   let (_proof_values, cycles) = prover
     .prove_with_cycles(&pk, &stdin, sp1_sdk::SP1ProofMode::Compressed)
     .unwrap();
+  let duration = start.elapsed();
   println!("Proof generated with {} cycles.", cycles);
+  println!("Proof generation time: {:.2} seconds", duration.as_secs_f64());
 }
