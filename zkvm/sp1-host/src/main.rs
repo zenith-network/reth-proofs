@@ -6,7 +6,7 @@ pub const GUEST_ELF: &[u8] = sp1_sdk::include_elf!("reth-proofs-zkvm-sp1-guest")
 #[tokio::main]
 async fn main() {
   // Prepare zkVM input from offline RPC data.
-  let block_number = 22724090_u64;
+  let block_number = 22830000_u64;
   let witness = reth_proofs::load_block_witness_from_file(block_number)
     .await
     .unwrap();
