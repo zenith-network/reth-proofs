@@ -144,6 +144,7 @@ pub struct CurrentBlock {
 }
 
 impl CurrentBlock {
+  // TODO: By taking `self` we could avoid cloning body.
   pub fn recover_senders(
     &self,
   ) -> reth_primitives_traits::RecoveredBlock<
