@@ -3,6 +3,12 @@ name = "reth-proofs-zkvm-sp1-guest"
 version = "0.1.0"
 edition = "2024"
 
+# TODO: Experiment with different values to find the most optimal settings.
+#[profile.release]
+#codegen-units = 1
+#debug = 1
+#lto = "fat"
+
 [dependencies]
 # zkVM.
 sp1-zkvm = { workspace = true }
