@@ -1,11 +1,11 @@
 [workspace]
 members = [
   "core",
-  #"gevulot",
+  "gevulot",
   "zkvm/risc0-host",
   "zkvm/risc0-guest",
-  #"zkvm/sp1-guest",
-  #"zkvm/sp1-host",
+  "zkvm/sp1-guest",
+  "zkvm/sp1-host",
   "prototype",
 ]
 resolver = "3"
@@ -31,10 +31,10 @@ serde_json = { version = "1.0.140", default-features = false }
 serde_with = { version = "3.13.0", default-features = false }
 
 # zkVM.
-#sp1-cuda = { version = "5.0.5", default-features = false }
-#sp1-sdk = { version = "5.0.6", default-features = false, features = ["profiling"] }
-#sp1-build = { version = "5.0.5", default-features = false }
-#sp1-zkvm = { version = "5.0.5", default-features = false, features = ["lib"] }
+sp1-cuda = { version = "5.0.5", default-features = false }
+sp1-sdk = { version = "5.0.6", default-features = false, features = ["profiling"] }
+sp1-build = { version = "5.0.5", default-features = false }
+sp1-zkvm = { version = "5.0.5", default-features = false, features = ["lib"] }
 
 # NOTE: Version of alloy/revm/reth crates is based on reth v1.5.0:
 # - https://github.com/paradigmxyz/reth/blob/v1.5.0/Cargo.toml
