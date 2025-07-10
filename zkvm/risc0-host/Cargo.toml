@@ -17,9 +17,6 @@ reth-proofs = { workspace = true }
 # Error handling.
 anyhow = { version = "1.0.98", default-features = false }
 
-# Guest code.
-reth-proofs-zkvm-risc0-methods = { path = "../risc0-methods" }
-
 # Logging.
 tracing-subscriber = { version = "0.3.19", default-features = false, features = ["std", "env-filter", "fmt"] }
 
@@ -29,3 +26,7 @@ bincode = { workspace = true }
 
 # zkVM.
 risc0-zkvm = { version = "3.0.0-rc.1", features = ["cuda", "prove"] }
+
+[build-dependencies]
+# zkVM.
+risc0-build = { version = "=3.0.1-rc.1", git = "https://github.com/koxu1996/risc0.git", branch = "feature/simpler-guest-integration-v3.0.0-rc.1", features = ["unstable"] }

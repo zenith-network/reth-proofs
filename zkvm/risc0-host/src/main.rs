@@ -1,4 +1,5 @@
-use reth_proofs_zkvm_risc0_methods::RETH_PROOFS_ZKVM_RISC0_GUEST_ELF;
+pub const RETH_PROOFS_ZKVM_RISC0_GUEST_ELF: &[u8] = include_bytes!(env!(concat!("R0_ELF_", "reth-proofs-zkvm-risc0-guest")));
+
 use risc0_zkvm::{ExecutorEnv, default_executor};
 
 #[tokio::main]
