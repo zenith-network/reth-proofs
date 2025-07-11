@@ -114,17 +114,11 @@ impl TrieDB {
       }
     }
   }
-}
 
-impl revm::DatabaseRef for TrieDB {
-  /// The database error type.
-  type Error = reth_ethereum::evm::primitives::execute::ProviderError;
-
-  /// Get basic account information.
-  fn basic_ref(
-    &self,
+  // NOTE: It provides 1-to-1 mapping with `StatelessTrie::account`.
+  pub fn account(&self,
     address: alloy_primitives::Address,
-  ) -> Result<Option<revm::state::AccountInfo>, Self::Error> {
+  ) -> Result<Option<alloy_trie::TrieAccount>, reth_ethereum::evm::primitives::execute::ProviderError> {
     let hashed_address = alloy_primitives::keccak256(address);
     let hashed_address = hashed_address.as_slice();
 
@@ -133,36 +127,14 @@ impl revm::DatabaseRef for TrieDB {
       .get_rlp::<alloy_trie::TrieAccount>(hashed_address)
       .unwrap();
 
-    let account = account_in_trie.map(|account_in_trie| revm::state::AccountInfo {
-      balance: account_in_trie.balance,
-      nonce: account_in_trie.nonce,
-      code_hash: account_in_trie.code_hash,
-      code: None,
-    });
-
-    Ok(account)
+    Ok(account_in_trie)
   }
 
-  /// Get account code by its hash.
-  fn code_by_hash_ref(
-    &self,
-    hash: alloy_primitives::B256,
-  ) -> Result<revm::state::Bytecode, Self::Error> {
-    Ok(
-      self
-        .bytecode_by_hash
-        .get(&hash)
-        .map(|code| (*code).clone())
-        .unwrap(),
-    )
-  }
-
-  /// Get storage value of address at index.
-  fn storage_ref(
-    &self,
+  // NOTE: It provides 1-to-1 mapping with `StatelessTrie::storage`.
+  pub fn storage(&self,
     address: alloy_primitives::Address,
     index: alloy_primitives::U256,
-  ) -> Result<alloy_primitives::U256, Self::Error> {
+  ) -> Result<alloy_primitives::U256, reth_ethereum::evm::primitives::execute::ProviderError> {
     let hashed_address = alloy_primitives::keccak256(address);
     let hashed_address = hashed_address.as_slice();
 
@@ -197,6 +169,50 @@ impl revm::DatabaseRef for TrieDB {
 
     // Account doesn't exist or has empty storage root.
     Ok(alloy_primitives::U256::ZERO)
+  }
+}
+
+impl revm::DatabaseRef for TrieDB {
+  /// The database error type.
+  type Error = reth_ethereum::evm::primitives::execute::ProviderError;
+
+  /// Get basic account information.
+  fn basic_ref(
+    &self,
+    address: alloy_primitives::Address,
+  ) -> Result<Option<revm::state::AccountInfo>, Self::Error> {
+    let account_in_trie = self.account(address)?;
+    let account = account_in_trie.map(|account_in_trie| revm::state::AccountInfo {
+      balance: account_in_trie.balance,
+      nonce: account_in_trie.nonce,
+      code_hash: account_in_trie.code_hash,
+      code: None,
+    });
+
+    Ok(account)
+  }
+
+  /// Get account code by its hash.
+  fn code_by_hash_ref(
+    &self,
+    hash: alloy_primitives::B256,
+  ) -> Result<revm::state::Bytecode, Self::Error> {
+    Ok(
+      self
+        .bytecode_by_hash
+        .get(&hash)
+        .map(|code| (*code).clone())
+        .unwrap(),
+    )
+  }
+
+  /// Get storage value of address at index.
+  fn storage_ref(
+    &self,
+    address: alloy_primitives::Address,
+    index: alloy_primitives::U256,
+  ) -> Result<alloy_primitives::U256, Self::Error> {
+    self.storage(address, index)
   }
 
   /// Get block hash by block number.
