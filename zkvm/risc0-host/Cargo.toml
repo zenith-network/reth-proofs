@@ -26,8 +26,8 @@ serde = { workspace = true }
 bincode = { workspace = true }
 
 # zkVM.
-risc0-zkvm = { version = "3.0.0-rc.1", features = ["cuda", "prove"] }
+risc0-zkvm = { workspace = true, features = ["cuda", "prove"] }
 
 [build-dependencies]
 # zkVM.
-risc0-build = { version = "=3.0.1-rc.1", git = "https://github.com/koxu1996/risc0.git", branch = "feature/simpler-guest-integration-v3.0.0-rc.1", features = ["unstable"] }
+risc0-build = { workspace = true }

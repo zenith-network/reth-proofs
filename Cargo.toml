@@ -39,6 +39,7 @@ sp1-zkvm = { version = "5.0.5", default-features = false, features = ["lib"] }
 
 # zkVM.
 risc0-zkvm = { version = "3.0.0-rc.1", default-features = false, features = ["unstable"] }
+risc0-build = { version = "=3.0.1-rc.1", git = "https://github.com/koxu1996/risc0.git", branch = "feature/simpler-guest-integration-v3.0.0-rc.1", default-features = false, features = ["unstable"] }
 
 # NOTE: Version of alloy/revm/reth crates is based on reth v1.5.0:
 # - https://github.com/paradigmxyz/reth/blob/v1.5.0/Cargo.toml
