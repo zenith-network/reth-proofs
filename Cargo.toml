@@ -13,6 +13,7 @@ resolver = "3"
 [workspace.dependencies]
 reth-proofs-core = { path = "./core" }
 reth-proofs = { path = "./prototype" }
+reth-proofs-zkvm-common-host = { path = "./zkvm-common-host" }
 
 # Asynchronous runtime.
 tokio = { version = "1.45.1", default-features = false, features = ["rt-multi-thread", "macros"] }

@@ -15,6 +15,7 @@ tokio = { workspace = true }
 # Reth Proofs
 reth-proofs-core = { workspace = true }
 reth-proofs = { workspace = true }
+reth-proofs-zkvm-common-host = { workspace = true }
 
 # Serialization.
 bincode = { workspace = true }

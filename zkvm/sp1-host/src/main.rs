@@ -5,16 +5,8 @@ pub const GUEST_ELF: &[u8] = sp1_sdk::include_elf!("reth-proofs-zkvm-sp1-guest")
 
 #[tokio::main]
 async fn main() {
-  // Prepare zkVM input from offline RPC data.
-  let block_number = 22830000_u64;
-  let witness = reth_proofs::load_block_witness_from_file(block_number)
-    .await
-    .unwrap();
-  let block_rpc = reth_proofs::load_block_from_file(block_number)
-    .await
-    .unwrap();
-  let block_consensus = reth_proofs::rpc_block_to_consensus_block(block_rpc);
-  let input = reth_proofs_core::input::ZkvmInput::from_offline_rpc_data(block_consensus, &witness);
+  // Prepare zkVM input.
+  let input_bytes = reth_proofs_zkvm_common_host::host_handler().await;
 
   println!("Creating GPU prover...");
   let prover = sp1_sdk::client::ProverClient::builder().cuda().build();
@@ -24,7 +16,6 @@ async fn main() {
 
   // Write input to zkVM stdin.
   let mut stdin = sp1_sdk::SP1Stdin::new();
-  let input_bytes = bincode::serialize(&input).unwrap();
   stdin.write_vec(input_bytes);
 
   // Execute the program using the `ProverClient.execute` method, without generating a proof.
