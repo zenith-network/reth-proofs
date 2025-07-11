@@ -14,7 +14,7 @@ mod tests {
       .unwrap();
 
     let block = crate::rpc_block_to_consensus_block(block);
-    let _trie_db = reth_proofs_core::triedb::TrieDB::from_execution_witness(witness, &block)
+    let _trie_db = reth_proofs_core::triedb::TrieDB::from_execution_witness(&witness, &block)
       .expect("Failed to create TrieDB from execution witness");
   }
 }

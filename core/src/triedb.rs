@@ -11,11 +11,11 @@ impl TrieDB {
   // Custom integration - written by chatGPT.
   // This is constructing a *valid* TrieDB.
   pub fn from_execution_witness(
-    witness: alloy_rpc_types_debug::ExecutionWitness,
+    witness: &alloy_rpc_types_debug::ExecutionWitness,
     block: &alloy_consensus::Block<reth_ethereum::TransactionSigned>,
   ) -> Result<Self, alloc::string::String> {
     // Step 0: Build block hashes and locate `pre_state_root`.
-    let ancestor_headers = crate::AncestorHeaders::from_execution_witness(&witness);
+    let ancestor_headers = crate::AncestorHeaders::from_execution_witness(witness);
     let block = crate::CurrentBlock {
       body: block.clone(),
     };
@@ -24,10 +24,10 @@ impl TrieDB {
 
     // Step 1-3: Build state trie and storage tries.
     // NOTE: Tries are validated during construction.
-    let ethereum_state = crate::EthereumState::from_execution_witness(&witness, pre_state_root);
+    let ethereum_state = crate::EthereumState::from_execution_witness(witness, pre_state_root);
 
     // Step 4: Build bytecode map.
-    let bytecodes = crate::Bytecodes::from_execution_witness(&witness);
+    let bytecodes = crate::Bytecodes::from_execution_witness(witness);
     let bytecode_by_hash = bytecodes.build_map();
 
     let trie = Self {

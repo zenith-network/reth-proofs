@@ -104,7 +104,7 @@ pub async fn prepare_block_trie_db(
     .unwrap();
 
   let block = rpc_block_to_consensus_block(block);
-  let trie_db = reth_proofs_core::triedb::TrieDB::from_execution_witness(witness, &block)
+  let trie_db = reth_proofs_core::triedb::TrieDB::from_execution_witness(&witness, &block)
     .map_err(|e| Error::TrieDB(format!("{}", e)))?;
 
   Ok(trie_db)
@@ -140,7 +140,7 @@ pub async fn execute_block(
 ) -> Result<reth_execution_types::BlockExecutionOutput<reth_ethereum::Receipt>, Error> {
   let config = reth_proofs_core::create_mainnet_evm_config();
   let block_copy = rpc_block_to_consensus_block(block.clone());
-  let mut trie_db = reth_proofs_core::triedb::TrieDB::from_execution_witness(witness, &block_copy)
+  let mut trie_db = reth_proofs_core::triedb::TrieDB::from_execution_witness(&witness, &block_copy)
     .map_err(|e| Error::TrieDB(format!("{}", e)))?;
   let db = reth_proofs_core::triedb::wrap_into_database(&trie_db);
   let block_executor =

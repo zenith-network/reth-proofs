@@ -51,7 +51,7 @@ async fn debug_local_block_and_witness(block_number: u64) {
 
   // Build trie.
   let block = reth_proofs::rpc_block_to_consensus_block(block);
-  let trie = reth_proofs_core::triedb::TrieDB::from_execution_witness(witness, &block).unwrap();
+  let trie = reth_proofs_core::triedb::TrieDB::from_execution_witness(&witness, &block).unwrap();
   if trie.state_trie.size() == 0 {
     println!("Ouch! If state trie is empty, then probably you supplied invalid pre_state_root.");
     return;
