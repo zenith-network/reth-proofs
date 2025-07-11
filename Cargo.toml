@@ -6,6 +6,7 @@ members = [
   "zkvm/risc0-guest",
   "zkvm/sp1-guest",
   "zkvm/sp1-host",
+  "zkvm-common-guest",
   "prototype",
 ]
 resolver = "3"

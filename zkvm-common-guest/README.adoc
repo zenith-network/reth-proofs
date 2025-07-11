@@ -1,0 +1,35 @@
+= Common zkVM Guest
+
+This crate provides a common zkVM agnostic logic, to be used both by Risc0 and SP1 guests:
+
+[source,rust]
+----
+fn guest_handler(input_buffer: &[u8]);
+----
+
+The only role of the final ZKVM guest wrapper is to provide input data.
+
+CAUTION: The only reason why Risc0 and SP1 guest wrappers are a separate and out of workspace crates, is that we need to use different set of patches (precompiles).
+
+== Tracking Cycles
+
+In Risc0 tracking cycles can be done with a dedicated syscall:
+
+[source,rust]
+----
+let start: u64 = risc0_zkvm::guest::env::cycle_count();
+// do some stuff here...
+let end: u64 = risc0_zkvm::guest::env::cycle_count();
+eprintln!("Cycles: {}", end - start);
+----
+
+In SP1 we use cycle tracker mechanism - invoked via stdout print:
+
+[source,rust]
+----
+println!("cycle-tracker-start: some_stuff");
+// do some stuff here...
+println!("cycle-tracker-end: some_stuff");
+----
+
+However, measuring cycles is not strictly linear to the proving time. For that reason I am avoiding it and rely on time measurements instead.

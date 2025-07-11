@@ -1,0 +1,14 @@
+[package]
+name = "reth-proofs-zkvm-common-guest"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+# reth
+reth-ethereum = { workspace = true }
+
+# Reth Proofs
+reth-proofs-core = { workspace = true }
+
+# Serialization.
+bincode = { workspace = true }
