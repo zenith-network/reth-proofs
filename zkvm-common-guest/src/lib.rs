@@ -1,4 +1,4 @@
-#![no_std]
+//#![no_std] <- TODO: Reenable after replacing bincode with rkyv.
 
 extern crate alloc;
 
