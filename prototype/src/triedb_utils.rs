@@ -7,11 +7,11 @@ pub fn format_trie(trie: &reth_proofs_core::triedb::TrieDB) -> String {
 
   // state_trie
   writeln!(&mut out, "  state_trie:").unwrap();
-  print_mpt_node(&mut out, &trie.state_trie, 4);
+  print_mpt_node(&mut out, &trie.state.state_trie, 4);
 
   // storage_tries
   writeln!(&mut out, "  storage_tries:").unwrap();
-  let ordered: std::collections::BTreeMap<_, _> = trie.storage_tries.iter().collect();
+  let ordered: std::collections::BTreeMap<_, _> = trie.state.storage_tries.iter().collect();
   for (k, v) in ordered {
     writeln!(
       out,

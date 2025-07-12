@@ -262,6 +262,137 @@ impl EthereumState {
 
     Ok((state_trie, storage_tries))
   }
+
+  /// Computes the state root (over state trie).
+  pub fn compute_state_root(&self) -> alloy_primitives::B256 {
+    self.state_trie.hash()
+  }
+
+  /// Mutates state based on diffs provided in [`HashedPostState`].
+  pub fn update(&mut self, post_state: &reth_trie_common::HashedPostState) {
+    // Apply *all* storage-slot updates first and remember new roots.
+    let mut new_storage_roots: alloy_primitives::map::HashMap<
+      alloc::vec::Vec<u8>,
+      alloy_primitives::B256,
+    > = alloy_primitives::map::HashMap::default(); // TODO: Use `with_capacity(post_state.storages.len())`.
+    for (hashed_addr, storage) in post_state.storages.iter() {
+      // Take existing storage trie or create an empty one.
+      let storage_trie = self.storage_tries.entry(*hashed_addr).or_default();
+
+      // Wipe the trie if requested.
+      if storage.wiped {
+        storage_trie.clear();
+      }
+
+      // Apply slot-level changes.
+      for (slot, value) in storage.storage.iter() {
+        let key = slot.as_slice();
+        if value.is_zero() {
+          storage_trie.delete(key).unwrap();
+        } else {
+          storage_trie.insert_rlp(key, *value).unwrap();
+        }
+      }
+
+      // Memorise the freshly-computed root.
+      new_storage_roots.insert(hashed_addr.to_vec(), storage_trie.hash());
+    }
+
+    // Walk the accounts, using the roots computed above.
+    for (hashed_addr, maybe_acct) in post_state.accounts.iter() {
+      let addr = hashed_addr.as_slice();
+
+      match maybe_acct {
+        // Handle account update / creation.
+        Some(acct) => {
+          // Which storage root should we encode?
+          let storage_root = new_storage_roots
+            .get(addr)
+            .copied() // root from step 1
+            .or_else(|| self.storage_tries.get(addr).map(|t| t.hash()))
+            .unwrap_or(crate::mpt::EMPTY_ROOT);
+
+          // If both the account and its storage are empty we simply delete.
+          if acct.is_empty() && storage_root == crate::mpt::EMPTY_ROOT {
+            self.state_trie.delete(addr).unwrap();
+            self.storage_tries.remove(addr); // keep maps in sync
+            continue;
+          }
+
+          // Encode and insert the account leaf.
+          let trie_acct = alloy_trie::TrieAccount {
+            nonce: acct.nonce,
+            balance: acct.balance,
+            storage_root,
+            code_hash: acct.get_bytecode_hash(),
+          };
+          self.state_trie.insert_rlp(addr, trie_acct).unwrap();
+        }
+
+        // Handle account deletion.
+        None => {
+          self.state_trie.delete(addr).unwrap();
+          self.storage_tries.remove(addr); // NOTE: Could be skipped in zkVM.
+        }
+      }
+    }
+  }
+
+  // NOTE: It provides 1-to-1 mapping with `StatelessTrie::account`.
+  pub fn account(&self,
+    address: alloy_primitives::Address,
+  ) -> Result<Option<alloy_trie::TrieAccount>, reth_ethereum::evm::primitives::execute::ProviderError> {
+    let hashed_address = alloy_primitives::keccak256(address);
+    let hashed_address = hashed_address.as_slice();
+
+    let account_in_trie = self
+      .state_trie
+      .get_rlp::<alloy_trie::TrieAccount>(hashed_address)
+      .unwrap();
+
+    Ok(account_in_trie)
+  }
+
+  // NOTE: It provides 1-to-1 mapping with `StatelessTrie::storage`.
+  pub fn storage(&self,
+    address: alloy_primitives::Address,
+    index: alloy_primitives::U256,
+  ) -> Result<alloy_primitives::U256, reth_ethereum::evm::primitives::execute::ProviderError> {
+    let hashed_address = alloy_primitives::keccak256(address);
+    let hashed_address = hashed_address.as_slice();
+
+    // Usual case, where given storage slot is present.
+    if let Some(storage_trie) = self.storage_tries.get(hashed_address) {
+      return Ok(
+        storage_trie
+          .get_rlp::<alloy_primitives::U256>(
+            alloy_primitives::keccak256(index.to_be_bytes::<32>()).as_slice(),
+          )
+          .expect("Can get storage from MPT")
+          .unwrap_or_default(),
+      );
+    }
+
+    // Storage slot value is not present in the trie, validate that the witness is complete.
+    // TODO: Implement witness checks like in reth - https://github.com/paradigmxyz/reth/blob/127595e23079de2c494048d0821ea1f1107eb624/crates/stateless/src/trie.rs#L68C9-L87.
+    let account = self
+      .state_trie
+      .get_rlp::<alloy_trie::TrieAccount>(hashed_address)
+      .expect("Can get account from MPT");
+    match account {
+      Some(account) => {
+        if account.storage_root != crate::mpt::EMPTY_ROOT {
+          todo!("Validate that storage witness is valid");
+        }
+      }
+      None => {
+        todo!("Validate that account witness is valid");
+      }
+    }
+
+    // Account doesn't exist or has empty storage root.
+    Ok(alloy_primitives::U256::ZERO)
+  }
 }
 
 // Validate that state_trie was built correctly - confirm tree hash with pre state root.

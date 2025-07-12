@@ -34,8 +34,7 @@ pub fn guest_handler(input_buffer: &[u8]) {
 
   // 7. Prepare database for EVM execution.
   let mut trie_db = reth_proofs_core::triedb::TrieDB {
-    state_trie: ethereum_state.state_trie,
-    storage_tries: ethereum_state.storage_tries,
+    state: ethereum_state,
     bytecode_by_hash,
     block_hashes,
   };
@@ -64,10 +63,10 @@ pub fn guest_handler(input_buffer: &[u8]) {
   let hashed_post_state = reth_proofs_core::get_hashed_post_state(&output);
 
   // 13. Apply state updates.
-  trie_db.update(&hashed_post_state);
+  trie_db.state.update(&hashed_post_state);
 
   // 14. Compute new state root and verify.
-  let new_state_root = trie_db.compute_state_root();
+  let new_state_root = trie_db.state.compute_state_root();
   let expected_root = recovered_block.header().state_root;
   if new_state_root != expected_root {
     panic!(
