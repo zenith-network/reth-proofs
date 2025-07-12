@@ -28,5 +28,8 @@ async fn main() {
     .unwrap();
   let duration = start.elapsed();
   println!("Proof generated with {} cycles.", cycles);
-  println!("Proof generation time: {:.2} seconds", duration.as_secs_f64());
+  println!(
+    "Proof generation time: {:.2} seconds",
+    duration.as_secs_f64()
+  );
 }

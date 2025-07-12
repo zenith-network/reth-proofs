@@ -4,7 +4,8 @@ extern crate alloc;
 
 pub fn guest_handler(input_buffer: &[u8]) {
   // 1. Reading input data from stdin.
-  let zkvm_input = bincode::deserialize::<reth_proofs_core::input::ZkvmInput>(&input_buffer).unwrap();
+  let zkvm_input =
+    bincode::deserialize::<reth_proofs_core::input::ZkvmInput>(&input_buffer).unwrap();
   let ancestor_headers = zkvm_input.ancestor_headers;
   let current_block = zkvm_input.current_block;
   let ethereum_state = zkvm_input.ethereum_state;

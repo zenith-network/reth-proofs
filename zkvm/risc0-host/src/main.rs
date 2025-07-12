@@ -1,4 +1,5 @@
-pub const RETH_PROOFS_ZKVM_RISC0_GUEST_ELF: &[u8] = include_bytes!(env!(concat!("R0_ELF_", "reth-proofs-zkvm-risc0-guest")));
+pub const RETH_PROOFS_ZKVM_RISC0_GUEST_ELF: &[u8] =
+  include_bytes!(env!(concat!("R0_ELF_", "reth-proofs-zkvm-risc0-guest")));
 
 use risc0_zkvm::{ExecutorEnv, default_executor};
 
@@ -21,7 +22,10 @@ async fn main() -> anyhow::Result<()> {
   let start = std::time::Instant::now();
   let session_info = exec.execute(env, RETH_PROOFS_ZKVM_RISC0_GUEST_ELF)?;
   let duration = start.elapsed();
-  println!("Traces ready - it took {:.2} seconds", duration.as_secs_f64());
+  println!(
+    "Traces ready - it took {:.2} seconds",
+    duration.as_secs_f64()
+  );
   println!("- num segments: {}", session_info.segments.len());
   println!("- total cycles: {}", session_info.cycles());
 
@@ -35,9 +39,14 @@ async fn main() -> anyhow::Result<()> {
   let opts = risc0_zkvm::ProverOpts::fast();
   println!("Generating proof...");
   let start = std::time::Instant::now();
-  let receipt = risc0_zkvm::Prover::prove_with_opts(&prover, env, RETH_PROOFS_ZKVM_RISC0_GUEST_ELF, &opts).unwrap();
+  let receipt =
+    risc0_zkvm::Prover::prove_with_opts(&prover, env, RETH_PROOFS_ZKVM_RISC0_GUEST_ELF, &opts)
+      .unwrap();
   let duration = start.elapsed();
-  println!("Proof ready - it took {:.2} seconds", duration.as_secs_f64());
+  println!(
+    "Proof ready - it took {:.2} seconds",
+    duration.as_secs_f64()
+  );
 
   Ok(())
 }

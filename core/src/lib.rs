@@ -339,9 +339,11 @@ impl EthereumState {
   }
 
   // NOTE: It provides 1-to-1 mapping with `StatelessTrie::account`.
-  pub fn account(&self,
+  pub fn account(
+    &self,
     address: alloy_primitives::Address,
-  ) -> Result<Option<alloy_trie::TrieAccount>, reth_ethereum::evm::primitives::execute::ProviderError> {
+  ) -> Result<Option<alloy_trie::TrieAccount>, reth_ethereum::evm::primitives::execute::ProviderError>
+  {
     let hashed_address = alloy_primitives::keccak256(address);
     let hashed_address = hashed_address.as_slice();
 
@@ -354,7 +356,8 @@ impl EthereumState {
   }
 
   // NOTE: It provides 1-to-1 mapping with `StatelessTrie::storage`.
-  pub fn storage(&self,
+  pub fn storage(
+    &self,
     address: alloy_primitives::Address,
     index: alloy_primitives::U256,
   ) -> Result<alloy_primitives::U256, reth_ethereum::evm::primitives::execute::ProviderError> {
