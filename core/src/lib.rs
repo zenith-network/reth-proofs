@@ -398,6 +398,47 @@ impl EthereumState {
   }
 }
 
+impl reth_stateless::StatelessTrie for EthereumState {
+  fn new(
+    witness: &reth_stateless::ExecutionWitness,
+    pre_state_root: alloy_primitives::B256,
+  ) -> Result<
+    (Self, alloy_primitives::map::B256Map<revm::state::Bytecode>),
+    reth_stateless::validation::StatelessValidationError,
+  > {
+    let ethereum_state = Self::from_execution_witness(witness, pre_state_root);
+
+    let bytecodes = Bytecodes::from_execution_witness(witness);
+    let bytecodes = bytecodes.build_map();
+
+    Ok((ethereum_state, bytecodes))
+  }
+
+  fn account(
+    &self,
+    address: alloy_primitives::Address,
+  ) -> Result<Option<alloy_trie::TrieAccount>, reth_ethereum::evm::primitives::execute::ProviderError>
+  {
+    self.account(address)
+  }
+
+  fn storage(
+    &self,
+    address: alloy_primitives::Address,
+    index: alloy_primitives::U256,
+  ) -> Result<alloy_primitives::U256, reth_ethereum::evm::primitives::execute::ProviderError> {
+    self.storage(address, index)
+  }
+
+  fn calculate_state_root(
+    &mut self,
+    state: reth_trie_common::HashedPostState,
+  ) -> Result<alloy_primitives::B256, reth_stateless::validation::StatelessValidationError> {
+    self.update(&state);
+    Ok(self.compute_state_root())
+  }
+}
+
 // Validate that state_trie was built correctly - confirm tree hash with pre state root.
 pub fn validate_state_trie(
   state_trie: &mpt::MptNode,
