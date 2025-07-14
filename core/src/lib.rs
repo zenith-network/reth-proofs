@@ -459,11 +459,10 @@ impl Bytecodes {
 
   pub fn build_map(
     &self,
-  ) -> alloy_primitives::map::HashMap<alloy_primitives::B256, revm::state::Bytecode> {
-    let mut bytecode_by_hash: alloy_primitives::map::HashMap<
-      alloy_primitives::B256,
+  ) -> alloy_primitives::map::B256Map<revm::state::Bytecode> {
+    let mut bytecode_by_hash: alloy_primitives::map::B256Map<
       revm::state::Bytecode,
-    > = alloy_primitives::map::HashMap::default();
+    > = alloy_primitives::map::B256Map::default();
     for encoded in &self.codes {
       let hash = alloy_primitives::keccak256(encoded);
       bytecode_by_hash.insert(hash, revm::state::Bytecode::new_raw(encoded.clone()));

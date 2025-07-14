@@ -2,8 +2,7 @@
 pub struct TrieDB {
   pub state: crate::EthereumState,
   pub block_hashes: alloy_primitives::map::HashMap<u64, alloy_primitives::B256>,
-  pub bytecode_by_hash:
-    alloy_primitives::map::HashMap<alloy_primitives::B256, revm::state::Bytecode>,
+  pub bytecode_by_hash: alloy_primitives::map::B256Map<revm::state::Bytecode>,
 }
 
 impl TrieDB {
