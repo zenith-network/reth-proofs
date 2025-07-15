@@ -6,6 +6,8 @@
 !/zkvm
 zkvm/risc0-methods/guest/Cargo.lock
 zkvm/risc0-methods/guest/target
+!/zkvm-common-host
+!/zkvm-common-guest
 !/Cargo.lock
 !/Cargo.toml
 !/rust-toolchain.toml
