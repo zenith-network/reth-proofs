@@ -723,6 +723,54 @@ impl MptNode {
     }
   }
 
+  /// Formats the trie as a string list, where each line corresponds to a trie leaf.
+  ///
+  /// This method is primarily used for debugging purposes, providing a visual
+  /// representation of the trie's structure.
+  #[cfg(feature = "std")]
+  pub fn debug_rlp<T: alloy_rlp::Decodable + core::fmt::Debug>(
+    &self,
+  ) -> alloc::vec::Vec<alloc::string::String> {
+    // convert the nibs to hex
+    let nibs: alloc::string::String =
+      self
+        .nibs()
+        .iter()
+        .fold(alloc::string::String::new(), |mut output, n| {
+          let _ = write!(output, "{:x}", n);
+          output
+        });
+
+    match self.as_data() {
+      MptNodeData::Null => alloc::vec![alloc::format!("{:?}", MptNodeData::Null)],
+      MptNodeData::Branch(children) => children
+        .iter()
+        .enumerate()
+        .flat_map(|(i, child)| {
+          match child {
+            Some(node) => node.debug_rlp::<T>(),
+            None => alloc::vec![alloc::string::ToString::to_string(&"None")],
+          }
+          .into_iter()
+          .map(move |s| alloc::format!("{:x} {}", i, s))
+        })
+        .collect(),
+      MptNodeData::Leaf(_, data) => {
+        alloc::vec![alloc::format!(
+          "{} -> {:?}",
+          nibs,
+          T::decode(&mut &data[..]).unwrap()
+        )]
+      }
+      MptNodeData::Extension(_, node) => node
+        .debug_rlp::<T>()
+        .into_iter()
+        .map(|s| alloc::format!("{} {}", nibs, s))
+        .collect(),
+      MptNodeData::Digest(digest) => alloc::vec![alloc::format!("#{:#}", digest)],
+    }
+  }
+
   /// Returns the length of the RLP payload of the node.
   fn payload_length(&self) -> usize {
     match &self.data {
