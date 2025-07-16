@@ -21,10 +21,10 @@ pub fn guest_handler(input_buffer: &[u8]) {
   let pre_state_root = ancestor_headers.headers.first().unwrap().state_root;
 
   // 4. Validating state trie.
-  reth_proofs_core::validate_state_trie(&ethereum_state.state_trie, pre_state_root);
+  reth_trie_sp1_zkvm::validate_state_trie(&ethereum_state.state_trie, pre_state_root);
 
   // 5. Validating storage tries.
-  reth_proofs_core::validate_storage_tries(
+  reth_trie_sp1_zkvm::validate_storage_tries(
     &ethereum_state.state_trie,
     &ethereum_state.storage_tries,
   )

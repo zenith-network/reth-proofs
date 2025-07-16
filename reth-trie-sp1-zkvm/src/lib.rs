@@ -257,6 +257,11 @@ impl reth_stateless::StatelessTrie for SP1ZkvmTrie {
   > {
     let ethereum_state = Self::from_execution_witness(witness, pre_state_root);
 
+    // TODO: This should be like Bytecodes::build_map!!!
+    // let bytecodes = Bytecodes::from_execution_witness(witness);
+    // let bytecodes = bytecodes.codes;
+
+    // Temporary code below (present in public PR):
     let mut bytecodes: alloy_primitives::map::B256Map<revm::state::Bytecode> =
       alloy_primitives::map::B256Map::default();
     for encoded in &witness.codes {

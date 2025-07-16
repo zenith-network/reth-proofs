@@ -1,8 +1,10 @@
+pub use reth_trie_sp1_zkvm::SP1ZkvmTrie as EthereumState;
+
 #[derive(serde::Serialize, serde::Deserialize)]
 pub struct ZkvmInput {
   pub ancestor_headers: crate::AncestorHeaders,
   pub current_block: crate::CurrentBlock,
-  pub ethereum_state: crate::EthereumState,
+  pub ethereum_state: EthereumState,
   pub bytecodes: crate::Bytecodes,
 }
 
@@ -24,7 +26,7 @@ impl ZkvmInput {
     let current_block = crate::CurrentBlock { body: block };
 
     // Prepare Ethereum state.
-    let ethereum_state = crate::EthereumState::from_execution_witness(witness, pre_state_root);
+    let ethereum_state = EthereumState::from_execution_witness(witness, pre_state_root);
 
     // Prepare bytecodes.
     let bytecodes = crate::Bytecodes::from_execution_witness(&witness);

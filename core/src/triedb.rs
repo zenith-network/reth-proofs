@@ -1,6 +1,8 @@
+pub use reth_trie_sp1_zkvm::SP1ZkvmTrie as EthereumState;
+
 #[derive(Debug)]
 pub struct TrieDB {
-  pub state: crate::EthereumState,
+  pub state: EthereumState,
   pub block_hashes: alloy_primitives::map::HashMap<u64, alloy_primitives::B256>,
   pub bytecode_by_hash: alloy_primitives::map::B256Map<revm::state::Bytecode>,
 }
@@ -22,7 +24,7 @@ impl TrieDB {
 
     // Step 1-3: Build state trie and storage tries.
     // NOTE: Tries are validated during construction.
-    let ethereum_state = crate::EthereumState::from_execution_witness(witness, pre_state_root);
+    let ethereum_state = EthereumState::from_execution_witness(witness, pre_state_root);
 
     // Step 4: Build bytecode map.
     let bytecodes = crate::Bytecodes::from_execution_witness(witness);
