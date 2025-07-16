@@ -1,3 +1,5 @@
+#![no_std]
+
 pub mod mpt;
 
 extern crate alloc;

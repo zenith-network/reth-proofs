@@ -1,3 +1,12 @@
 = Reth Trie SP1 zkVM
 
 Ethereum state, consisting of tries based on RSP's MPT, but constructable from Reth execution witness.
+
+== Compatibility with `no_std`
+
+Once a while run the following to make sure this crate is **truely** `no_std` compatible:
+
+[source,shell]
+----
+cargo build -p reth-trie-sp1-zkvm --target thumbv7em-none-eabi
+---
