@@ -409,7 +409,7 @@ impl reth_stateless::StatelessTrie for EthereumState {
     let ethereum_state = Self::from_execution_witness(witness, pre_state_root);
 
     let bytecodes = Bytecodes::from_execution_witness(witness);
-    let bytecodes = bytecodes.build_map();
+    let bytecodes = bytecodes.codes;
 
     Ok((ethereum_state, bytecodes))
   }
@@ -487,28 +487,38 @@ pub fn validate_storage_tries(
 // Fourth main input for zkVM.
 #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub struct Bytecodes {
-  codes: alloc::vec::Vec<alloy_primitives::Bytes>,
+  pub codes: alloy_primitives::map::B256Map<revm::state::Bytecode>,
 }
 
 impl Bytecodes {
   /// Prepares one of four zkVM inputs - bytecodes.
   pub fn from_execution_witness(witness: &alloy_rpc_types_debug::ExecutionWitness) -> Self {
-    Self {
-      codes: witness.codes.clone(),
-    }
+    let codes = Self::build_map(&witness.codes);
+    Self { codes }
   }
 
   pub fn build_map(
-    &self,
+    codes_list: &alloc::vec::Vec<alloy_primitives::Bytes>
   ) -> alloy_primitives::map::B256Map<revm::state::Bytecode> {
     let mut bytecode_by_hash: alloy_primitives::map::B256Map<
       revm::state::Bytecode,
     > = alloy_primitives::map::B256Map::default();
-    for encoded in &self.codes {
-      let hash = alloy_primitives::keccak256(encoded);
-      bytecode_by_hash.insert(hash, revm::state::Bytecode::new_raw(encoded.clone()));
+    for encoded in codes_list {
+      let bytecode = revm::state::Bytecode::new_raw(encoded.clone());
+      let code_hash = bytecode.hash_slow();
+      bytecode_by_hash.insert(code_hash, bytecode);
     }
     bytecode_by_hash
+  }
+
+  /// Used inside zkVM to validate bytecodes map (correctness of keys).
+  pub fn validate(&self) {
+    for (hash, bytecode) in &self.codes {
+      let computed = bytecode.hash_slow();
+      if &computed != hash {
+        panic!("Invalid bytecode hash: expected {:?}, got {:?}", hash, computed);
+      }
+    }
   }
 }
 

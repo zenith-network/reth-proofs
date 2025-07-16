@@ -26,7 +26,7 @@ impl TrieDB {
 
     // Step 4: Build bytecode map.
     let bytecodes = crate::Bytecodes::from_execution_witness(witness);
-    let bytecode_by_hash = bytecodes.build_map();
+    let bytecode_by_hash = bytecodes.codes;
 
     let trie = Self {
       state: ethereum_state,

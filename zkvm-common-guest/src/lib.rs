@@ -30,8 +30,9 @@ pub fn guest_handler(input_buffer: &[u8]) {
   )
   .unwrap();
 
-  // 6. Building bytecode map.
-  let bytecode_by_hash = bytecodes.build_map();
+  // 6. Validating bytecode map.
+  bytecodes.validate();
+  let bytecode_by_hash = bytecodes.codes;
 
   // 7. Prepare database for EVM execution.
   let mut trie_db = reth_proofs_core::triedb::TrieDB {
