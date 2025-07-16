@@ -1,0 +1,3 @@
+= Reth Trie SP1 zkVM
+
+Ethereum state, consisting of tries based on RSP's MPT, but constructable from Reth execution witness.

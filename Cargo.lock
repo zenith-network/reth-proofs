@@ -5865,6 +5865,7 @@ dependencies = [
  "bincode",
  "reth-ethereum",
  "reth-proofs-core",
+ "reth-trie-sp1-zkvm",
 ]
 
 [[package]]
@@ -6050,6 +6051,23 @@ dependencies = [
  "rayon",
  "reth-primitives-traits",
  "revm-database",
+]
+
+[[package]]
+name = "reth-trie-sp1-zkvm"
+version = "0.1.0"
+dependencies = [
+ "alloy-primitives",
+ "alloy-rlp",
+ "alloy-rpc-types-debug",
+ "alloy-trie",
+ "nybbles 0.3.4",
+ "reth-ethereum",
+ "reth-stateless",
+ "reth-trie-common",
+ "revm",
+ "rlp 0.6.1",
+ "serde",
 ]
 
 [[package]]

@@ -7,6 +7,7 @@ members = [
   "zkvm-common-guest",
   "zkvm-common-host",
   "prototype",
+  "reth-trie-sp1-zkvm"
 ]
 resolver = "3"
 
@@ -14,6 +15,7 @@ resolver = "3"
 reth-proofs-core = { path = "./core" }
 reth-proofs = { path = "./prototype" }
 reth-proofs-zkvm-common-host = { path = "./zkvm-common-host" }
+reth-trie-sp1-zkvm = { path = "./reth-trie-sp1-zkvm" }
 
 # Asynchronous runtime.
 tokio = { version = "1.45.1", default-features = false, features = ["rt-multi-thread", "macros"] }
