@@ -3,8 +3,9 @@
 extern crate alloc;
 
 pub mod input;
-pub mod mpt;
 pub mod triedb;
+
+pub use reth_trie_sp1_zkvm::mpt;
 
 // It is used in the `BasicBlockExecutor` as "strategy factory", implementing `ConfigureEvm` trait.
 // Measured SP1 performance:

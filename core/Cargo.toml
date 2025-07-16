@@ -25,6 +25,9 @@ reth-trie-common = { workspace = true }
 # revm
 revm = { workspace = true }
 
+# Reth Proofs
+reth-trie-sp1-zkvm = { workspace = true }
+
 # misc
 nybbles = { workspace = true }
 

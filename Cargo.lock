@@ -5822,6 +5822,7 @@ dependencies = [
  "reth-primitives-traits",
  "reth-stateless",
  "reth-trie-common",
+ "reth-trie-sp1-zkvm",
  "revm",
  "rlp 0.6.1",
  "serde",
