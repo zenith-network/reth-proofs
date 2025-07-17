@@ -49,11 +49,17 @@ impl SP1ZkvmTrie {
     let mut node_map: alloy_primitives::map::HashMap<
       crate::mpt::MptNodeReference,
       crate::mpt::MptNode,
-    > = alloy_primitives::map::HashMap::default();
+    > = alloy_primitives::map::HashMap::with_capacity_and_hasher(
+      witness.state.len(),
+      Default::default(),
+    );
     let mut node_by_hash: alloy_primitives::map::HashMap<
       alloy_primitives::B256,
       crate::mpt::MptNode,
-    > = alloy_primitives::map::HashMap::default();
+    > = alloy_primitives::map::HashMap::with_capacity_and_hasher(
+      witness.state.len(),
+      Default::default(),
+    );
     let mut root_node: Option<crate::mpt::MptNode> = None;
 
     for encoded in &witness.state {
@@ -123,7 +129,7 @@ impl SP1ZkvmTrie {
     let mut new_storage_roots: alloy_primitives::map::HashMap<
       alloc::vec::Vec<u8>,
       alloy_primitives::B256,
-    > = alloy_primitives::map::HashMap::default(); // TODO: Use `with_capacity(post_state.storages.len())`.
+    > = alloy_primitives::map::HashMap::with_capacity_and_hasher(post_state.storages.len(), Default::default());
     for (hashed_addr, storage) in post_state.storages.iter() {
       // Take existing storage trie or create an empty one.
       let storage_trie = self.storage_tries.entry(*hashed_addr).or_default();
