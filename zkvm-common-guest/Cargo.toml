@@ -6,9 +6,11 @@ edition = "2024"
 [dependencies]
 # reth
 reth-ethereum = { workspace = true }
+reth-stateless = { workspace = true }
 
 # Reth Proofs
 reth-proofs-core = { workspace = true }
+reth-trie-sp1-zkvm = { workspace = true }
 
 # Serialization.
 bincode = { workspace = true }

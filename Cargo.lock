@@ -5866,6 +5866,7 @@ dependencies = [
  "bincode",
  "reth-ethereum",
  "reth-proofs-core",
+ "reth-stateless",
  "reth-trie-sp1-zkvm",
 ]
 
@@ -5893,6 +5894,20 @@ dependencies = [
  "serde",
  "tokio",
  "tracing-subscriber 0.3.19",
+]
+
+[[package]]
+name = "reth-proofs-zkvm-sp1-alt-host"
+version = "0.1.0"
+dependencies = [
+ "alloy-consensus",
+ "bincode",
+ "reth-proofs",
+ "reth-proofs-core",
+ "reth-proofs-zkvm-common-host",
+ "sp1-build",
+ "sp1-sdk",
+ "tokio",
 ]
 
 [[package]]

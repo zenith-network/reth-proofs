@@ -3,6 +3,7 @@
 extern crate alloc;
 
 pub mod input;
+pub mod input_alt;
 pub mod triedb;
 
 pub use reth_trie_sp1_zkvm::mpt;

@@ -77,3 +77,20 @@ pub fn guest_handler(input_buffer: &[u8]) {
     );
   }
 }
+
+pub fn guest_alt_handler(input_buffer: &[u8]) {
+  // 1. Reading input data from stdin.
+  let zkvm_input =
+    bincode::deserialize::<reth_proofs_core::input_alt::ZkvmAltInput>(&input_buffer).unwrap();
+  let current_block = zkvm_input.block.body;
+  let witness = zkvm_input.witness;
+
+  // 2. Creating a mainnet EVM config.
+  let chainspec = reth_proofs_core::create_mainnet_chainspec();
+  let chainspec_arc = alloc::sync::Arc::new(chainspec);
+  let evm_config = reth_proofs_core::create_mainnet_evm_config_from(chainspec_arc.clone());
+
+  // 3. Validate using `reth-stateless` crate.
+  // reth_stateless::stateless_validation_with_trie::<reth_stateless::trie::StatelessSparseTrie, _, _>(current_block, witness, chainspec_arc, evm_config).unwrap();
+  reth_stateless::stateless_validation_with_trie::<reth_trie_sp1_zkvm::SP1ZkvmTrie, _, _>(current_block, witness, chainspec_arc, evm_config).unwrap();
+}

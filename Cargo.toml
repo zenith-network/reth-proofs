@@ -4,6 +4,7 @@ members = [
   "gevulot",
   "zkvm/risc0-host",
   "zkvm/sp1-host",
+  "zkvm/sp1-alt-host",
   "zkvm-common-guest",
   "zkvm-common-host",
   "prototype",

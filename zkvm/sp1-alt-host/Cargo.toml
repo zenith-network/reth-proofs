@@ -1,0 +1,24 @@
+[package]
+version = "0.1.0"
+name = "reth-proofs-zkvm-sp1-alt-host"
+edition = "2024"
+
+[dependencies]
+sp1-sdk = { workspace = true }
+
+# alloy
+alloy-consensus = { workspace = true }
+
+# Asynchronous runtime.
+tokio = { workspace = true }
+
+# Reth Proofs
+reth-proofs-core = { workspace = true }
+reth-proofs = { workspace = true }
+reth-proofs-zkvm-common-host = { workspace = true }
+
+# Serialization.
+bincode = { workspace = true }
+
+[build-dependencies]
+sp1-build = { workspace = true }
