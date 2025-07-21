@@ -1,0 +1,31 @@
+[package]
+name = "risc0-ethereum-trie"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+
+# alloy
+alloy-primitives = { workspace = true, features = ["map", "map-foldhash", "k256", "std"] }
+alloy-rlp = { workspace = true, default-features = false, features = ["arrayvec"] }
+alloy-trie = { version = "0.8.0", default-features = false }
+
+# misc
+arrayvec = { version = "0.7", default-features = false }
+bincode = { version = "1.3.3", optional = true, default-features = false }
+itertools = { version = "0.14", default-features = false, features = ["use_std"] }
+rkyv = { version = "0.8", optional = true, default-features = false, features = ["bytecheck", "std"] }
+serde = { version = "1.0.219", optional = true, default-features = false }
+thiserror = { version = "2.0.12", default-features = false }
+
+[dev-dependencies]
+alloy-trie = { version = "0.8.0", default-features = false, features = ["ethereum"] }
+criterion = { version = "0.6" }
+serde_json = { workspace = true, default-features = false }
+
+[features]
+default = []
+rkyv = ["dep:rkyv"]
+serde = ["dep:serde", "dep:bincode", "alloy-primitives/serde", "alloy-trie/serde"]
+rlp_serialize = []
+orphan = []
