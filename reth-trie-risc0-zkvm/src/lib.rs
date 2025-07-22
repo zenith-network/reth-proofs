@@ -10,7 +10,7 @@ extern crate alloc;
 /// NOTE: In Zeth *similar* fields are part of `StatelessClientData` struct.
 #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub struct Risc0ZkvmTrie {
-  pub state_trie: risc0_ethereum_trie::CachedTrie,
+  pub state_trie: mpt::MptNode<alloy_trie::TrieAccount>,
   pub storage_tries: alloy_primitives::map::HashMap<
     alloy_primitives::B256,
     risc0_ethereum_trie::CachedTrie,
@@ -37,7 +37,7 @@ impl Risc0ZkvmTrie {
     pre_state_root: alloy_primitives::FixedBytes<32>,
   ) -> Result<
     (
-      risc0_ethereum_trie::CachedTrie,
+      mpt::MptNode<alloy_trie::TrieAccount>,
       alloy_primitives::map::HashMap<
         alloy_primitives::B256,
         risc0_ethereum_trie::CachedTrie,
@@ -56,7 +56,7 @@ impl Risc0ZkvmTrie {
     }
 
     // Step 2: Build state trie.
-    let mut state_trie = risc0_ethereum_trie::CachedTrie::from_digest(pre_state_root);
+    let mut state_trie = mpt::MptNode::from_digest(pre_state_root);
     state_trie.hydrate_from_rlp_map(&node_map).unwrap();
 
     // Step 3: Find required storage tries.
@@ -174,9 +174,7 @@ impl Risc0ZkvmTrie {
             storage_root,
             code_hash: acct.get_bytecode_hash(),
           };
-          // TODO: Use `insert_rlp` when trie gets wrapped in MPT - https://github.com/risc0/zeth/blob/1ecdfa2325af161b529a4ad4cb2b6ce949679a28/crates/core/src/mpt.rs#L43-L49.
-          //self.state_trie.insert_rlp(addr, trie_acct).unwrap();
-          self.state_trie.insert(addr, alloy_rlp::encode(trie_acct));
+          self.state_trie.insert_rlp(addr, trie_acct);
         }
 
         // Handle account deletion.
@@ -197,16 +195,10 @@ impl Risc0ZkvmTrie {
     let hashed_address = alloy_primitives::keccak256(address);
     let hashed_address = hashed_address.as_slice();
 
-    // TODO: Use get_rlp() when trie gets wrapped in MPT.
-    let account_in_trie = match self.state_trie.get(hashed_address) {
-      Some(mut account_bytes) => {
-      match alloy_trie::TrieAccount::decode(&mut account_bytes) {
-        Ok(account) => Some(account),
-        Err(_) => panic!("Failed to decode account"),
-      }
-      },
-      None => None
-    };
+    let account_in_trie = self
+      .state_trie
+      .get_rlp(hashed_address)
+      .unwrap();
 
     Ok(account_in_trie)
   }
@@ -238,16 +230,10 @@ impl Risc0ZkvmTrie {
 
     // Storage slot value is not present in the trie, validate that the witness is complete.
     // TODO: Implement witness checks like in reth - https://github.com/paradigmxyz/reth/blob/127595e23079de2c494048d0821ea1f1107eb624/crates/stateless/src/trie.rs#L68C9-L87.
-    // TODO: Use `get_rlp()` when trie gets wrapped in MPT.
-    let account = match self.state_trie.get(hashed_address) {
-      Some(mut account_bytes) => {
-      match alloy_trie::TrieAccount::decode(&mut account_bytes) {
-        Ok(account) => Some(account),
-        Err(_) => panic!("Failed to decode account"),
-      }
-      },
-      None => None,
-    };
+    let account = self
+      .state_trie
+      .get_rlp(hashed_address)
+      .expect("Can get account from MPT");
     match account {
       Some(account) => {
         if account.storage_root != crate::mpt::EMPTY_ROOT {
@@ -316,7 +302,7 @@ impl reth_stateless::StatelessTrie for Risc0ZkvmTrie {
 
 // Validate that state_trie was built correctly - confirm tree hash with pre state root.
 pub fn validate_state_trie(
-  state_trie: &risc0_ethereum_trie::CachedTrie,
+  state_trie: &mpt::MptNode<alloy_trie::TrieAccount>,
   pre_state_root: alloy_primitives::FixedBytes<32>,
 ) {
   // TODO: Consider using `hash()`, but not sure if better.
@@ -327,7 +313,7 @@ pub fn validate_state_trie(
 
 // Validates that each storage trie matches the declared storage_root in the state trie.
 pub fn validate_storage_tries(
-  state_trie: &risc0_ethereum_trie::CachedTrie,
+  state_trie: &mpt::MptNode<alloy_trie::TrieAccount>,
   storage_tries: &alloy_primitives::map::HashMap<
     alloy_primitives::B256,
     risc0_ethereum_trie::CachedTrie,
@@ -336,10 +322,10 @@ pub fn validate_storage_tries(
 ) -> Result<(), alloc::string::String> {
   for (hashed_address, storage_trie) in storage_tries.iter() {
     // TODO: Use get_rlp() for getting account, once trie is wrapped in MPT.
-    let mut account_bytes = state_trie.get(hashed_address.as_slice())
+    let account = state_trie
+      .get_rlp(hashed_address.as_slice())
+      .map_err(|_| "Failed to decode account from state trie")?
       .ok_or("Account not found in state trie")?;
-    let account = alloy_trie::TrieAccount::decode(&mut account_bytes)
-      .map_err(|_| "Failed to decode account from state trie")?;
     let storage_root = account.storage_root;
     let actual_hash = storage_trie.hash_slow(); // TODO: Consider using `hash()`.
 
