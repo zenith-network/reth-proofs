@@ -3,6 +3,7 @@ pub use reth_trie_risc0_zkvm::Risc0ZkvmTrie as EthereumState;
 #[derive(serde::Serialize, serde::Deserialize)]
 pub struct ZkvmInput {
   pub ancestor_headers: crate::AncestorHeaders,
+  pub signers_hint: crate::SignersHint,
   pub current_block: crate::CurrentBlock,
   pub ethereum_state: EthereumState,
   pub bytecodes: crate::Bytecodes,
@@ -22,6 +23,9 @@ impl ZkvmInput {
     let ancestor_headers = crate::AncestorHeaders::from_execution_witness(witness);
     let pre_state_root = ancestor_headers.headers.first().unwrap().state_root;
 
+    // Prepare pre-recovered signers.
+    let signers_hint = crate::SignersHint::from_block(&block);
+
     // Prepare current block.
     let current_block = crate::CurrentBlock { body: block };
 
@@ -33,6 +37,7 @@ impl ZkvmInput {
 
     Self {
       ancestor_headers,
+      signers_hint,
       current_block,
       ethereum_state,
       bytecodes,

@@ -224,6 +224,32 @@ pub fn get_hashed_post_state(
   )
 }
 
+// Idea from Zeth, to pre-recover signer from the block, then validate them inside zkVM.
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+pub struct SignersHint {
+  pub signers: alloc::vec::Vec<alloy_signer::k256::ecdsa::VerifyingKey>,
+}
+
+impl SignersHint {
+  pub fn from_block(
+    block: &alloy_consensus::Block<
+      alloy_consensus::EthereumTxEnvelope<alloy_consensus::TxEip4844>,
+      alloy_consensus::Header,
+    >,
+  ) -> Self {
+    let signers = block
+      .body
+      .transactions()
+      .map(|tx| {
+          tx.signature()
+              .recover_from_prehash(&tx.signature_hash())
+              .unwrap()
+      })
+      .collect();
+    Self { signers }
+  }
+}
+
 #[cfg(test)]
 mod tests {
   #[test]
