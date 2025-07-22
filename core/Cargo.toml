@@ -11,6 +11,7 @@ alloy-primitives = { workspace = true }
 alloy-rlp = { workspace = true }
 alloy-rpc-types-debug = { workspace = true }
 alloy-trie = { workspace = true }
+alloy-signer = { workspace = true }
 
 # reth
 reth-chainspec = { workspace = true }
