@@ -6314,7 +6314,6 @@ dependencies = [
  "reth-stateless",
  "reth-trie-common",
  "revm",
- "risc0-ethereum-trie",
  "rlp 0.6.1",
  "serde",
 ]
