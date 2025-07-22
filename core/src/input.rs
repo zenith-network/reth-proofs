@@ -1,4 +1,4 @@
-pub use reth_trie_sp1_zkvm::SP1ZkvmTrie as EthereumState;
+pub use reth_trie_risc0_zkvm::Risc0ZkvmTrie as EthereumState;
 
 #[derive(serde::Serialize, serde::Deserialize)]
 pub struct ZkvmInput {

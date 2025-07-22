@@ -6036,6 +6036,7 @@ dependencies = [
  "reth-primitives-traits",
  "reth-stateless",
  "reth-trie-common",
+ "reth-trie-risc0-zkvm",
  "reth-trie-sp1-zkvm",
  "revm",
  "rlp 0.6.1",
@@ -6081,6 +6082,7 @@ dependencies = [
  "reth-ethereum",
  "reth-proofs-core",
  "reth-stateless",
+ "reth-trie-risc0-zkvm",
  "reth-trie-sp1-zkvm",
 ]
 

@@ -21,10 +21,10 @@ pub fn guest_handler(input_buffer: &[u8]) {
   let pre_state_root = ancestor_headers.headers.first().unwrap().state_root;
 
   // 4. Validating state trie.
-  reth_trie_sp1_zkvm::validate_state_trie(&ethereum_state.state_trie, pre_state_root);
+  reth_trie_risc0_zkvm::validate_state_trie(&ethereum_state.state_trie, pre_state_root);
 
   // 5. Validating storage tries.
-  reth_trie_sp1_zkvm::validate_storage_tries(
+  reth_trie_risc0_zkvm::validate_storage_tries(
     &ethereum_state.state_trie,
     &ethereum_state.storage_tries,
   )
@@ -92,5 +92,5 @@ pub fn guest_alt_handler(input_buffer: &[u8]) {
 
   // 3. Validate using `reth-stateless` crate.
   // reth_stateless::stateless_validation_with_trie::<reth_stateless::trie::StatelessSparseTrie, _, _>(current_block, witness, chainspec_arc, evm_config).unwrap();
-  reth_stateless::stateless_validation_with_trie::<reth_trie_sp1_zkvm::SP1ZkvmTrie, _, _>(current_block, witness, chainspec_arc, evm_config).unwrap();
+  reth_stateless::stateless_validation_with_trie::<reth_trie_risc0_zkvm::Risc0ZkvmTrie, _, _>(current_block, witness, chainspec_arc, evm_config).unwrap();
 }
