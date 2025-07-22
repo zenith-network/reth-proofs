@@ -6284,6 +6284,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "reth-trie-risc0-zkvm"
+version = "0.1.0"
+dependencies = [
+ "alloy-primitives",
+ "alloy-rlp",
+ "alloy-rpc-types-debug",
+ "alloy-trie 0.9.0",
+ "nybbles 0.3.4",
+ "reth-ethereum",
+ "reth-stateless",
+ "reth-trie-common",
+ "revm",
+ "risc0-ethereum-trie",
+ "rlp 0.6.1",
+ "serde",
+]
+
+[[package]]
 name = "reth-trie-sp1-zkvm"
 version = "0.1.0"
 dependencies = [
