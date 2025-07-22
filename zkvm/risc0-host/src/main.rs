@@ -47,6 +47,7 @@ async fn main() -> anyhow::Result<()> {
     "Proof ready - it took {:.2} seconds",
     duration.as_secs_f64()
   );
+  println!("Receipt size: {}", receipt.receipt.seal_size());
 
   Ok(())
 }
