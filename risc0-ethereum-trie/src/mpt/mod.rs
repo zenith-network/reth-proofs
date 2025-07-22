@@ -311,6 +311,24 @@ impl CachedTrie {
         self.inner.resolve_digests(&rlp_by_digest)
     }
 
+    /// Resolves currently unresolved nodes within the trie using the provided map of RLP-encoded nodes.
+    ///
+    /// This method takes a map of Keccak-256 hashes to their corresponding RLP-encoded nodes,
+    /// and attempts to replace any internal `Node::Digest` entries matching keys in the map
+    /// with the decoded nodes.
+    ///
+    /// # Errors
+    ///
+    /// This function returns an error if it encounters any issues during the decoding of RLP
+    /// encoded nodes or if the provided nodes result in an invalid trie structure.
+    #[inline]
+    pub fn hydrate_from_rlp_map<T: AsRef<[u8]>>(
+        &mut self,
+        rlp_by_digest: &alloy_primitives::map::B256Map<T>,
+    ) -> alloy_rlp::Result<()> {
+        self.inner.resolve_digests(rlp_by_digest)
+    }
+
     /// Creates a new trie that only contains a digest of the root.
     #[inline]
     pub fn from_digest(digest: B256) -> Self {
