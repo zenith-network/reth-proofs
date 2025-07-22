@@ -32,4 +32,5 @@ rlp = { version = "0.6.1", default-features = false }
 
 # Zeth trie. // git = "https://github.com/risc0/risc0-ethereum"
 # CAUTION: Do NOT use `rlp_serialize` as it performs *full* tree validation - we want to do it manually (almost two times faster).
-risc0-ethereum-trie = { workspace = true, features = ["orphan", "serde"] }
+# NOTE: We do NOT need `orphan` functionality, as reth's witness provides all the nodes we need.
+risc0-ethereum-trie = { workspace = true, features = ["serde"] }
