@@ -13,6 +13,9 @@ alloy-rpc-types-debug = { workspace = true }
 alloy-trie = { workspace = true }
 alloy-signer = { workspace = true }
 
+# crypto
+k256 = { workspace = true, features = ["serde", "pem"] } # Both `serde` and `pem` required for serialization.
+
 # reth
 reth-chainspec = { workspace = true }
 reth-ethereum = { workspace = true }
