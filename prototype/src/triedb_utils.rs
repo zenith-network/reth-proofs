@@ -3,7 +3,8 @@ use std::fmt::Write;
 pub fn format_trie(trie: &reth_proofs_core::triedb::TrieDB) -> String {
   let mut out = String::new();
 
-  writeln!(&mut out, "TrieDB {{").unwrap();
+  panic!("Not supported for new Trie!");
+  /*writeln!(&mut out, "TrieDB {{").unwrap();
 
   // state_trie
   writeln!(&mut out, "  state_trie:").unwrap();
@@ -50,7 +51,7 @@ pub fn format_trie(trie: &reth_proofs_core::triedb::TrieDB) -> String {
   }
   writeln!(&mut out, "  ]").unwrap();
 
-  writeln!(&mut out, "}}").unwrap();
+  writeln!(&mut out, "}}").unwrap();*/
   out
 }
 
