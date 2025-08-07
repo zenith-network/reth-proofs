@@ -4,7 +4,7 @@ mod cli;
 
 #[tokio::main]
 pub async fn main() -> eyre::Result<()> {
-  println!("Gevulot Ethereum Prover - recursive proving with Bento!");
+  tracing::info!("Yo! Starting 'Gevulot Ethereum Prover' - recursive proving with Bento!");
 
   // Initialize the environment variables.
   dotenv::dotenv().ok();
@@ -53,6 +53,34 @@ pub async fn main() -> eyre::Result<()> {
               tracing::info!("Skipping block {} - not our target", block_number);
               continue;
             }
+            tracing::info!("Processing block {}", block_number);
+
+            // Fetch block and witness.
+            tracing::info!("Fetching RPC data for block {}", block_number);
+            let witness = reth_proofs::fetch_block_witness(&http_provider, block_number)
+              .await
+              .unwrap();
+            let block_rpc = reth_proofs::fetch_full_block(&http_provider, block_number)
+              .await
+              .unwrap()
+              .unwrap();
+
+            tracing::info!("Preparing zkVM input for block {}", block_number);
+            let mut zkvm_input = vec![];
+            {
+              // 1) Prepare client input.
+              let block_consensus = reth_proofs::rpc_block_to_consensus_block(block_rpc);
+              let client_input = reth_proofs_core::input::ZkvmInput::from_offline_rpc_data(block_consensus, &witness);
+
+              // 2) Serialize the input to bytes.
+              let input_bytes = bincode::serialize(&client_input).unwrap();
+              let input_bytes_len = input_bytes.len() as u32;
+
+              // 3 Wrap input into zkVM format (raw frame).
+              zkvm_input.extend_from_slice(&input_bytes_len.to_le_bytes());
+              zkvm_input.extend_from_slice(&input_bytes);
+            }
+            tracing::info!("zkVM input prepared for block {}", block_number);
           }
           None => {
             tracing::warn!("WS stream closed");

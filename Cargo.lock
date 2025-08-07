@@ -6144,11 +6144,13 @@ name = "reth-proofs-gevulot2"
 version = "0.1.0"
 dependencies = [
  "alloy-provider",
+ "bincode",
  "clap",
  "dotenv",
  "eyre",
  "futures",
  "reth-proofs",
+ "reth-proofs-core",
  "tokio",
  "tracing",
  "tracing-subscriber 0.3.19",
