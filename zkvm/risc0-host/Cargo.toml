@@ -46,7 +46,7 @@ bincode = { workspace = true }
 risc0-zkvm = { workspace = true, features = ["prove"] }
 
 # SDK for proving with Bento/Bonsai.
-bonsai-sdk = { version = "1.4.0", features = ["non_blocking"], optional = true }
+bonsai-sdk = { version = "1.4.1-rc.1", features = ["non_blocking"], optional = true }
 
 [build-dependencies]
 # zkVM.
