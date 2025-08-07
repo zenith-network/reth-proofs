@@ -12,8 +12,9 @@ name = "reth-proofs-zkvm-risc0-host-recursive"
 path = "./src/main-recursive.rs"
 
 [features]
-default = []
+default = ["bonsai"]
 cuda = ["risc0-zkvm/cuda"]
+bonsai = ["bonsai-sdk"]
 
 [dependencies]
 # alloy
@@ -39,6 +40,9 @@ bincode = { workspace = true }
 
 # zkVM.
 risc0-zkvm = { workspace = true, features = ["prove"] }
+
+# SDK for proving with Bento/Bonsai.
+bonsai-sdk = { version = "1.4.0", features = ["non_blocking"], optional = true }
 
 [build-dependencies]
 # zkVM.
