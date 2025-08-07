@@ -11,6 +11,10 @@ path = "./src/main.rs"
 name = "reth-proofs-zkvm-risc0-host-recursive"
 path = "./src/main-recursive.rs"
 
+[features]
+default = []
+cuda = ["risc0-zkvm/cuda"]
+
 [dependencies]
 # alloy
 alloy-consensus = { workspace = true }
@@ -34,7 +38,7 @@ serde = { workspace = true }
 bincode = { workspace = true }
 
 # zkVM.
-risc0-zkvm = { workspace = true, features = ["cuda", "prove"] }
+risc0-zkvm = { workspace = true, features = ["prove"] }
 
 [build-dependencies]
 # zkVM.
