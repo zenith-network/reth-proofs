@@ -45,15 +45,14 @@ async fn main() -> anyhow::Result<()> {
   ).await?;
   println!("Session created - ID: {}", session.uuid);
 
-  // The session has already been started in the executor. Poll bonsai to check if
-  // the proof request succeeded.
+  // The session has already been started in the executor. Poll bonsai until session is no longer running.
   let polling_interval = if let Ok(ms) = std::env::var("BONSAI_POLL_INTERVAL_MS") {
     std::time::Duration::from_millis(ms.parse::<u64>().unwrap())
   } else {
     std::time::Duration::from_secs(1)
   };
   let mut num_checks = 0u64;
-  let _succinct_prove_info = loop {
+  let res = loop {
     num_checks += 1;
     println!("Polling session result - check {}", num_checks);
     let res = session.status(&client).await?;
@@ -63,9 +62,7 @@ async fn main() -> anyhow::Result<()> {
         continue;
       },
       _ => {
-        println!("Bonsai prover workflow [{}] exited: {} err: {}",
-            session.uuid, res.status, res.error_msg.unwrap_or("Bonsai workflow missing error_msg".into()));
-          break;
+        break res;
       }
     }
   };
@@ -75,46 +72,31 @@ async fn main() -> anyhow::Result<()> {
     duration.as_secs_f64()
   );
 
-        //         // Download the receipt, containing the output
-        //         let receipt_url = res
-        //             .receipt_url
-        //             .ok_or_else(|| anyhow!("API error, missing receipt on completed session"))?;
+  // Handle potential failure.
+  if res.status != "SUCCEEDED" {
+    println!("Bonsai prover workflow [{}] exited: {} err: {}",
+        session.uuid, res.status, res.error_msg.unwrap_or("Bonsai workflow missing error_msg".into()));
+    return Ok(());
+  }
 
-        //         let stats = res
-        //             .stats
-        //             .context("Missing stats object on Bonsai status res")?;
-        //         tracing::debug!(
-        //             "Bonsai usage: cycles: {} total_cycles: {}",
-        //             stats.cycles,
-        //             stats.total_cycles
-        //         );
-
-        //         let receipt_buf = client.download(&receipt_url)?;
-        //         let receipt: Receipt = bincode::deserialize(&receipt_buf)?;
-
-        //         break ProveInfo {
-        //             receipt,
-        //             stats: SessionStats {
-        //                 segments: stats.segments,
-        //                 total_cycles: stats.total_cycles,
-        //                 user_cycles: stats.cycles,
-        //                 // These are currently unavailable from Bonsai
-        //                 paging_cycles: 0,
-        //                 reserved_cycles: 0,
-        //             },
-        //         };
-        //     } else {
-        //         bail!(
-        //             "Bonsai prover workflow [{}] exited: {} err: {}",
-        //             session.uuid,
-        //             res.status,
-        //             res.error_msg
-        //                 .unwrap_or("Bonsai workflow missing error_msg".into()),
-        //         );
-        //     }
-        // };
-        
-  // println!("Receipt size: {}", receipt.receipt.seal_size());
+  // Print stats.
+  let stats = res
+    .stats
+    .expect("Missing stats object on Bonsai status res");
+  println!(
+  "Bonsai usage: cycles: {} total_cycles: {}, segments: {}",
+    stats.cycles,
+    stats.total_cycles,
+    stats.segments,
+  );
+  
+  // Download the receipt.
+  let receipt_url = res
+    .receipt_url
+    .expect("API error, missing receipt on completed session");
+  let receipt_buf = client.download(&receipt_url).await?;
+  let _receipt: risc0_zkvm::Receipt = bincode::deserialize(&receipt_buf)?;        
+  println!("Raw receipt size: {} bytes", receipt_buf.len());
 
   Ok(())
 }
