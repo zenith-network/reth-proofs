@@ -14,8 +14,7 @@ async fn main() -> anyhow::Result<()> {
 
   // Execute the guest code.
   let env = ExecutorEnv::builder()
-    .write(&input_bytes_len)?
-    .write_slice(&input_bytes)
+    .write_frame(&input_bytes)
     .build()?;
   let exec = default_executor();
   println!("Generating traces...");
@@ -33,8 +32,7 @@ async fn main() -> anyhow::Result<()> {
   println!("Creating local prover...");
   let prover = risc0_zkvm::LocalProver::new("local-prover");
   let env = ExecutorEnv::builder()
-    .write(&input_bytes_len)?
-    .write_slice(&input_bytes)
+    .write_frame(&input_bytes)
     .build()?;
   let opts = risc0_zkvm::ProverOpts::fast();
   println!("Generating proof...");
