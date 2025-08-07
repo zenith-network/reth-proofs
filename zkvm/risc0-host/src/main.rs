@@ -3,6 +3,9 @@ pub const RETH_PROOFS_ZKVM_RISC0_GUEST_ELF: &[u8] =
 
 use risc0_zkvm::{ExecutorEnv, default_executor};
 
+// 21 is the max value for 20GB card like RTX 4090.
+const MAX_PO2: u32 = 21;
+
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
   tracing_subscriber::fmt()
@@ -14,6 +17,7 @@ async fn main() -> anyhow::Result<()> {
 
   // Execute the guest code.
   let env = ExecutorEnv::builder()
+    .segment_limit_po2(MAX_PO2)
     .write_frame(&input_bytes)
     .build()?;
   let exec = default_executor();
@@ -32,6 +36,7 @@ async fn main() -> anyhow::Result<()> {
   println!("Creating local prover...");
   let prover = risc0_zkvm::LocalProver::new("local-prover");
   let env = ExecutorEnv::builder()
+    .segment_limit_po2(MAX_PO2)
     .write_frame(&input_bytes)
     .build()?;
   let opts = risc0_zkvm::ProverOpts::fast();
