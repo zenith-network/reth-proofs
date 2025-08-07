@@ -33,3 +33,14 @@ bincode = { workspace = true }
 
 # URL parsing.
 url = { version = "2.5.4", default-features = false }
+
+# zkVM.
+risc0-zkvm = { workspace = true, features = ["prove", "bonsai"] }
+
+# SDK for proving with Bento/Bonsai.
+bonsai-sdk = { version = "1.4.1-rc.1", features = ["non_blocking"] }
+
+[build-dependencies]
+
+# zkVM.
+risc0-build = { workspace = true }
