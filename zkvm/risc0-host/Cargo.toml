@@ -11,6 +11,10 @@ path = "./src/main.rs"
 name = "reth-proofs-zkvm-risc0-host-recursive"
 path = "./src/main-recursive.rs"
 
+[[bin]]
+name = "reth-proofs-zkvm-risc0-host-bonsai"
+path = "./src/main-bonsai.rs"
+
 [features]
 default = ["bonsai"]
 cuda = ["risc0-zkvm/cuda"]
