@@ -18,7 +18,8 @@ edition = "2024"
 reth-proofs-zkvm-common-guest = { path = "../../zkvm-common-guest" }
 
 # zkVM.
-risc0-zkvm = { version = "3.0.0-rc.1", default-features = false, features = ["unstable"] }
+# TODO: Get rid of `std` when serde is no longer used.
+risc0-zkvm = { version = "3.0.0-rc.1", default-features = false, features = ["unstable", "std"] }
 
 # Extra packages to use precompiles.
 c-kzg = { version = "=2.1.1", features = ["risc0-ffi"] }
