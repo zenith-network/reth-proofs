@@ -6140,6 +6140,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "reth-proofs-gevulot2"
+version = "0.1.0"
+dependencies = [
+ "alloy-provider",
+ "clap",
+ "dotenv",
+ "eyre",
+ "futures",
+ "reth-proofs",
+ "tokio",
+ "tracing",
+ "tracing-subscriber 0.3.19",
+ "url",
+]
+
+[[package]]
 name = "reth-proofs-zkvm-common-guest"
 version = "0.1.0"
 dependencies = [
