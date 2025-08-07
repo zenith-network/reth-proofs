@@ -3,6 +3,14 @@ name = "reth-proofs-zkvm-risc0-host"
 version = "0.1.0"
 edition = "2024"
 
+[[bin]]
+name = "reth-proofs-zkvm-risc0-host"
+path = "./src/main.rs"
+
+[[bin]]
+name = "reth-proofs-zkvm-risc0-host-recursive"
+path = "./src/main-recursive.rs"
+
 [dependencies]
 # alloy
 alloy-consensus = { workspace = true }
