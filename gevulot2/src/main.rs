@@ -49,6 +49,27 @@ pub async fn main() -> eyre::Result<()> {
 
       return Ok(());
     }
+    cli::Command::ProveBlock(args) => {
+      // Read the zkVM input from the file.
+      let zkvm_input = std::fs::read(&args.zkvm_input)?;
+      tracing::info!(
+        "Read zkVM input from {} - {} bytes",
+        args.zkvm_input.display(),
+        zkvm_input.len()
+      );
+
+      // Prove the block.
+      let receipt = prove_bonsai(zkvm_input).await?;
+
+      // Write the receipt to the output file.
+      std::fs::write(&args.output_proof_path, bincode::serialize(&receipt)?)?;
+      tracing::info!(
+        "Proved block and saved receipt to {}",
+        args.output_proof_path.display()
+      );
+
+      return Ok(());
+    }
     cli::Command::Run(run_args) => run_args,
   };
 

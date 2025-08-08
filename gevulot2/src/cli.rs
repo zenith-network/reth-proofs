@@ -14,6 +14,9 @@ pub enum Command {
 
   /// Prepare a block for offline proving.
   PrepareBlock(PrepareBlockArgs),
+
+  /// Prove a single given block.
+  ProveBlock(ProveBlockArgs),
 }
 
 #[derive(Debug, Clone, clap::Parser)]
@@ -42,4 +45,16 @@ pub struct PrepareBlockArgs {
   /// Path to the output file.
   #[clap(long, default_value = "zkvm_input.bin")]
   pub output_path: std::path::PathBuf,
+}
+
+/// Args specific to the `prove-block` command.
+#[derive(Debug, clap::Parser)]
+pub struct ProveBlockArgs {
+  /// Path to the block file, eg. `zkvm_input.bin`.
+  #[clap(long)]
+  pub zkvm_input: std::path::PathBuf,
+
+  /// Path to the output proof file.
+  #[clap(long, default_value = "proof.bin")]
+  pub output_proof_path: std::path::PathBuf,
 }
