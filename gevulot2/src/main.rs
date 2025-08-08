@@ -22,8 +22,7 @@ pub async fn main() -> eyre::Result<()> {
 
   // Parse the command line arguments.
   let args = <cli::Args as clap::Parser>::parse();
-  let args = match args {
-    cli::Args { command: cli::Command::Run(run_args) } => run_args,
+    cli::Command::Run(run_args) => run_args,
   };
 
   // Configure RPCs - both HTTP and WS.
