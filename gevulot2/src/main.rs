@@ -88,7 +88,14 @@ pub async fn main() -> eyre::Result<()> {
             tracing::info!("Processing block {}", block_number);
             let start_total_time = std::time::Instant::now();
 
-            let zkvm_input = prepare_input(block_number, &http_provider).await?;
+            // Prepare input.
+            let zkvm_input = match prepare_input(block_number, &http_provider).await {
+              Ok(input) => input,
+              Err(e) => {
+                tracing::error!("Failed to prepare input for block {}: {}", block_number, e);
+                continue;
+              }
+            };
 
             // Prove the block.
             let _receipt = match prove_bonsai(zkvm_input).await {
