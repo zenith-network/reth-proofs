@@ -49,11 +49,11 @@ pub async fn main() -> eyre::Result<()> {
       block_number = stream.next() => {
         match block_number {
           Some(block_number) => {
-            tracing::info!("New block {} reported by WS provider", block_number);
+            tracing::debug!("New block {} reported by WS provider", block_number);
 
             // Simple coordination logic.
             if block_number % 100 != 0 {
-              tracing::info!("Skipping block {} - not our target", block_number);
+              tracing::debug!("Skipping block {} - not our target", block_number);
               continue;
             }
             tracing::info!("Processing block {}", block_number);
@@ -70,7 +70,7 @@ pub async fn main() -> eyre::Result<()> {
               .unwrap();
             tracing::info!("Stats of block {}: gas used = {}, tx count = {}", block_number, block_rpc.header.gas_used, block_rpc.transactions.len());
 
-            tracing::info!("Preparing zkVM input for block {}", block_number);
+            tracing::debug!("Preparing zkVM input for block {}", block_number);
             let mut zkvm_input = vec![];
             {
               // 1) Prepare client input.
@@ -93,12 +93,12 @@ pub async fn main() -> eyre::Result<()> {
             let image_id_hex = format!("{}", image_id);
 
             // Upload the image to Bonsai.
-            tracing::info!("Uploading image - ID: {}", image_id_hex);
+            tracing::debug!("Uploading image - ID: {}", image_id_hex);
             let client = bonsai_sdk::non_blocking::Client::from_env(risc0_zkvm::VERSION)?;
             client.upload_img(&image_id_hex, elf.to_vec()).await?;
 
             // Upload the zkVM input.
-            tracing::info!("Uploading zkVM input - {} bytes", zkvm_input.len());
+            tracing::debug!("Uploading zkVM input - {} bytes", zkvm_input.len());
             let input_id = client.upload_input(zkvm_input).await?; // Equivalent to `env.input`.
 
             // No receipts to be uploaded - no assumptions.
@@ -125,7 +125,7 @@ pub async fn main() -> eyre::Result<()> {
             let mut num_checks = 0u64;
             let res = loop {
               num_checks += 1;
-              tracing::info!("Polling session result - check {}", num_checks);
+              tracing::debug!("Polling session result - check {}", num_checks);
               let res = session.status(&client).await?;
               match res.status.as_str() {
                 "RUNNING" => {
@@ -162,7 +162,7 @@ pub async fn main() -> eyre::Result<()> {
             );
 
             // Download the receipt.
-            tracing::info!("Downloading the receipt...");
+            tracing::debug!("Downloading the receipt...");
             let receipt_url = res
               .receipt_url
               .expect("API error, missing receipt on completed session");
