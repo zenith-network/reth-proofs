@@ -22,6 +22,9 @@ pub async fn main() -> eyre::Result<()> {
 
   // Parse the command line arguments.
   let args = <cli::Args as clap::Parser>::parse();
+  let args = match args {
+    cli::Args { command: cli::Command::Run(run_args) } => run_args,
+  };
 
   // Configure RPCs - both HTTP and WS.
   let ws = alloy_provider::WsConnect::new(args.ws_rpc_url);
