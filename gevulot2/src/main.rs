@@ -22,6 +22,33 @@ pub async fn main() -> eyre::Result<()> {
 
   // Parse the command line arguments.
   let args = <cli::Args as clap::Parser>::parse();
+  let args = match args.command {
+    cli::Command::PrepareBlock(args) => {
+      let http_provider = reth_proofs::create_provider(args.http_rpc_url.as_str()).unwrap();
+
+      // Prevent working with block older than 100 blocks, as getting witness for it takes ~2.5s, and gets even more slow with older block.
+      let latest_block_number = alloy_provider::Provider::get_block_number(&http_provider).await?;
+      if args.block_number < latest_block_number.saturating_sub(100) {
+        return Err(eyre::eyre!(
+          "Block number {} is too old, please use a block number at least {}",
+          args.block_number,
+          latest_block_number.saturating_sub(100)
+        ));
+      }
+
+      // Prepare the zkVM input for the given block number.
+      let zkvm_input = prepare_input(args.block_number, &http_provider).await?;
+
+      // Write the zkVM input to the output file.
+      std::fs::write(&args.output_path, zkvm_input)?;
+      tracing::info!(
+        "Prepared zkVM input for block {} and saved to {}",
+        args.block_number,
+        args.output_path.display()
+      );
+
+      return Ok(());
+    }
     cli::Command::Run(run_args) => run_args,
   };
 
