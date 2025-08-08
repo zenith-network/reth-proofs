@@ -61,33 +61,7 @@ pub async fn main() -> eyre::Result<()> {
             tracing::info!("Processing block {}", block_number);
             let start_total_time = std::time::Instant::now();
 
-            // Fetch block and witness.
-            tracing::info!("Fetching RPC data for block {}", block_number);
-            let witness = reth_proofs::fetch_block_witness(&http_provider, block_number)
-              .await
-              .unwrap();
-            let block_rpc = reth_proofs::fetch_full_block(&http_provider, block_number)
-              .await
-              .unwrap()
-              .unwrap();
-            tracing::info!("Stats of block {}: gas used = {}, tx count = {}", block_number, block_rpc.header.gas_used, block_rpc.transactions.len());
-
-            tracing::debug!("Preparing zkVM input for block {}", block_number);
-            let mut zkvm_input = vec![];
-            {
-              // 1) Prepare client input.
-              let block_consensus = reth_proofs::rpc_block_to_consensus_block(block_rpc);
-              let client_input = reth_proofs_core::input::ZkvmInput::from_offline_rpc_data(block_consensus, &witness);
-
-              // 2) Serialize the input to bytes.
-              let input_bytes = bincode::serialize(&client_input).unwrap();
-              let input_bytes_len = input_bytes.len() as u32;
-
-              // 3 Wrap input into zkVM format (raw frame).
-              zkvm_input.extend_from_slice(&input_bytes_len.to_le_bytes());
-              zkvm_input.extend_from_slice(&input_bytes);
-            }
-            tracing::info!("zkVM input prepared for block {}", block_number);
+            let zkvm_input = prepare_input(block_number, &http_provider).await?;
 
             // Compute the ImageID and upload the ELF binary
             let elf = RETH_PROOFS_ZKVM_RISC0_GUEST_ELF;
@@ -191,4 +165,39 @@ pub async fn main() -> eyre::Result<()> {
   }
 
   Ok(())
+}
+
+pub async fn prepare_input(
+  block_number: u64,
+  http_provider: &alloy_provider::RootProvider,
+) -> eyre::Result<Vec<u8>> {
+  // Fetch block and witness.
+  tracing::info!("Fetching RPC data for block {}", block_number);
+  let witness = reth_proofs::fetch_block_witness(&http_provider, block_number)
+    .await
+    .unwrap();
+  let block_rpc = reth_proofs::fetch_full_block(&http_provider, block_number)
+    .await
+    .unwrap()
+    .unwrap();
+  tracing::info!("Stats of block {}: gas used = {}, tx count = {}", block_number, block_rpc.header.gas_used, block_rpc.transactions.len());
+
+  tracing::debug!("Preparing zkVM input for block {}", block_number);
+  let mut zkvm_input = vec![];
+  {
+    // 1) Prepare client input.
+    let block_consensus = reth_proofs::rpc_block_to_consensus_block(block_rpc);
+    let client_input = reth_proofs_core::input::ZkvmInput::from_offline_rpc_data(block_consensus, &witness);
+
+    // 2) Serialize the input to bytes.
+    let input_bytes = bincode::serialize(&client_input).unwrap();
+    let input_bytes_len = input_bytes.len() as u32;
+
+    // 3 Wrap input into zkVM format (raw frame).
+    zkvm_input.extend_from_slice(&input_bytes_len.to_le_bytes());
+    zkvm_input.extend_from_slice(&input_bytes);
+  }
+  tracing::info!("zkVM input prepared for block {}", block_number);
+
+  Ok(zkvm_input)
 }
