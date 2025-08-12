@@ -12,6 +12,9 @@ pub enum Command {
   /// Generate a proving key and store it to a file.
   GeneratePk(GeneratePkArgs),
 
+  /// Extracts a verifying key from PK bundle.
+  ExtractVk(ExtractVkArgs),
+
   /// Run main orchestration loop.
   Run(RunArgs),
 
@@ -29,6 +32,15 @@ pub struct GeneratePkArgs {
   /// Path where the proving key should be saved.
   #[clap(long, default_value = "pk.bin")]
   pub output_path: std::path::PathBuf,
+}
+
+/// Args specific to the `extract-vk` command.
+#[derive(Debug, clap::Parser)]
+pub struct ExtractVkArgs {
+  /// Path to the proving key file.
+  /// Pregenerated Proving Key (includes the ELF and Verification Key).
+  #[clap(long)]
+  pub proving_key_path: std::path::PathBuf,
 }
 
 #[derive(Debug, Clone, clap::Parser)]

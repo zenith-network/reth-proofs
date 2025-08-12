@@ -71,6 +71,22 @@ pub async fn main() -> eyre::Result<()> {
 
       return Ok(());
     }
+    cli::Command::ExtractVk(args) => {
+      // Load proving key from the file.
+      let proving_key_path = args.proving_key_path.clone();
+      let pk = sp1::read_pk_from_file(&proving_key_path)?;
+
+      // Extract the verifying key.
+      let vk = pk.vk;
+      let serialized_vk = bincode::serialize(&vk)?;
+
+      // Write the verifying key to the output file (same as input, but different ext).
+      let output_path = args.proving_key_path.with_extension("vk");
+      std::fs::write(&output_path, serialized_vk)?;
+      println!("Verifying key extracted and saved to {}", output_path.display());
+
+      return Ok(());
+    }
     cli::Command::PrepareBlock(args) => {
       let http_provider = reth_proofs::create_provider(args.http_rpc_url.as_str()).unwrap();
 
