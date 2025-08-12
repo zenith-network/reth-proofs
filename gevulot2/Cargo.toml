@@ -18,7 +18,7 @@ clap = { version = "4.5.40", features = ["derive", "env"] }
 dotenv = { version = "0.15.0", default-features = false }
 
 # Error handling.
-eyre = { version = "0.6.12", default-features = false }
+eyre = { version = "0.6.12", default-features = false, features = ["auto-install"] }
 
 # Logging.
 tracing = { version = "0.1.41", default-features = false }
