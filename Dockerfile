@@ -24,7 +24,7 @@ RUN rzup install && rzup install r0vm 3.0.3
 COPY . /app
 
 # Compile Risc0 host.
-RUN cargo build -p reth-proofs-zkvm-risc0-host --feature cuda --release
+RUN cargo build -p reth-proofs-zkvm-risc0-host --no-default-features --features cuda --release --bin reth-proofs-zkvm-risc0-host
 
 # Run prover.
 CMD ["./target/release/reth-proofs-zkvm-risc0-host"]
