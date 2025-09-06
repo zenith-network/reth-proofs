@@ -1260,12 +1260,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "auto_ops"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7460f7dd8e100147b82a63afca1a20eb6c231ee36b90ba7272e14951cb58af59"
-
-[[package]]
 name = "autocfg"
 version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1823,6 +1817,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "bindgen"
+version = "0.72.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "993776b509cfb49c750f11b8f07a46fa23e0a1386ffc01fb1e7d343efc387895"
+dependencies = [
+ "bitflags 2.9.1",
+ "cexpr",
+ "clang-sys",
+ "itertools 0.13.0",
+ "log",
+ "prettyplease",
+ "proc-macro2",
+ "quote",
+ "regex",
+ "rustc-hash 2.1.1",
+ "shlex",
+ "syn 2.0.104",
+]
+
+[[package]]
 name = "bit-set"
 version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1937,7 +1951,7 @@ checksum = "a3c196a77437e7cc2fb515ce413a6401291578b5afc8ecb29a3c7ab957f05941"
 dependencies = [
  "ff 0.12.1",
  "group 0.12.1",
- "pairing 0.22.0",
+ "pairing",
  "rand_core 0.6.4",
  "subtle",
 ]
@@ -1956,9 +1970,9 @@ dependencies = [
 
 [[package]]
 name = "bonsai-sdk"
-version = "1.4.1-rc.2"
+version = "1.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f4f84627973997a5d6de5d5279826451dbd1a9849cc8f8592d246d11b5b0ee76"
+checksum = "21055e2f49cbbdbfe9f8f96d597c5527b0c6ab7933341fdc2f147180e48a988e"
 dependencies = [
  "duplicate",
  "maybe-async",
@@ -2227,6 +2241,35 @@ checksum = "57663b653d948a338bfb3eeba9bb2fd5fcfaecb9e199e87e1eda4d9e8b240fd9"
 dependencies = [
  "ciborium-io",
  "half",
+]
+
+[[package]]
+name = "circom-witnesscalc"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ba3fb734f91de7e7002678ea3238fddfd4ee7afd33e9ed975176f4a94794a55a"
+dependencies = [
+ "anyhow",
+ "ark-bn254",
+ "ark-ff 0.5.0",
+ "ark-serialize 0.5.0",
+ "bindgen 0.72.1",
+ "byteorder",
+ "indicatif",
+ "libc",
+ "memmap2",
+ "num-bigint 0.4.6",
+ "num-traits",
+ "prost",
+ "prost-build",
+ "rand 0.8.5",
+ "ruint",
+ "serde",
+ "serde_json",
+ "tempfile",
+ "thiserror 2.0.12",
+ "winnow 0.7.11",
+ "wtns-file",
 ]
 
 [[package]]
@@ -3317,6 +3360,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "fixedbitset"
+version = "0.5.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1d674e81391d1e1ab681a28d99df07927c6d4aa5b027d7da16ba32d1d21ecd99"
+
+[[package]]
 name = "flate2"
 version = "1.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3501,6 +3550,30 @@ name = "gcd"
 version = "2.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1d758ba1b47b00caf47f24925c0074ecb20d6dfcffe7f6d53395c0465674841a"
+
+[[package]]
+name = "gdbstub"
+version = "0.7.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b686b198dfaa4109ebd0443d2841bc521e4b4b2915f1d84b3bb50332a8cdc1ae"
+dependencies = [
+ "bitflags 2.9.1",
+ "cfg-if",
+ "log",
+ "managed",
+ "num-traits",
+ "paste",
+]
+
+[[package]]
+name = "gdbstub_arch"
+version = "0.3.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "22dde0e1b68787036ccedd0b1ff6f953527a0e807e571fbe898975203027278f"
+dependencies = [
+ "gdbstub",
+ "num-traits",
+]
 
 [[package]]
 name = "gecko_profile"
@@ -4384,20 +4457,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "kzg-rs"
-version = "0.2.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9201effeea3fcc93b587904ae2df9ce97e433184b9d6d299e9ebc9830a546636"
-dependencies = [
- "ff 0.13.1",
- "hex",
- "serde_arrays",
- "sha2",
- "sp1_bls12_381",
- "spin",
-]
-
-[[package]]
 name = "lazy-regex"
 version = "3.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4449,6 +4508,26 @@ checksum = "07033963ba89ebaf1584d767badaa2e8fcec21aedea6b8c0346d487d49c28667"
 dependencies = [
  "cfg-if",
  "windows-targets 0.53.2",
+]
+
+[[package]]
+name = "liblzma"
+version = "0.4.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "10bf66f4598dc77ff96677c8e763655494f00ff9c1cf79e2eb5bb07bc31f807d"
+dependencies = [
+ "liblzma-sys",
+]
+
+[[package]]
+name = "liblzma-sys"
+version = "0.4.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "01b9596486f6d60c3bbe644c0e1be1aa6ccc472ad630fe8927b456973d7cb736"
+dependencies = [
+ "cc",
+ "libc",
+ "pkg-config",
 ]
 
 [[package]]
@@ -4524,17 +4603,6 @@ name = "lru-slab"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "112b39cec0b298b6c1999fee3e31427f74f676e4cb9879ed1a121b43661a4154"
-
-[[package]]
-name = "lzma-sys"
-version = "0.1.20"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5fda04ab3764e6cde78b9974eec4f779acaba7c4e84b36eca3cf77c581b85d27"
-dependencies = [
- "cc",
- "libc",
- "pkg-config",
-]
 
 [[package]]
 name = "macro-string"
@@ -4613,6 +4681,12 @@ checksum = "62bb907fe88d54d8d9ce32a3cceab4218ed2f6b7d35617cafe9adf84e43919cb"
 dependencies = [
  "libc",
 ]
+
+[[package]]
+name = "managed"
+version = "0.8.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0ca88d725a0a943b096803bd34e73a4437208b6077654cc4ecb2947a5f91618d"
 
 [[package]]
 name = "matchers"
@@ -4758,6 +4832,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "multimap"
+version = "0.10.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1d87ecb2933e8aeadb3e3a02b828fed80a7528047e68b4f424523a0981a3a084"
+
+[[package]]
 name = "munge"
 version = "0.4.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4896,6 +4976,23 @@ checksum = "a5e44f723f1133c9deac646763579fdb3ac745e418f2a7af9cd0c431da1f20b9"
 dependencies = [
  "num-integer",
  "num-traits",
+]
+
+[[package]]
+name = "num-bigint-dig"
+version = "0.8.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dc84195820f291c7697304f3cbdadd1cb7199c0efc917ff5eafd71225c136151"
+dependencies = [
+ "byteorder",
+ "lazy_static",
+ "libm",
+ "num-integer",
+ "num-iter",
+ "num-traits",
+ "rand 0.8.5",
+ "smallvec",
+ "zeroize",
 ]
 
 [[package]]
@@ -5463,15 +5560,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "pairing"
-version = "0.23.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "81fec4625e73cf41ef4bb6846cafa6d44736525f442ba45e407c4a000a13996f"
-dependencies = [
- "group 0.13.0",
-]
-
-[[package]]
 name = "parity-scale-codec"
 version = "3.7.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5622,6 +5710,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "petgraph"
+version = "0.7.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3672b37090dbd86368a4145bc067582552b29c27377cad4e0a306c97f9bd7772"
+dependencies = [
+ "fixedbitset",
+ "indexmap 2.10.0",
+]
+
+[[package]]
 name = "pharos"
 version = "0.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5705,6 +5803,17 @@ name = "pin-utils"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8b870d8c151b6f2fb93e84a13146138f05d02ed11c7e7c54f8826aaaf7c9f184"
+
+[[package]]
+name = "pkcs1"
+version = "0.7.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c8ffb9f10fa047879315e6625af03c164b16962a5368d724ed16323b68ace47f"
+dependencies = [
+ "der",
+ "pkcs8",
+ "spki",
+]
 
 [[package]]
 name = "pkcs8"
@@ -5932,6 +6041,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "prost-build"
+version = "0.13.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "be769465445e8c1474e9c5dac2018218498557af32d9ed057325ec9a41ae81bf"
+dependencies = [
+ "heck 0.5.0",
+ "itertools 0.14.0",
+ "log",
+ "multimap",
+ "once_cell",
+ "petgraph",
+ "prettyplease",
+ "prost",
+ "prost-types",
+ "regex",
+ "syn 2.0.104",
+ "tempfile",
+]
+
+[[package]]
 name = "prost-derive"
 version = "0.13.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5942,6 +6071,15 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.104",
+]
+
+[[package]]
+name = "prost-types"
+version = "0.13.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "52c2c1bf36ddb1a1c396b3601a3cec27c2462e45f07c386894ec3ccf5332bd16"
+dependencies = [
+ "prost",
 ]
 
 [[package]]
@@ -6743,7 +6881,7 @@ dependencies = [
  "futures",
  "reth-proofs",
  "reth-proofs-core",
- "risc0-build 3.0.1-rc.1 (git+https://github.com/koxu1996/risc0.git?branch=feature%2Fsimpler-guest-integration-v3.0.0-rc.1)",
+ "risc0-build 3.0.3 (git+https://github.com/koxu1996/risc0.git?branch=feature%2Fsimpler-guest-integration-v3.0.3)",
  "risc0-zkvm",
  "tokio",
  "tracing",
@@ -6783,7 +6921,7 @@ dependencies = [
  "reth-proofs",
  "reth-proofs-core",
  "reth-proofs-zkvm-common-host",
- "risc0-build 3.0.1-rc.1 (git+https://github.com/koxu1996/risc0.git?branch=feature%2Fsimpler-guest-integration-v3.0.0-rc.1)",
+ "risc0-build 3.0.3 (git+https://github.com/koxu1996/risc0.git?branch=feature%2Fsimpler-guest-integration-v3.0.3)",
  "risc0-zkvm",
  "serde",
  "tokio",
@@ -7182,9 +7320,9 @@ dependencies = [
  "ark-serialize 0.5.0",
  "arrayref",
  "aurora-engine-modexp",
+ "c-kzg",
  "cfg-if",
  "k256",
- "kzg-rs",
  "once_cell",
  "p256",
  "revm-primitives",
@@ -7257,18 +7395,21 @@ dependencies = [
 
 [[package]]
 name = "risc0-binfmt"
-version = "3.0.0-rc.1"
+version = "3.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8a92ddfde51696f55e565a67a55f2fd6992d4e6b9fec3ef6a82fda86b499f00d"
+checksum = "1c8f97f81bcdead4101bca06469ecef481a2695cd04e7e877b49dea56a7f6f2a"
 dependencies = [
  "anyhow",
  "borsh",
+ "bytemuck",
  "derive_more 2.0.1",
  "elf",
  "lazy_static",
  "postcard",
- "risc0-zkp 3.0.0-rc.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "risc0-zkvm-platform 2.0.3",
+ "rand 0.9.1",
+ "risc0-zkp 3.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "risc0-zkvm-platform 2.2.1",
+ "ruint",
  "semver 1.0.26",
  "serde",
  "tracing",
@@ -7276,17 +7417,19 @@ dependencies = [
 
 [[package]]
 name = "risc0-binfmt"
-version = "3.0.0-rc.1"
-source = "git+https://github.com/koxu1996/risc0.git?branch=feature%2Fsimpler-guest-integration-v3.0.0-rc.1#0b8c6447171103b46d7dc9f7ebcd41cd58c8fa6e"
+version = "3.0.2"
+source = "git+https://github.com/koxu1996/risc0.git?branch=feature%2Fsimpler-guest-integration-v3.0.3#08d90229b6b410ee53e5a1edcf3f43d5c90c1a1a"
 dependencies = [
  "anyhow",
  "borsh",
+ "bytemuck",
  "derive_more 2.0.1",
  "elf",
  "lazy_static",
  "postcard",
- "risc0-zkp 3.0.0-rc.1 (git+https://github.com/koxu1996/risc0.git?branch=feature%2Fsimpler-guest-integration-v3.0.0-rc.1)",
- "risc0-zkvm-platform 2.0.3-rc.1",
+ "risc0-zkp 3.0.2 (git+https://github.com/koxu1996/risc0.git?branch=feature%2Fsimpler-guest-integration-v3.0.3)",
+ "risc0-zkvm-platform 2.2.0",
+ "ruint",
  "semver 1.0.26",
  "serde",
  "tracing",
@@ -7294,9 +7437,9 @@ dependencies = [
 
 [[package]]
 name = "risc0-build"
-version = "3.0.1-rc.1"
+version = "3.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "073de500331ec208f5861c7b8ce54f92dd41d9a2127cfbe72e6710f48d784dd3"
+checksum = "1bbb512d728e011d03ce0958ca7954624ee13a215bcafd859623b3c63b2a3f60"
 dependencies = [
  "anyhow",
  "cargo_metadata 0.19.2",
@@ -7304,11 +7447,11 @@ dependencies = [
  "dirs 6.0.0",
  "docker-generate",
  "hex",
- "risc0-binfmt 3.0.0-rc.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "risc0-zkos-v1compat 2.0.2-rc.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "risc0-zkp 3.0.0-rc.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "risc0-zkvm-platform 2.0.3",
- "rzup 0.4.2-rc.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "risc0-binfmt 3.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "risc0-zkos-v1compat 2.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "risc0-zkp 3.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "risc0-zkvm-platform 2.2.1",
+ "rzup 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "semver 1.0.26",
  "serde",
  "serde_json",
@@ -7318,8 +7461,8 @@ dependencies = [
 
 [[package]]
 name = "risc0-build"
-version = "3.0.1-rc.1"
-source = "git+https://github.com/koxu1996/risc0.git?branch=feature%2Fsimpler-guest-integration-v3.0.0-rc.1#0b8c6447171103b46d7dc9f7ebcd41cd58c8fa6e"
+version = "3.0.3"
+source = "git+https://github.com/koxu1996/risc0.git?branch=feature%2Fsimpler-guest-integration-v3.0.3#08d90229b6b410ee53e5a1edcf3f43d5c90c1a1a"
 dependencies = [
  "anyhow",
  "cargo_metadata 0.19.2",
@@ -7327,11 +7470,11 @@ dependencies = [
  "dirs 6.0.0",
  "docker-generate",
  "hex",
- "risc0-binfmt 3.0.0-rc.1 (git+https://github.com/koxu1996/risc0.git?branch=feature%2Fsimpler-guest-integration-v3.0.0-rc.1)",
- "risc0-zkos-v1compat 2.0.2-rc.1 (git+https://github.com/koxu1996/risc0.git?branch=feature%2Fsimpler-guest-integration-v3.0.0-rc.1)",
- "risc0-zkp 3.0.0-rc.1 (git+https://github.com/koxu1996/risc0.git?branch=feature%2Fsimpler-guest-integration-v3.0.0-rc.1)",
- "risc0-zkvm-platform 2.0.3-rc.1",
- "rzup 0.4.2-rc.1 (git+https://github.com/koxu1996/risc0.git?branch=feature%2Fsimpler-guest-integration-v3.0.0-rc.1)",
+ "risc0-binfmt 3.0.2 (git+https://github.com/koxu1996/risc0.git?branch=feature%2Fsimpler-guest-integration-v3.0.3)",
+ "risc0-zkos-v1compat 2.2.0 (git+https://github.com/koxu1996/risc0.git?branch=feature%2Fsimpler-guest-integration-v3.0.3)",
+ "risc0-zkp 3.0.2 (git+https://github.com/koxu1996/risc0.git?branch=feature%2Fsimpler-guest-integration-v3.0.3)",
+ "risc0-zkvm-platform 2.2.0",
+ "rzup 0.5.1 (git+https://github.com/koxu1996/risc0.git?branch=feature%2Fsimpler-guest-integration-v3.0.3)",
  "semver 1.0.26",
  "serde",
  "serde_json",
@@ -7341,9 +7484,9 @@ dependencies = [
 
 [[package]]
 name = "risc0-build-kernel"
-version = "2.0.1-rc.1"
+version = "2.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "858ef46701da634f6db4f6bd64cc1697cfe90ff5fd8189ca4c940c3eda71f7ac"
+checksum = "eaaa3e04c71e4244354dd9e3f8b89378cfecfbb03f9c72de4e2e7e0482b30c9a"
 dependencies = [
  "cc",
  "directories",
@@ -7355,47 +7498,47 @@ dependencies = [
 
 [[package]]
 name = "risc0-circuit-keccak"
-version = "3.0.0-rc.1"
+version = "4.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c7cab550184813467b276a50d85f057e6c6c18107325a562cc5cdb872a3f82f9"
+checksum = "5f195f865ac1afdc21a172d7756fdcc21be18e13eb01d78d3d7f2b128fa881ba"
 dependencies = [
  "anyhow",
  "bytemuck",
  "cfg-if",
  "keccak",
+ "liblzma",
  "paste",
  "rayon",
- "risc0-binfmt 3.0.0-rc.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "risc0-binfmt 3.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "risc0-circuit-keccak-sys",
  "risc0-circuit-recursion",
- "risc0-core 2.0.1-rc.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "risc0-core 3.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "risc0-sys",
- "risc0-zkp 3.0.0-rc.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "risc0-zkp 3.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "tracing",
- "xz2",
 ]
 
 [[package]]
 name = "risc0-circuit-keccak-sys"
-version = "2.0.1-rc.1"
+version = "4.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "44fc8d501e61641c2c057dddee2f250589632ed99aa0066bcada342722570f47"
+checksum = "30a8f21cc053fe9892acebbe0ebe2610a5d79ad638cd17f2e5122cf0b3e7cd1a"
 dependencies = [
  "cc",
  "cust",
  "derive_more 2.0.1",
  "glob",
  "risc0-build-kernel",
- "risc0-core 2.0.1-rc.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "risc0-core 3.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "risc0-sys",
  "sppark",
 ]
 
 [[package]]
 name = "risc0-circuit-recursion"
-version = "3.0.0-rc.1"
+version = "4.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cdf1bf1f2088c6e42c76f554d1041c3d905620cd14f9c90388900e6ecea40a6a"
+checksum = "dca8f15c8abc0fd8c097aa7459879110334d191c63dd51d4c28881c4a497279e"
 dependencies = [
  "anyhow",
  "bytemuck",
@@ -7408,9 +7551,9 @@ dependencies = [
  "rand 0.9.1",
  "rayon",
  "risc0-circuit-recursion-sys",
- "risc0-core 2.0.1-rc.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "risc0-core 3.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "risc0-sys",
- "risc0-zkp 3.0.0-rc.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "risc0-zkp 3.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde",
  "sha2",
  "tracing",
@@ -7419,31 +7562,32 @@ dependencies = [
 
 [[package]]
 name = "risc0-circuit-recursion-sys"
-version = "3.0.0-rc.1"
+version = "4.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "80d6d6082391d7eac868a1b2126ada6734ca7456a835acb36c9d797687f09bb9"
+checksum = "f5f137bcd382520efcd982e4ee131da43f448b12ade979fe9d1fa92d4337dec0"
 dependencies = [
  "glob",
  "risc0-build-kernel",
- "risc0-core 2.0.1-rc.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "risc0-core 3.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "risc0-sys",
  "sppark",
 ]
 
 [[package]]
 name = "risc0-circuit-rv32im"
-version = "3.0.0-rc.1"
+version = "4.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f66befbc813de81f81d5eb8e006c2ba4fc756a13c4a0904d862d56668cee0f84"
+checksum = "ae1b0689f4a270a2f247b04397ebb431b8f64fe5170e98ee4f9d71bd04825205"
 dependencies = [
  "anyhow",
- "auto_ops",
  "bit-vec",
  "bytemuck",
  "byteorder",
  "cfg-if",
  "derive_more 2.0.1",
  "enum-map",
+ "gdbstub",
+ "gdbstub_arch",
  "malachite",
  "num-derive",
  "num-traits",
@@ -7452,40 +7596,40 @@ dependencies = [
  "rand 0.9.1",
  "rayon",
  "ringbuffer",
- "risc0-binfmt 3.0.0-rc.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "risc0-binfmt 3.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "risc0-circuit-rv32im-sys",
- "risc0-core 2.0.1-rc.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "risc0-core 3.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "risc0-sys",
- "risc0-zkp 3.0.0-rc.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "risc0-zkp 3.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde",
  "smallvec",
  "tracing",
+ "wide",
 ]
 
 [[package]]
 name = "risc0-circuit-rv32im-sys"
-version = "2.0.2-rc.1"
+version = "4.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8ed3e843de21d63b0619698de683adce295659e559501feb98235e64c6c2ee41"
+checksum = "cb25f3935e53e89ca020224ad0c09de96cab89a215054c0cee290405074a5166"
 dependencies = [
  "cc",
  "cust",
  "derive_more 2.0.1",
  "glob",
  "risc0-build-kernel",
- "risc0-core 2.0.1-rc.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "risc0-core 3.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "risc0-sys",
  "sppark",
 ]
 
 [[package]]
 name = "risc0-core"
-version = "2.0.1-rc.1"
+version = "3.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5ce899ca740c3d827ce0f257385051de594963863dcc58823ab005c5b9d26c4f"
+checksum = "80f2723fedace48c6c5a505bd8f97ac4e1712bc4cb769083e10536d862b66987"
 dependencies = [
  "bytemuck",
- "bytemuck_derive",
  "nvtx",
  "puffin",
  "rand_core 0.9.3",
@@ -7493,11 +7637,10 @@ dependencies = [
 
 [[package]]
 name = "risc0-core"
-version = "2.0.1-rc.1"
-source = "git+https://github.com/koxu1996/risc0.git?branch=feature%2Fsimpler-guest-integration-v3.0.0-rc.1#0b8c6447171103b46d7dc9f7ebcd41cd58c8fa6e"
+version = "3.0.0"
+source = "git+https://github.com/koxu1996/risc0.git?branch=feature%2Fsimpler-guest-integration-v3.0.3#08d90229b6b410ee53e5a1edcf3f43d5c90c1a1a"
 dependencies = [
  "bytemuck",
- "bytemuck_derive",
  "rand_core 0.9.3",
 ]
 
@@ -7520,34 +7663,51 @@ dependencies = [
 
 [[package]]
 name = "risc0-groth16"
-version = "3.0.0-rc.1"
+version = "3.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "25ce5981ece53c031c816014b55ccc57f9e599f3757dcb2c633d6b05bc12996e"
+checksum = "724285dc79604abfb2d40feaefe3e335420a6b293511661f77d6af62f1f5fae9"
 dependencies = [
  "anyhow",
  "ark-bn254",
  "ark-ec",
+ "ark-ff 0.5.0",
  "ark-groth16",
  "ark-serialize 0.5.0",
  "bytemuck",
+ "cfg-if",
+ "circom-witnesscalc",
  "hex",
  "num-bigint 0.4.6",
  "num-traits",
- "risc0-binfmt 3.0.0-rc.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "risc0-core 2.0.1-rc.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "risc0-zkp 3.0.0-rc.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "risc0-binfmt 3.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "risc0-core 3.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "risc0-groth16-sys",
+ "risc0-zkp 3.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "rzup 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde",
  "serde_json",
- "stability",
  "tempfile",
  "tracing",
+ "wtns-file",
+]
+
+[[package]]
+name = "risc0-groth16-sys"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "580750e1394c5a79b691c8197906263f17a1d3aa7bb46a934362f1ba1475b1a5"
+dependencies = [
+ "anyhow",
+ "blst",
+ "risc0-build-kernel",
+ "sppark",
 ]
 
 [[package]]
 name = "risc0-sys"
-version = "1.5.0-rc.1"
+version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "12f7cba132d6012c284e931ddec9e93c32d8188702c8321e32913775faa6473c"
+checksum = "960c8295fbb87e1e73e332f8f7de2fba0252377575042d9d3e9a4eb50a38e078"
 dependencies = [
  "anyhow",
  "blst",
@@ -7558,28 +7718,30 @@ dependencies = [
 
 [[package]]
 name = "risc0-zkos-v1compat"
-version = "2.0.2-rc.1"
+version = "2.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "da6a4f098cab3ecf2ca6828b37b9ef56421e2128ab1cd966ee90301fef1459c7"
+checksum = "840c2228803557a8b7dc035a8f196516b6fd68c9dc6ac092f0c86241b5b1bafb"
 dependencies = [
  "include_bytes_aligned",
  "no_std_strings",
+ "risc0-zkvm-platform 2.2.1",
 ]
 
 [[package]]
 name = "risc0-zkos-v1compat"
-version = "2.0.2-rc.1"
-source = "git+https://github.com/koxu1996/risc0.git?branch=feature%2Fsimpler-guest-integration-v3.0.0-rc.1#0b8c6447171103b46d7dc9f7ebcd41cd58c8fa6e"
+version = "2.2.0"
+source = "git+https://github.com/koxu1996/risc0.git?branch=feature%2Fsimpler-guest-integration-v3.0.3#08d90229b6b410ee53e5a1edcf3f43d5c90c1a1a"
 dependencies = [
  "include_bytes_aligned",
  "no_std_strings",
+ "risc0-zkvm-platform 2.2.0",
 ]
 
 [[package]]
 name = "risc0-zkp"
-version = "3.0.0-rc.1"
+version = "3.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f07219d96bb4e394962d49bb0eb6acc57d337d9a9637ed5802262d4b8c02ffd6"
+checksum = "ffb6bf356f469bb8744f72a07a37134c5812c1d55d6271bba80e87bdb7a58c8e"
 dependencies = [
  "anyhow",
  "blake2",
@@ -7598,9 +7760,9 @@ dependencies = [
  "rand 0.9.1",
  "rand_core 0.9.3",
  "rayon",
- "risc0-core 2.0.1-rc.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "risc0-core 3.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "risc0-sys",
- "risc0-zkvm-platform 2.0.3",
+ "risc0-zkvm-platform 2.2.1",
  "serde",
  "sha2",
  "stability",
@@ -7609,8 +7771,8 @@ dependencies = [
 
 [[package]]
 name = "risc0-zkp"
-version = "3.0.0-rc.1"
-source = "git+https://github.com/koxu1996/risc0.git?branch=feature%2Fsimpler-guest-integration-v3.0.0-rc.1#0b8c6447171103b46d7dc9f7ebcd41cd58c8fa6e"
+version = "3.0.2"
+source = "git+https://github.com/koxu1996/risc0.git?branch=feature%2Fsimpler-guest-integration-v3.0.3#08d90229b6b410ee53e5a1edcf3f43d5c90c1a1a"
 dependencies = [
  "anyhow",
  "blake2",
@@ -7623,8 +7785,8 @@ dependencies = [
  "metal",
  "paste",
  "rand_core 0.9.3",
- "risc0-core 2.0.1-rc.1 (git+https://github.com/koxu1996/risc0.git?branch=feature%2Fsimpler-guest-integration-v3.0.0-rc.1)",
- "risc0-zkvm-platform 2.0.3-rc.1",
+ "risc0-core 3.0.0 (git+https://github.com/koxu1996/risc0.git?branch=feature%2Fsimpler-guest-integration-v3.0.3)",
+ "risc0-zkvm-platform 2.2.0",
  "serde",
  "sha2",
  "stability",
@@ -7633,9 +7795,9 @@ dependencies = [
 
 [[package]]
 name = "risc0-zkvm"
-version = "3.0.0-rc.1"
+version = "3.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "925a2debd7c7507515a164d1d524f6107f0825b1e1a6a03aa2fff40f039e2c35"
+checksum = "3fcce11648a9ff60b8e7af2f0ce7fbf8d25275ab6d414cc91b9da69ee75bc978"
 dependencies = [
  "addr2line",
  "anyhow",
@@ -7647,6 +7809,8 @@ dependencies = [
  "derive_more 2.0.1",
  "elf",
  "enum-map",
+ "gdbstub",
+ "gdbstub_arch",
  "gimli",
  "hex",
  "keccak",
@@ -7657,19 +7821,19 @@ dependencies = [
  "prost",
  "rand 0.9.1",
  "rayon",
- "risc0-binfmt 3.0.0-rc.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "risc0-build 3.0.1-rc.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "risc0-binfmt 3.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "risc0-build 3.0.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "risc0-circuit-keccak",
  "risc0-circuit-recursion",
  "risc0-circuit-rv32im",
- "risc0-core 2.0.1-rc.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "risc0-core 3.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "risc0-groth16",
- "risc0-zkos-v1compat 2.0.2-rc.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "risc0-zkp 3.0.0-rc.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "risc0-zkvm-platform 2.0.3",
+ "risc0-zkos-v1compat 2.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "risc0-zkp 3.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "risc0-zkvm-platform 2.2.1",
  "rrs-lib",
  "rustc-demangle",
- "rzup 0.4.2-rc.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "rzup 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "semver 1.0.26",
  "serde",
  "sha2",
@@ -7681,24 +7845,28 @@ dependencies = [
 
 [[package]]
 name = "risc0-zkvm-platform"
-version = "2.0.3-rc.1"
-source = "git+https://github.com/koxu1996/risc0.git?branch=feature%2Fsimpler-guest-integration-v3.0.0-rc.1#0b8c6447171103b46d7dc9f7ebcd41cd58c8fa6e"
+version = "2.2.0"
+source = "git+https://github.com/koxu1996/risc0.git?branch=feature%2Fsimpler-guest-integration-v3.0.3#08d90229b6b410ee53e5a1edcf3f43d5c90c1a1a"
 dependencies = [
  "cfg-if",
+ "num_enum 0.7.4",
+ "paste",
  "stability",
 ]
 
 [[package]]
 name = "risc0-zkvm-platform"
-version = "2.0.3"
+version = "2.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cae9cb2c2f6cab2dfa395ea6e2576713929040c7fb0c5f4150d13e1119d18686"
+checksum = "cfaa10feba15828c788837ddde84b994393936d8f5715228627cfe8625122a40"
 dependencies = [
  "bytemuck",
  "cfg-if",
  "getrandom 0.2.16",
  "getrandom 0.3.3",
  "libm",
+ "num_enum 0.7.4",
+ "paste",
  "stability",
 ]
 
@@ -7774,6 +7942,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "rsa"
+version = "0.9.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "78928ac1ed176a5ca1d17e578a1825f3d81ca54cf41053a592584b020cfd691b"
+dependencies = [
+ "const-oid",
+ "digest 0.10.7",
+ "num-bigint-dig",
+ "num-integer",
+ "num-traits",
+ "pkcs1",
+ "pkcs8",
+ "rand_core 0.6.4",
+ "signature",
+ "spki",
+ "subtle",
+ "zeroize",
+]
+
+[[package]]
 name = "ruint"
 version = "1.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -7782,6 +7970,7 @@ dependencies = [
  "alloy-rlp",
  "ark-ff 0.3.0",
  "ark-ff 0.4.2",
+ "borsh",
  "bytes",
  "fastrlp 0.3.1",
  "fastrlp 0.4.0",
@@ -8002,12 +8191,16 @@ checksum = "28d3b2b1366ec20994f1fd18c3c594f05c5dd4bc44d8bb0c1c632c8d6829481f"
 
 [[package]]
 name = "rzup"
-version = "0.4.2-rc.1"
+version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cce8c379765998e88e66a86a6edc88c42f035e096ef76726df3243d66d89c5a4"
+checksum = "5d2aed296f203fa64bcb4b52069356dd86d6ec578593985b919b6995bee1f0ae"
 dependencies = [
+ "hex",
+ "rsa",
  "semver 1.0.26",
  "serde",
+ "serde_with",
+ "sha2",
  "strum 0.27.1",
  "tempfile",
  "thiserror 2.0.12",
@@ -8017,16 +8210,29 @@ dependencies = [
 
 [[package]]
 name = "rzup"
-version = "0.4.2-rc.1"
-source = "git+https://github.com/koxu1996/risc0.git?branch=feature%2Fsimpler-guest-integration-v3.0.0-rc.1#0b8c6447171103b46d7dc9f7ebcd41cd58c8fa6e"
+version = "0.5.1"
+source = "git+https://github.com/koxu1996/risc0.git?branch=feature%2Fsimpler-guest-integration-v3.0.3#08d90229b6b410ee53e5a1edcf3f43d5c90c1a1a"
 dependencies = [
+ "hex",
+ "rsa",
  "semver 1.0.26",
  "serde",
+ "serde_with",
+ "sha2",
  "strum 0.27.1",
  "tempfile",
  "thiserror 2.0.12",
  "toml",
  "yaml-rust2",
+]
+
+[[package]]
+name = "safe_arch"
+version = "0.7.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "96b02de82ddbe1b636e6170c21be622223aea188ef2e139be0a5b219ec215323"
+dependencies = [
+ "bytemuck",
 ]
 
 [[package]]
@@ -8258,15 +8464,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5f0e2c6ed6606019b4e29e69dbaba95b11854410e5347d525002456dbbb786b6"
 dependencies = [
  "serde_derive",
-]
-
-[[package]]
-name = "serde_arrays"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "94a16b99c5ea4fe3daccd14853ad260ec00ea043b2708d1fd1da3106dcd8d9df"
-dependencies = [
- "serde",
 ]
 
 [[package]]
@@ -8688,17 +8885,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "sp1-lib"
-version = "5.0.8"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7fbb6e3d8741c0fcdaa37e74d2dd9a2bdcbf958d192e438eec59e8071e08124c"
-dependencies = [
- "bincode",
- "serde",
- "sp1-primitives",
-]
-
-[[package]]
 name = "sp1-primitives"
 version = "5.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -8974,21 +9160,6 @@ dependencies = [
  "strum_macros 0.26.4",
  "sysinfo",
  "tracing",
-]
-
-[[package]]
-name = "sp1_bls12_381"
-version = "0.8.0-sp1-5.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ac255e1704ebcdeec5e02f6a0ebc4d2e9e6b802161938330b6810c13a610c583"
-dependencies = [
- "cfg-if",
- "ff 0.13.1",
- "group 0.13.0",
- "pairing 0.23.0",
- "rand_core 0.6.4",
- "sp1-lib",
- "subtle",
 ]
 
 [[package]]
@@ -10102,6 +10273,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "wide"
+version = "0.7.33"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0ce5da8ecb62bcd8ec8b7ea19f69a51275e91299be594ea5cc6ef7819e16cd03"
+dependencies = [
+ "bytemuck",
+ "safe_arch",
+]
+
+[[package]]
 name = "winapi"
 version = "0.3.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -10484,6 +10665,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "wtns-file"
+version = "0.1.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3d3b856452298f68a5879e3901918bac5d753ca9fa4be8a983a37a3d25dabf0a"
+dependencies = [
+ "byteorder",
+]
+
+[[package]]
 name = "wyz"
 version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -10497,15 +10687,6 @@ name = "xmlparser"
 version = "0.13.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "66fee0b777b0f5ac1c69bb06d361268faafa61cd4682ae064a171c16c433e9e4"
-
-[[package]]
-name = "xz2"
-version = "0.1.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "388c44dc09d76f1536602ead6d325eb532f5c122f17782bd57fb47baeeb767e2"
-dependencies = [
- "lzma-sys",
-]
 
 [[package]]
 name = "yaml-rust2"

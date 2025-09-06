@@ -19,7 +19,7 @@ reth-proofs-zkvm-common-guest = { path = "../../zkvm-common-guest" }
 
 # zkVM.
 # TODO: Get rid of `std` when serde is no longer used.
-risc0-zkvm = { version = "3.0.0-rc.1", default-features = false, features = ["unstable", "std"] }
+risc0-zkvm = { version = "3.0.3", default-features = false, features = ["unstable", "std"] }
 
 # Extra packages to use precompiles.
 c-kzg = { version = "=2.1.1", features = ["risc0-ffi"] }
