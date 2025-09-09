@@ -76,6 +76,13 @@ pub async fn main() -> eyre::Result<()> {
     cli::Command::Run(run_args) => run_args,
   };
 
+  // Ethproofs client.
+  let ethproofs_api = ethproofs_api::EthProofsClient::new(
+    args.ethproofs_cluster_id,
+    args.ethproofs_api_url,
+    args.ethproofs_api_token,
+  );
+
   // Configure RPCs - both HTTP and WS.
   let ws = alloy_provider::WsConnect::new(args.ws_rpc_url);
   let ws_provider = alloy_provider::ProviderBuilder::new()
@@ -112,6 +119,9 @@ pub async fn main() -> eyre::Result<()> {
             tracing::info!("Processing block {}", block_number);
             let start_total_time = std::time::Instant::now();
 
+            // Notify Ethproofs that we started processing.
+            ethproofs_api.queued(block_number).await;
+
             // Prepare input.
             let zkvm_input = match prepare_input(block_number, &http_provider).await {
               Ok(input) => input,
@@ -129,6 +139,12 @@ pub async fn main() -> eyre::Result<()> {
                 continue;
               }
             };
+            let image_id_hex = bento_input.image_id_hex.clone();
+
+            // Notify Ethproofs that we start proving.
+            ethproofs_api.proving(block_number).await;
+            let start_proving_time = std::time::Instant::now();
+
             // Prove the block.
             let (receipt, cycles) = match prove_bonsai(bento_input).await {
               Ok(receipt) => receipt,
@@ -138,7 +154,26 @@ pub async fn main() -> eyre::Result<()> {
               }
             };
 
-            // TODO: Uploading receipt to the ETH proofs endpoint.
+            // Stop the proving timer.
+            let proving_duration = start_proving_time.elapsed();
+
+            // Serialize receipt.
+            let proof_bytes = match bincode::serialize(&receipt) {
+              Ok(bytes) => bytes,
+              Err(e) => {
+                tracing::error!("Failed to serialize receipt for block {}: {}", block_number, e);
+                continue;
+              }
+            };
+
+            // Upload receipt to the Ethproofs endpoint.
+            ethproofs_api.proved(
+              &proof_bytes,
+              block_number,
+              cycles,
+              proving_duration.as_secs_f32(),
+              &image_id_hex,
+            ).await;
 
             let duration_total_time = start_total_time.elapsed();
             tracing::info!(

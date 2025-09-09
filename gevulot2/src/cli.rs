@@ -28,6 +28,18 @@ pub struct RunArgs {
   /// The WS rpc url used to fetch data about the block.
   #[clap(long, env)]
   pub ws_rpc_url: url::Url,
+
+  /// ETH proofs endpoint.
+  #[clap(long, env)]
+  pub ethproofs_api_url: String,
+
+  /// ETH proofs API token.
+  #[clap(long, env)]
+  pub ethproofs_api_token: String,
+
+  /// ETH proofs cluster ID.
+  #[clap(long, env)]
+  pub ethproofs_cluster_id: u64,
 }
 
 

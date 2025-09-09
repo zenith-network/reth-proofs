@@ -6892,6 +6892,7 @@ dependencies = [
  "bonsai-sdk",
  "clap",
  "dotenv",
+ "ethproofs-api",
  "eyre",
  "futures",
  "reth-proofs",
