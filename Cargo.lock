@@ -3224,6 +3224,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "ethproofs-api"
+version = "0.1.0"
+dependencies = [
+ "base64 0.22.1",
+ "eyre",
+ "reqwest",
+ "reqwest-middleware",
+ "reqwest-retry",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "event-listener"
 version = "5.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6849,6 +6863,7 @@ dependencies = [
  "bincode",
  "clap",
  "dotenv",
+ "ethproofs-api",
  "eyre",
  "futures",
  "reqwest",

@@ -6,8 +6,6 @@ mod alerting;
 
 mod cli;
 
-mod eth_proofs;
-
 mod sp1;
 
 mod worker_prepare;
@@ -171,12 +169,12 @@ pub async fn main() -> eyre::Result<()> {
   let proving_key = sp1::read_pk_from_file(&args.proving_key_path)?;
 
   // Ethproofs clients.
-  let eth_proofs_client = std::sync::Arc::new(eth_proofs::EthProofsClient::new(
+  let eth_proofs_client = std::sync::Arc::new(ethproofs_api::EthProofsClient::new(
     args.eth_proofs_cluster_id,
     args.eth_proofs_endpoint,
     args.eth_proofs_api_token,
   ));
-  let eth_proofs_staging_client = std::sync::Arc::new(eth_proofs::EthProofsClient::new(
+  let eth_proofs_staging_client = std::sync::Arc::new(ethproofs_api::EthProofsClient::new(
     args.eth_proofs_staging_cluster_id,
     args.eth_proofs_staging_endpoint,
     args.eth_proofs_staging_api_token,

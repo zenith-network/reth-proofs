@@ -1,0 +1,30 @@
+[package]
+name = "ethproofs-api"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+
+# Asynchronous runtime.
+tokio = { workspace = true }
+
+# Error handling.
+eyre = { version = "0.6.12", default-features = false }
+
+# Hashing.
+base64 = { version = "0.22.1", default-features = false }
+
+# Logging.
+tracing = { version = "0.1.41", default-features = false }
+
+# REST client.
+reqwest = { version = "0.12.20", default-features = false, features = ["default-tls", "json"] }
+reqwest-middleware = { version = "0.4.2", default-features = false, features = ["json"] }
+reqwest-retry = { version = "0.7.0", default-features = false }
+
+# Serialization.
+serde_json = { workspace = true, features = ["std"] }
+
+# zkVM.
+#sp1-sdk = { workspace = true }
+#sp1-cuda = { workspace = true }
