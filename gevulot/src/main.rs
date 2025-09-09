@@ -351,6 +351,7 @@ pub async fn main() -> eyre::Result<()> {
           }
         };
         {
+          let verifier_id = sp1_sdk::HashableKey::bytes32(vk);
           // After prove hook.
           eth_proofs_staging_client
             .proved(
@@ -358,7 +359,7 @@ pub async fn main() -> eyre::Result<()> {
               block_number,
               cycles,
               proving_duration.as_secs_f32(),
-              &vk,
+              &verifier_id,
             )
             .await;
           if block_number % 100 == 0 {
@@ -368,7 +369,7 @@ pub async fn main() -> eyre::Result<()> {
                 block_number,
                 cycles,
                 proving_duration.as_secs_f32(),
-                &vk,
+                &verifier_id,
               )
               .await;
           }

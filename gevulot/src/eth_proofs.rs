@@ -83,14 +83,14 @@ impl EthProofsClient {
     block_number: u64,
     num_opcodes: u64,
     elapsed: f32,
-    vk: &sp1_sdk::SP1VerifyingKey,
+    verifier_id: &str,
   ) {
     let json = serde_json::json!({
         "proof": base64::Engine::encode(&base64::engine::general_purpose::STANDARD, proof_bytes),
         "block_number": block_number,
         "proving_cycles": num_opcodes,
         "proving_time": (elapsed * 1000.0) as u64,
-        "verifier_id": sp1_sdk::HashableKey::bytes32(vk),
+        "verifier_id": verifier_id,
         "cluster_id": self.cluster_id,
     });
 
