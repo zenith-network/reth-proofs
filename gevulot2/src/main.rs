@@ -58,8 +58,11 @@ pub async fn main() -> eyre::Result<()> {
         zkvm_input.len()
       );
 
+      // Upload input to Bento.
+      let bento_input = upload_bonsai(zkvm_input).await?;
+
       // Prove the block.
-      let receipt = prove_bonsai(zkvm_input).await?;
+      let (receipt, cycles) = prove_bonsai(bento_input).await?;
 
       // Write the receipt to the output file.
       std::fs::write(&args.output_proof_path, bincode::serialize(&receipt)?)?;
@@ -118,8 +121,16 @@ pub async fn main() -> eyre::Result<()> {
               }
             };
 
+            // Upload input to Bento.
+            let bento_input = match upload_bonsai(zkvm_input).await {
+              Ok(input) => input,
+              Err(e) => {
+                tracing::error!("Failed to upload input for block {}: {}", block_number, e);
+                continue;
+              }
+            };
             // Prove the block.
-            let _receipt = match prove_bonsai(zkvm_input).await {
+            let (receipt, cycles) = match prove_bonsai(bento_input).await {
               Ok(receipt) => receipt,
               Err(e) => {
                 tracing::error!("Failed to prove block {}: {}", block_number, e);
@@ -183,10 +194,15 @@ pub async fn prepare_input(
   Ok(zkvm_input)
 }
 
-pub async fn prove_bonsai(
-  zkvm_input: Vec<u8>,
-) -> eyre::Result<risc0_zkvm::Receipt>
-{
+// Proving input, stored in Bento cluster.
+pub struct BonsaiInput {
+  image_id_hex: String,
+  input_id: String,
+  receipts_ids: Vec<String>,
+}
+
+// Uploads zkVM program and input to Bento.
+pub async fn upload_bonsai(zkvm_input: Vec<u8>) -> eyre::Result<BonsaiInput> {
   // Compute the ImageID and upload the ELF binary
   let elf = RETH_PROOFS_ZKVM_RISC0_GUEST_ELF;
   let image_id = risc0_zkvm::compute_image_id(elf).unwrap();
@@ -204,9 +220,27 @@ pub async fn prove_bonsai(
   // No receipts to be uploaded - no assumptions.
   let receipts_ids = vec![];
 
+  Ok(BonsaiInput {
+    image_id_hex,
+    input_id,
+    receipts_ids,
+  })
+}
+
+/// Runs proving session on Bento.
+/// Returns the receipt and the number of *total cycles* used.
+pub async fn prove_bonsai(
+  bonsai_input: BonsaiInput,
+) -> eyre::Result<(risc0_zkvm::Receipt, u64)>
+{
+  let image_id_hex = bonsai_input.image_id_hex;
+  let input_id = bonsai_input.input_id;
+  let receipts_ids = bonsai_input.receipts_ids;
+
   // Start a session on the bonsai prover.
   let start = std::time::Instant::now();
   let session_limit: Option<u64> = None; // Equivalent to `env.session_limit`.
+  let client = bonsai_sdk::non_blocking::Client::from_env(risc0_zkvm::VERSION)?;
   let session = client.create_session_with_limit(
       image_id_hex,
       input_id,
@@ -270,5 +304,5 @@ pub async fn prove_bonsai(
   let receipt: risc0_zkvm::Receipt = bincode::deserialize(&receipt_buf)?;
   tracing::info!("Raw receipt size: {} bytes", receipt_buf.len());
 
-  Ok(receipt)
+  Ok((receipt, stats.total_cycles))
 }
