@@ -96,7 +96,7 @@ impl<M: Memoization> Node<M> {
                 }
                 None => None, // branch nodes don't have values in our MPT version
             },
-            Node::Digest(_) => panic!("MPT: Unresolved node access"),
+            Node::Digest(_) => panic!("MPT: Unresolved node access (get)"),
         }
     }
 
@@ -191,7 +191,7 @@ impl<M: Memoization> Node<M> {
                 },
                 None => panic!("MPT: Value in branch"),
             },
-            Node::Digest(_) => panic!("MPT: Unresolved node access"),
+            Node::Digest(_) => panic!("MPT: Unresolved node access (insert)"),
         }
     }
 
@@ -260,13 +260,13 @@ impl<M: Memoization> Node<M> {
                             let prefix = Nibbles::from_nibbles_unchecked([nib]);
                             *self = Node::Extension(prefix, only_child, M::default());
                         }
-                        Node::Digest(_) => panic!("MPT: Unresolved node access"),
+                        Node::Digest(_) => panic!("MPT: Unresolved node access (remove)"),
                         Node::Null => unreachable!(), // children does not contain any Node::Null
                     }
                 }
                 true
             }
-            Node::Digest(_) => panic!("MPT: Unresolved node access"),
+            Node::Digest(_) => panic!("MPT: Unresolved node access (remove2)"),
         }
     }
 
