@@ -10,6 +10,7 @@ pub fn guest_handler(input_buffer: &[u8]) {
   let current_block = zkvm_input.current_block;
   let ethereum_state = zkvm_input.ethereum_state;
   let bytecodes = zkvm_input.bytecodes;
+  let signers_hint = zkvm_input.signers_hint;
 
   // 2. Creating a mainnet EVM config.
   let chainspec = reth_proofs_core::create_mainnet_chainspec();
@@ -47,7 +48,8 @@ pub fn guest_handler(input_buffer: &[u8]) {
     reth_ethereum::evm::primitives::execute::BasicBlockExecutor::new(&evm_config, db);
 
   // 9. Recover block signatures.
-  let recovered_block = current_block.recover_senders();
+  //let recovered_block = current_block.recover_senders(); // <- Fast in SP1, but terribly slow in R0.
+  let recovered_block = current_block.recover_with_signers_hint(&signers_hint);
 
   // 10. Execute block.
   let output =

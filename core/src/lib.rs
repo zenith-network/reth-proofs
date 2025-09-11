@@ -8,6 +8,8 @@ pub mod triedb;
 
 pub use reth_trie_sp1_zkvm::mpt;
 
+use alloy_signer::k256::ecdsa::signature::hazmat::PrehashVerifier;
+
 // It is used in the `BasicBlockExecutor` as "strategy factory", implementing `ConfigureEvm` trait.
 // Measured SP1 performance:
 // - no precompiles - 501M cycles (deserialization took 64M)
@@ -154,6 +156,35 @@ impl CurrentBlock {
   > {
     reth_primitives_traits::RecoveredBlock::try_recover(self.body.clone()).unwrap()
   }
+
+  // More efficient block recovery, using hinted signers.
+  pub fn recover_with_signers_hint(
+    self,
+    signers_hint: &SignersHint,
+  ) -> reth_primitives_traits::RecoveredBlock<
+    alloy_consensus::Block<alloy_consensus::EthereumTxEnvelope<alloy_consensus::TxEip4844>>,
+  > {
+    // Verify the transaction signatures and compute senders.
+    let mut senders = alloc::vec::Vec::with_capacity(reth_primitives_traits::BlockBody::transaction_count(&self.body.body));
+    for (i, tx) in self.body.body.transactions().enumerate() {
+        let vk = &signers_hint.signers[i];
+        let sig = tx.signature();
+        let sig = match sig.to_k256() {
+          Ok(sig) => sig,
+          Err(e) => {
+            // NOTE: Zeth just ignored this case witout panicking.
+            panic!("invalid signature format for tx {i}: {e}");
+          },
+        };
+        vk.verify_prehash(tx.signature_hash().as_slice(), &sig)
+          .expect(&alloc::format!("invalid signature for tx {i}"));
+
+        senders.push(alloy_primitives::Address::from_public_key(vk))
+    }
+
+    // Construct recovered block (no header rehashing).
+    reth_primitives_traits::RecoveredBlock::new_unhashed(self.body, senders)
+  }
 }
 
 // Fourth main input for zkVM.
@@ -225,6 +256,7 @@ pub fn get_hashed_post_state(
 }
 
 // Idea from Zeth, to pre-recover signer from the block, then validate them inside zkVM.
+// NOTE: We could use `VerifyingKey`'s `.to_sec1_bytes()` and `.from_sec1_bytes()` to make serialization more raw and efficient.
 #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub struct SignersHint {
   pub signers: alloc::vec::Vec<alloy_signer::k256::ecdsa::VerifyingKey>,
