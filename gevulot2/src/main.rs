@@ -209,6 +209,15 @@ pub async fn prepare_input(
     .unwrap();
   tracing::info!("Stats of block {}: gas used = {}, tx count = {}", block_number, block_rpc.header.gas_used, block_rpc.transactions.len());
 
+  // Dump block and witness as JSON to /tmp. Useful for debugging.
+  if std::env::var("DUMP_RAW_INPUT").is_ok() {
+    tracing::info!("Dumping block and witness JSON to /tmp");
+    let block_json = serde_json::to_string_pretty(&block_rpc).unwrap();
+    std::fs::write(format!("/tmp/reth_proofs_{}_block.json", block_number), block_json).unwrap();
+    let witness_json = serde_json::to_string_pretty(&witness).unwrap();
+    std::fs::write(format!("/tmp/reth_proofs_{}_witness.json", block_number), witness_json).unwrap();
+  }
+
   prepare_zkvm_input(witness, block_rpc)
 }
 
