@@ -209,6 +209,14 @@ pub async fn prepare_input(
     .unwrap();
   tracing::info!("Stats of block {}: gas used = {}, tx count = {}", block_number, block_rpc.header.gas_used, block_rpc.transactions.len());
 
+  prepare_zkvm_input(witness, block_rpc)
+}
+
+fn prepare_zkvm_input(
+  witness: reth_proofs::ExecutionWitness,
+  block_rpc: reth_proofs::RpcBlock
+) -> eyre::Result<Vec<u8>> {
+  let block_number = block_rpc.header.number;
   tracing::debug!("Preparing zkVM input for block {}", block_number);
   let mut zkvm_input = vec![];
   {

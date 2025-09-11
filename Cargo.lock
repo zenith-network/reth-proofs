@@ -6899,6 +6899,7 @@ dependencies = [
  "reth-proofs-core",
  "risc0-build 3.0.3 (git+https://github.com/koxu1996/risc0.git?branch=feature%2Fsimpler-guest-integration-v3.0.3)",
  "risc0-zkvm",
+ "serde_json",
  "tokio",
  "tracing",
  "tracing-subscriber 0.3.19",

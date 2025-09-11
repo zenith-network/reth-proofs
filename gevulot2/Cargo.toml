@@ -33,6 +33,7 @@ reth-proofs-core = { workspace = true }
 
 # Serialization.
 bincode = { workspace = true }
+serde_json = { workspace = true }
 
 # URL parsing.
 url = { version = "2.5.4", default-features = false }

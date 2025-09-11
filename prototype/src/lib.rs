@@ -4,6 +4,9 @@ pub mod triedb_tests;
 pub mod triedb_utils;
 pub mod utils;
 
+pub use alloy_rpc_types_debug::ExecutionWitness;
+pub use alloy_rpc_types_eth::Block as RpcBlock;
+
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
   #[error("Invalid URL: {0}")]
