@@ -15,4 +15,5 @@ zkvm/risc0-methods/guest/target
 !/zkvm-common-guest
 !/Cargo.lock
 !/Cargo.toml
+!/entrypoint.sh
 !/rust-toolchain.toml

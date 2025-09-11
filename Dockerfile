@@ -23,8 +23,11 @@ RUN rzup install && rzup install r0vm 3.0.3
 # Copy the project files.
 COPY . /app
 
-# Compile Risc0 host.
-RUN cargo build -p reth-proofs-zkvm-risc0-host --no-default-features --features cuda --release --bin reth-proofs-zkvm-risc0-host
+# Copy the entrypoint script (checks GPU and compiles the prover).
+RUN chmod +x /app/entrypoint.sh
+
+# Set the entrypoint.
+ENTRYPOINT ["/app/entrypoint.sh"]
 
 # Run prover.
 CMD ["./target/release/reth-proofs-zkvm-risc0-host"]
