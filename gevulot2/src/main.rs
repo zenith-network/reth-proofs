@@ -23,32 +23,66 @@ pub async fn main() -> eyre::Result<()> {
   // Parse the command line arguments.
   let args = <cli::Args as clap::Parser>::parse();
   let args = match args.command {
-    cli::Command::PrepareBlock(args) => {
-      let http_provider = reth_proofs::create_provider(args.http_rpc_url.as_str()).unwrap();
+    cli::Command::Prepare(args) => match args.command {
+        cli::PrepareCommand::FromRpc(args) => {
+          let http_provider = reth_proofs::create_provider(args.http_rpc_url.as_str()).unwrap();
 
-      // Prevent working with block older than 100 blocks, as getting witness for it takes ~2.5s, and gets even more slow with older block.
-      let latest_block_number = alloy_provider::Provider::get_block_number(&http_provider).await?;
-      if args.block_number < latest_block_number.saturating_sub(100) {
-        return Err(eyre::eyre!(
-          "Block number {} is too old, please use a block number at least {}",
-          args.block_number,
-          latest_block_number.saturating_sub(100)
-        ));
-      }
+          // Prevent working with block older than 100 blocks, as getting witness for it takes ~2.5s, and gets even more slow with older block.
+          let latest_block_number = alloy_provider::Provider::get_block_number(&http_provider).await?;
+          if args.block_number < latest_block_number.saturating_sub(100) {
+            return Err(eyre::eyre!(
+              "Block number {} is too old, please use a block number at least {}",
+              args.block_number,
+              latest_block_number.saturating_sub(100)
+            ));
+          }
 
-      // Prepare the zkVM input for the given block number.
-      let zkvm_input = prepare_input(args.block_number, &http_provider).await?;
+          // Prepare the zkVM input for the given block number.
+          let zkvm_input = prepare_input(args.block_number, &http_provider).await?;
 
-      // Write the zkVM input to the output file.
-      std::fs::write(&args.output_path, zkvm_input)?;
-      tracing::info!(
-        "Prepared zkVM input for block {} and saved to {}",
-        args.block_number,
-        args.output_path.display()
-      );
+          // Write the zkVM input to the output file.
+          std::fs::write(&args.output_path, zkvm_input)?;
+          tracing::info!(
+            "Prepared zkVM input for block {} and saved to {}",
+            args.block_number,
+            args.output_path.display()
+          );
 
-      return Ok(());
-    }
+          return Ok(());
+        },
+        cli::PrepareCommand::FromLocal(arg) => {
+          // Read the block and witness JSON files.
+          let block_json = std::fs::read_to_string(&arg.block_json)?;
+          let witness_json = std::fs::read_to_string(&arg.witness_json)?;
+          tracing::info!(
+            "Read block JSON from {} - {} bytes",
+            arg.block_json.display(),
+            block_json.len()
+          );
+          tracing::info!(
+            "Read witness JSON from {} - {} bytes",
+            arg.witness_json.display(),
+            witness_json.len()
+          );
+
+          // Parse the JSON files.
+          let block_rpc: reth_proofs::RpcBlock = serde_json::from_str(&block_json)?;
+          let witness: reth_proofs::ExecutionWitness = serde_json::from_str(&witness_json)?;
+
+          // Prepare the zkVM input.
+          let zkvm_input = prepare_zkvm_input(witness, block_rpc)?;
+
+          // Write the zkVM input to the output file.
+          std::fs::write(&arg.output_path, &zkvm_input)?;
+          tracing::info!(
+            "Prepared zkVM input and saved to {} - {} bytes",
+            arg.output_path.display(),
+            zkvm_input.len()
+          );
+
+          return Ok(());
+        },
+    },
     cli::Command::ProveBlock(args) => {
       // Read the zkVM input from the file.
       let zkvm_input = std::fs::read(&args.zkvm_input)?;

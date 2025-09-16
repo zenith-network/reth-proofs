@@ -12,8 +12,8 @@ pub enum Command {
   /// Run main orchestration loop.
   Run(RunArgs),
 
-  /// Prepare a block for offline proving.
-  PrepareBlock(PrepareBlockArgs),
+  /// Prepare zkVM input for offline proving.
+  Prepare(PrepareArgs),
 
   /// Prove a single given block.
   ProveBlock(ProveBlockArgs),
@@ -42,10 +42,26 @@ pub struct RunArgs {
   pub ethproofs_cluster_id: u64,
 }
 
+/// Wrapper that can be the payload of `Command::Prepare` (must be `Args`)
+#[derive(Debug, clap::Args)]
+pub struct PrepareArgs {
+  #[clap(subcommand)]
+  pub command: PrepareCommand,
+}
 
-/// Args specific to the `prepare-block` command.
+/// Prepare zkVM input from block and its witness.
+#[derive(Debug, clap::Subcommand)]
+pub enum PrepareCommand {
+  /// Prepare from data fetched via RPC.
+  FromRpc(PrepareFromRpcArgs),
+
+  /// Prepare from local files.
+  FromLocal(PrepareFromLocalArgs),
+}
+
+/// Args for preparing zkVM input from RPC.
 #[derive(Debug, clap::Parser)]
-pub struct PrepareBlockArgs {
+pub struct PrepareFromRpcArgs {
   /// Block number.
   #[clap(long)]
   pub block_number: u64,
@@ -53,6 +69,22 @@ pub struct PrepareBlockArgs {
   /// The HTTP rpc url used to fetch data about the block.
   #[clap(long, env)]
   pub http_rpc_url: url::Url,
+
+  /// Path to the output file.
+  #[clap(long, default_value = "zkvm_input.bin")]
+  pub output_path: std::path::PathBuf,
+}
+
+/// Args for preparing zkVM input from local JSON files.
+#[derive(Debug, clap::Parser)]
+pub struct PrepareFromLocalArgs {
+  /// Path to the block JSON file.
+  #[clap(long)]
+  pub block_json: std::path::PathBuf,
+
+  /// Path to the witness JSON file.
+  #[clap(long)]
+  pub witness_json: std::path::PathBuf,
 
   /// Path to the output file.
   #[clap(long, default_value = "zkvm_input.bin")]
