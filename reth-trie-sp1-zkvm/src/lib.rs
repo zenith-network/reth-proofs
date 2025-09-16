@@ -129,7 +129,10 @@ impl SP1ZkvmTrie {
     let mut new_storage_roots: alloy_primitives::map::HashMap<
       alloc::vec::Vec<u8>,
       alloy_primitives::B256,
-    > = alloy_primitives::map::HashMap::with_capacity_and_hasher(post_state.storages.len(), Default::default());
+    > = alloy_primitives::map::HashMap::with_capacity_and_hasher(
+      post_state.storages.len(),
+      Default::default(),
+    );
     for (hashed_addr, storage) in post_state.storages.iter() {
       // Take existing storage trie or create an empty one.
       let storage_trie = self.storage_tries.entry(*hashed_addr).or_default();

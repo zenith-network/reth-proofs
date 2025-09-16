@@ -49,7 +49,8 @@ impl Risc0ZkvmTrie {
     // Step 1: Index RLP-encoded nodes by hash.
     // IMPORTANT: Witness state contains both state trie nodes and storage tries nodes!
     let num_nodes = witness.state.len();
-    let mut node_map = alloy_primitives::map::B256Map::with_capacity_and_hasher(num_nodes, Default::default());
+    let mut node_map =
+      alloy_primitives::map::B256Map::with_capacity_and_hasher(num_nodes, Default::default());
     for encoded in &witness.state {
       let hash = alloy_primitives::keccak256(encoded);
       node_map.insert(hash, encoded.clone());
@@ -77,7 +78,8 @@ impl Risc0ZkvmTrie {
           continue;
         }
       };
-      let account = alloy_trie::TrieAccount::decode(&mut account_bytes).expect("Failed to decode account");
+      let account =
+        alloy_trie::TrieAccount::decode(&mut account_bytes).expect("Failed to decode account");
 
       // Store non-empty storage roots.
       let storage_root = account.storage_root;
@@ -87,17 +89,15 @@ impl Risc0ZkvmTrie {
     }
 
     // Step 4: Build storage tries.
-    let mut storage_tries:
-      alloy_primitives::map::HashMap<
-        alloy_primitives::B256,
-        risc0_ethereum_trie::CachedTrie,
-      > = alloy_primitives::map::HashMap::default();
+    let mut storage_tries: alloy_primitives::map::HashMap<
+      alloy_primitives::B256,
+      risc0_ethereum_trie::CachedTrie,
+    > = alloy_primitives::map::HashMap::default();
     for (hashed_address, storage_root) in storage_tries_detected {
       let mut storage_trie = risc0_ethereum_trie::CachedTrie::from_digest(storage_root);
       storage_trie.hydrate_from_rlp_map(&node_map).unwrap();
       // node_by_hash.get(&storage_root).unwrap(); // Not sure if this extra check is needed.
-      storage_tries
-        .insert(hashed_address, storage_trie);
+      storage_tries.insert(hashed_address, storage_trie);
     }
 
     // Step 3a: Verify that state_trie was built correctly - confirm tree hash with pre state root.
@@ -120,7 +120,10 @@ impl Risc0ZkvmTrie {
     let mut new_storage_roots: alloy_primitives::map::HashMap<
       alloc::vec::Vec<u8>,
       alloy_primitives::B256,
-    > = alloy_primitives::map::HashMap::with_capacity_and_hasher(post_state.storages.len(), Default::default());
+    > = alloy_primitives::map::HashMap::with_capacity_and_hasher(
+      post_state.storages.len(),
+      Default::default(),
+    );
     for (hashed_addr, storage) in post_state.storages.iter() {
       // Take existing storage trie or create an empty one.
       let storage_trie = self.storage_tries.entry(*hashed_addr).or_default();
@@ -195,10 +198,7 @@ impl Risc0ZkvmTrie {
     let hashed_address = alloy_primitives::keccak256(address);
     let hashed_address = hashed_address.as_slice();
 
-    let account_in_trie = self
-      .state_trie
-      .get_rlp(hashed_address)
-      .unwrap();
+    let account_in_trie = self.state_trie.get_rlp(hashed_address).unwrap();
 
     Ok(account_in_trie)
   }
@@ -218,13 +218,11 @@ impl Risc0ZkvmTrie {
       let hashed_slot = hashed_slot_bytes.as_slice();
 
       return Ok(match storage_trie.get(hashed_slot) {
-        Some(mut value_bytes) => {
-          match alloy_primitives::U256::decode(&mut value_bytes) {
-            Ok(value) => value,
-            Err(_) => panic!("Failed to decode storage value")
-          }
+        Some(mut value_bytes) => match alloy_primitives::U256::decode(&mut value_bytes) {
+          Ok(value) => value,
+          Err(_) => panic!("Failed to decode storage value"),
         },
-        None => alloy_primitives::U256::ZERO
+        None => alloy_primitives::U256::ZERO,
       });
     }
 

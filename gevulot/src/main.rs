@@ -81,7 +81,10 @@ pub async fn main() -> eyre::Result<()> {
       // Write the verifying key to the output file (same as input, but different ext).
       let output_path = args.proving_key_path.with_extension("vk");
       std::fs::write(&output_path, serialized_vk)?;
-      println!("Verifying key extracted and saved to {}", output_path.display());
+      println!(
+        "Verifying key extracted and saved to {}",
+        output_path.display()
+      );
 
       return Ok(());
     }

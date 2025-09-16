@@ -165,21 +165,23 @@ impl CurrentBlock {
     alloy_consensus::Block<alloy_consensus::EthereumTxEnvelope<alloy_consensus::TxEip4844>>,
   > {
     // Verify the transaction signatures and compute senders.
-    let mut senders = alloc::vec::Vec::with_capacity(reth_primitives_traits::BlockBody::transaction_count(&self.body.body));
+    let mut senders = alloc::vec::Vec::with_capacity(
+      reth_primitives_traits::BlockBody::transaction_count(&self.body.body),
+    );
     for (i, tx) in self.body.body.transactions().enumerate() {
-        let vk = &signers_hint.signers[i];
-        let sig = tx.signature();
-        let sig = match sig.to_k256() {
-          Ok(sig) => sig,
-          Err(e) => {
-            // NOTE: Zeth just ignored this case witout panicking.
-            panic!("invalid signature format for tx {i}: {e}");
-          },
-        };
-        vk.verify_prehash(tx.signature_hash().as_slice(), &sig)
-          .expect(&alloc::format!("invalid signature for tx {i}"));
+      let vk = &signers_hint.signers[i];
+      let sig = tx.signature();
+      let sig = match sig.to_k256() {
+        Ok(sig) => sig,
+        Err(e) => {
+          // NOTE: Zeth just ignored this case witout panicking.
+          panic!("invalid signature format for tx {i}: {e}");
+        }
+      };
+      vk.verify_prehash(tx.signature_hash().as_slice(), &sig)
+        .expect(&alloc::format!("invalid signature for tx {i}"));
 
-        senders.push(alloy_primitives::Address::from_public_key(vk))
+      senders.push(alloy_primitives::Address::from_public_key(vk))
     }
 
     // Construct recovered block (no header rehashing).
@@ -201,11 +203,10 @@ impl Bytecodes {
   }
 
   pub fn build_map(
-    codes_list: &alloc::vec::Vec<alloy_primitives::Bytes>
+    codes_list: &alloc::vec::Vec<alloy_primitives::Bytes>,
   ) -> alloy_primitives::map::B256Map<revm::state::Bytecode> {
-    let mut bytecode_by_hash: alloy_primitives::map::B256Map<
-      revm::state::Bytecode,
-    > = alloy_primitives::map::B256Map::default();
+    let mut bytecode_by_hash: alloy_primitives::map::B256Map<revm::state::Bytecode> =
+      alloy_primitives::map::B256Map::default();
     for encoded in codes_list {
       let bytecode = revm::state::Bytecode::new_raw(encoded.clone());
       let code_hash = bytecode.hash_slow();
@@ -219,7 +220,10 @@ impl Bytecodes {
     for (hash, bytecode) in &self.codes {
       let computed = bytecode.hash_slow();
       if &computed != hash {
-        panic!("Invalid bytecode hash: expected {:?}, got {:?}", hash, computed);
+        panic!(
+          "Invalid bytecode hash: expected {:?}, got {:?}",
+          hash, computed
+        );
       }
     }
   }
@@ -273,9 +277,9 @@ impl SignersHint {
       .body
       .transactions()
       .map(|tx| {
-          tx.signature()
-              .recover_from_prehash(&tx.signature_hash())
-              .unwrap()
+        tx.signature()
+          .recover_from_prehash(&tx.signature_hash())
+          .unwrap()
       })
       .collect();
     Self { signers }

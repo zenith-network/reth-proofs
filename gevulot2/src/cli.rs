@@ -24,7 +24,7 @@ pub struct RunArgs {
   /// The HTTP rpc url used to fetch data about the block.
   #[clap(long, env)]
   pub http_rpc_url: url::Url,
-  
+
   /// The WS rpc url used to fetch data about the block.
   #[clap(long, env)]
   pub ws_rpc_url: url::Url,

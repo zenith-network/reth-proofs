@@ -16,72 +16,71 @@ pub async fn main() -> eyre::Result<()> {
   // NOTE: Default log level is "info".
   let filter = tracing_subscriber::filter::EnvFilter::from_default_env()
     .add_directive("info".parse().unwrap());
-  tracing_subscriber::fmt()
-    .with_env_filter(filter)
-    .init();
+  tracing_subscriber::fmt().with_env_filter(filter).init();
 
   // Parse the command line arguments.
   let args = <cli::Args as clap::Parser>::parse();
   let args = match args.command {
     cli::Command::Prepare(args) => match args.command {
-        cli::PrepareCommand::FromRpc(args) => {
-          let http_provider = reth_proofs::create_provider(args.http_rpc_url.as_str()).unwrap();
+      cli::PrepareCommand::FromRpc(args) => {
+        let http_provider = reth_proofs::create_provider(args.http_rpc_url.as_str()).unwrap();
 
-          // Prevent working with block older than 100 blocks, as getting witness for it takes ~2.5s, and gets even more slow with older block.
-          let latest_block_number = alloy_provider::Provider::get_block_number(&http_provider).await?;
-          if args.block_number < latest_block_number.saturating_sub(100) {
-            return Err(eyre::eyre!(
-              "Block number {} is too old, please use a block number at least {}",
-              args.block_number,
-              latest_block_number.saturating_sub(100)
-            ));
-          }
-
-          // Prepare the zkVM input for the given block number.
-          let zkvm_input = prepare_input(args.block_number, &http_provider).await?;
-
-          // Write the zkVM input to the output file.
-          std::fs::write(&args.output_path, zkvm_input)?;
-          tracing::info!(
-            "Prepared zkVM input for block {} and saved to {}",
+        // Prevent working with block older than 100 blocks, as getting witness for it takes ~2.5s, and gets even more slow with older block.
+        let latest_block_number =
+          alloy_provider::Provider::get_block_number(&http_provider).await?;
+        if args.block_number < latest_block_number.saturating_sub(100) {
+          return Err(eyre::eyre!(
+            "Block number {} is too old, please use a block number at least {}",
             args.block_number,
-            args.output_path.display()
-          );
+            latest_block_number.saturating_sub(100)
+          ));
+        }
 
-          return Ok(());
-        },
-        cli::PrepareCommand::FromLocal(arg) => {
-          // Read the block and witness JSON files.
-          let block_json = std::fs::read_to_string(&arg.block_json)?;
-          let witness_json = std::fs::read_to_string(&arg.witness_json)?;
-          tracing::info!(
-            "Read block JSON from {} - {} bytes",
-            arg.block_json.display(),
-            block_json.len()
-          );
-          tracing::info!(
-            "Read witness JSON from {} - {} bytes",
-            arg.witness_json.display(),
-            witness_json.len()
-          );
+        // Prepare the zkVM input for the given block number.
+        let zkvm_input = prepare_input(args.block_number, &http_provider).await?;
 
-          // Parse the JSON files.
-          let block_rpc: reth_proofs::RpcBlock = serde_json::from_str(&block_json)?;
-          let witness: reth_proofs::ExecutionWitness = serde_json::from_str(&witness_json)?;
+        // Write the zkVM input to the output file.
+        std::fs::write(&args.output_path, zkvm_input)?;
+        tracing::info!(
+          "Prepared zkVM input for block {} and saved to {}",
+          args.block_number,
+          args.output_path.display()
+        );
 
-          // Prepare the zkVM input.
-          let zkvm_input = prepare_zkvm_input(witness, block_rpc)?;
+        return Ok(());
+      }
+      cli::PrepareCommand::FromLocal(arg) => {
+        // Read the block and witness JSON files.
+        let block_json = std::fs::read_to_string(&arg.block_json)?;
+        let witness_json = std::fs::read_to_string(&arg.witness_json)?;
+        tracing::info!(
+          "Read block JSON from {} - {} bytes",
+          arg.block_json.display(),
+          block_json.len()
+        );
+        tracing::info!(
+          "Read witness JSON from {} - {} bytes",
+          arg.witness_json.display(),
+          witness_json.len()
+        );
 
-          // Write the zkVM input to the output file.
-          std::fs::write(&arg.output_path, &zkvm_input)?;
-          tracing::info!(
-            "Prepared zkVM input and saved to {} - {} bytes",
-            arg.output_path.display(),
-            zkvm_input.len()
-          );
+        // Parse the JSON files.
+        let block_rpc: reth_proofs::RpcBlock = serde_json::from_str(&block_json)?;
+        let witness: reth_proofs::ExecutionWitness = serde_json::from_str(&witness_json)?;
 
-          return Ok(());
-        },
+        // Prepare the zkVM input.
+        let zkvm_input = prepare_zkvm_input(witness, block_rpc)?;
+
+        // Write the zkVM input to the output file.
+        std::fs::write(&arg.output_path, &zkvm_input)?;
+        tracing::info!(
+          "Prepared zkVM input and saved to {} - {} bytes",
+          arg.output_path.display(),
+          zkvm_input.len()
+        );
+
+        return Ok(());
+      }
     },
     cli::Command::ProveBlock(args) => {
       // Read the zkVM input from the file.
@@ -241,15 +240,28 @@ pub async fn prepare_input(
     .await
     .unwrap()
     .unwrap();
-  tracing::info!("Stats of block {}: gas used = {}, tx count = {}", block_number, block_rpc.header.gas_used, block_rpc.transactions.len());
+  tracing::info!(
+    "Stats of block {}: gas used = {}, tx count = {}",
+    block_number,
+    block_rpc.header.gas_used,
+    block_rpc.transactions.len()
+  );
 
   // Dump block and witness as JSON to /tmp. Useful for debugging.
   if std::env::var("DUMP_RAW_INPUT").is_ok() {
     tracing::info!("Dumping block and witness JSON to /tmp");
     let block_json = serde_json::to_string_pretty(&block_rpc).unwrap();
-    std::fs::write(format!("/tmp/reth_proofs_{}_block.json", block_number), block_json).unwrap();
+    std::fs::write(
+      format!("/tmp/reth_proofs_{}_block.json", block_number),
+      block_json,
+    )
+    .unwrap();
     let witness_json = serde_json::to_string_pretty(&witness).unwrap();
-    std::fs::write(format!("/tmp/reth_proofs_{}_witness.json", block_number), witness_json).unwrap();
+    std::fs::write(
+      format!("/tmp/reth_proofs_{}_witness.json", block_number),
+      witness_json,
+    )
+    .unwrap();
   }
 
   prepare_zkvm_input(witness, block_rpc)
@@ -257,7 +269,7 @@ pub async fn prepare_input(
 
 fn prepare_zkvm_input(
   witness: reth_proofs::ExecutionWitness,
-  block_rpc: reth_proofs::RpcBlock
+  block_rpc: reth_proofs::RpcBlock,
 ) -> eyre::Result<Vec<u8>> {
   let block_number = block_rpc.header.number;
   tracing::debug!("Preparing zkVM input for block {}", block_number);
@@ -265,7 +277,8 @@ fn prepare_zkvm_input(
   {
     // 1) Prepare client input.
     let block_consensus = reth_proofs::rpc_block_to_consensus_block(block_rpc);
-    let client_input = reth_proofs_core::input::ZkvmInput::from_offline_rpc_data(block_consensus, &witness);
+    let client_input =
+      reth_proofs_core::input::ZkvmInput::from_offline_rpc_data(block_consensus, &witness);
 
     // 2) Serialize the input to bytes.
     let input_bytes = bincode::serialize(&client_input).unwrap();
@@ -315,10 +328,7 @@ pub async fn upload_bonsai(zkvm_input: Vec<u8>) -> eyre::Result<BonsaiInput> {
 
 /// Runs proving session on Bento.
 /// Returns the receipt and the number of *total cycles* used.
-pub async fn prove_bonsai(
-  bonsai_input: BonsaiInput,
-) -> eyre::Result<(risc0_zkvm::Receipt, u64)>
-{
+pub async fn prove_bonsai(bonsai_input: BonsaiInput) -> eyre::Result<(risc0_zkvm::Receipt, u64)> {
   let image_id_hex = bonsai_input.image_id_hex;
   let input_id = bonsai_input.input_id;
   let receipts_ids = bonsai_input.receipts_ids;
@@ -327,13 +337,9 @@ pub async fn prove_bonsai(
   let start = std::time::Instant::now();
   let session_limit: Option<u64> = None; // Equivalent to `env.session_limit`.
   let client = bonsai_sdk::non_blocking::Client::from_env(risc0_zkvm::VERSION)?;
-  let session = client.create_session_with_limit(
-      image_id_hex,
-      input_id,
-      receipts_ids,
-      false,
-      session_limit,
-  ).await?;
+  let session = client
+    .create_session_with_limit(image_id_hex, input_id, receipts_ids, false, session_limit)
+    .await?;
   tracing::info!("Session created - ID: {}", session.uuid);
 
   // The session has already been started in the executor. Poll bonsai until session is no longer running.
@@ -351,7 +357,7 @@ pub async fn prove_bonsai(
       "RUNNING" => {
         tokio::time::sleep(polling_interval).await;
         continue;
-      },
+      }
       _ => {
         break res;
       }
@@ -365,9 +371,19 @@ pub async fn prove_bonsai(
 
   // Handle potential failure.
   if res.status != "SUCCEEDED" {
-    tracing::error!("Bonsai prover workflow [{}] exited: {} err: {}",
-        session.uuid, res.status, res.error_msg.clone().unwrap_or("Bonsai workflow missing error_msg".into()));
-    return Err(eyre::eyre!("Proving session failed: {}", res.error_msg.unwrap_or("No error message provided".into())));
+    tracing::error!(
+      "Bonsai prover workflow [{}] exited: {} err: {}",
+      session.uuid,
+      res.status,
+      res
+        .error_msg
+        .clone()
+        .unwrap_or("Bonsai workflow missing error_msg".into())
+    );
+    return Err(eyre::eyre!(
+      "Proving session failed: {}",
+      res.error_msg.unwrap_or("No error message provided".into())
+    ));
   }
 
   // Print stats.
@@ -375,7 +391,7 @@ pub async fn prove_bonsai(
     .stats
     .expect("Missing stats object on Bonsai status res");
   tracing::info!(
-  "Bonsai usage: cycles: {} total_cycles: {}, segments: {}",
+    "Bonsai usage: cycles: {} total_cycles: {}, segments: {}",
     stats.cycles,
     stats.total_cycles,
     stats.segments,

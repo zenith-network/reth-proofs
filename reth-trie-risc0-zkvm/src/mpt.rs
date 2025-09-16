@@ -1,5 +1,5 @@
 // Code based on https://github.com/risc0/zeth/blob/1ecdfa2325af161b529a4ad4cb2b6ce949679a28/crates/core/src/mpt.rs.
-use alloy_primitives::{b256, B256};
+use alloy_primitives::{B256, b256};
 use alloy_rlp::{Decodable, Encodable};
 use risc0_ethereum_trie::CachedTrie;
 use serde::{Deserialize, Serialize};

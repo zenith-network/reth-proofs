@@ -26,7 +26,9 @@ pub async fn host_alt_handler() -> Vec<u8> {
     .await
     .unwrap();
   let block_consensus = reth_proofs::rpc_block_to_consensus_block(block_rpc);
-  let current_block = reth_proofs_core::CurrentBlock { body: block_consensus };
+  let current_block = reth_proofs_core::CurrentBlock {
+    body: block_consensus,
+  };
   let input = reth_proofs_core::input_alt::ZkvmAltInput {
     block: current_block,
     witness,

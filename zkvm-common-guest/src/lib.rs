@@ -94,5 +94,11 @@ pub fn guest_alt_handler(input_buffer: &[u8]) {
 
   // 3. Validate using `reth-stateless` crate.
   // reth_stateless::stateless_validation_with_trie::<reth_stateless::trie::StatelessSparseTrie, _, _>(current_block, witness, chainspec_arc, evm_config).unwrap();
-  reth_stateless::stateless_validation_with_trie::<reth_trie_risc0_zkvm::Risc0ZkvmTrie, _, _>(current_block, witness, chainspec_arc, evm_config).unwrap();
+  reth_stateless::stateless_validation_with_trie::<reth_trie_risc0_zkvm::Risc0ZkvmTrie, _, _>(
+    current_block,
+    witness,
+    chainspec_arc,
+    evm_config,
+  )
+  .unwrap();
 }

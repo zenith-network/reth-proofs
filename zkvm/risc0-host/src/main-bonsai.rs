@@ -36,13 +36,9 @@ async fn main() -> anyhow::Result<()> {
   // Start a session on the bonsai prover.
   let start = std::time::Instant::now();
   let session_limit: Option<u64> = None; // Equivalent to `env.session_limit`.
-  let session = client.create_session_with_limit(
-      image_id_hex,
-      input_id,
-      receipts_ids,
-      false,
-      session_limit,
-  ).await?;
+  let session = client
+    .create_session_with_limit(image_id_hex, input_id, receipts_ids, false, session_limit)
+    .await?;
   println!("Session created - ID: {}", session.uuid);
 
   // The session has already been started in the executor. Poll bonsai until session is no longer running.
@@ -60,7 +56,7 @@ async fn main() -> anyhow::Result<()> {
       "RUNNING" => {
         tokio::time::sleep(polling_interval).await;
         continue;
-      },
+      }
       _ => {
         break res;
       }
@@ -74,8 +70,14 @@ async fn main() -> anyhow::Result<()> {
 
   // Handle potential failure.
   if res.status != "SUCCEEDED" {
-    println!("Bonsai prover workflow [{}] exited: {} err: {}",
-        session.uuid, res.status, res.error_msg.unwrap_or("Bonsai workflow missing error_msg".into()));
+    println!(
+      "Bonsai prover workflow [{}] exited: {} err: {}",
+      session.uuid,
+      res.status,
+      res
+        .error_msg
+        .unwrap_or("Bonsai workflow missing error_msg".into())
+    );
     return Ok(());
   }
 
@@ -84,18 +86,16 @@ async fn main() -> anyhow::Result<()> {
     .stats
     .expect("Missing stats object on Bonsai status res");
   println!(
-  "Bonsai usage: cycles: {} total_cycles: {}, segments: {}",
-    stats.cycles,
-    stats.total_cycles,
-    stats.segments,
+    "Bonsai usage: cycles: {} total_cycles: {}, segments: {}",
+    stats.cycles, stats.total_cycles, stats.segments,
   );
-  
+
   // Download the receipt.
   let receipt_url = res
     .receipt_url
     .expect("API error, missing receipt on completed session");
   let receipt_buf = client.download(&receipt_url).await?;
-  let _receipt: risc0_zkvm::Receipt = bincode::deserialize(&receipt_buf)?;        
+  let _receipt: risc0_zkvm::Receipt = bincode::deserialize(&receipt_buf)?;
   println!("Raw receipt size: {} bytes", receipt_buf.len());
 
   Ok(())
