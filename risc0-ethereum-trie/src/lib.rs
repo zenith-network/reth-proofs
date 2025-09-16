@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#![doc = include_str!("../README.md")]
+//#![doc = include_str!("../README.md")]
 #![cfg_attr(docsrs, feature(doc_cfg, doc_auto_cfg))]
 
 mod mpt;
