@@ -35,10 +35,15 @@
           craneLib = crane.mkLib pkgs;
 
           rethProofsAttrs = {
+            pname = "reth-proofs";
             src = craneLib.cleanCargoSource ./.;
             strictDeps = true;
-            nativeBuildInputs = [ ];
-            buildInputs = [ ];
+            nativeBuildInputs = [ pkgs.pkg-config ];
+            buildInputs = with pkgs; [
+              openssl.dev
+            ];
+            # NOTE: We cannot just build the whole workspace due to zkVMs. Add more `-p pname` when needed.
+            cargoExtraArgs = "-p reth-proofs-core"; 
           };
         in
         {
