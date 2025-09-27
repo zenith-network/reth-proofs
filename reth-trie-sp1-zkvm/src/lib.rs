@@ -124,7 +124,7 @@ impl SP1ZkvmTrie {
   }
 
   /// Mutates state based on diffs provided in [`HashedPostState`].
-  pub fn update(&mut self, post_state: &reth_trie_common::HashedPostState) {
+  pub fn update(&mut self, post_state: reth_trie_common::HashedPostState) {
     // Apply *all* storage-slot updates first and remember new roots.
     let mut new_storage_roots: alloy_primitives::map::HashMap<
       alloc::vec::Vec<u8>,
@@ -301,7 +301,7 @@ impl reth_stateless::StatelessTrie for SP1ZkvmTrie {
     &mut self,
     state: reth_trie_common::HashedPostState,
   ) -> Result<alloy_primitives::B256, reth_stateless::validation::StatelessValidationError> {
-    self.update(&state);
+    self.update(state);
     Ok(self.compute_state_root())
   }
 }

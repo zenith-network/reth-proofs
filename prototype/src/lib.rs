@@ -171,7 +171,7 @@ pub async fn execute_block(
 
   // Apply execution changes and compute the new state root.
   let hashed_post_state = reth_proofs_core::get_hashed_post_state(&output);
-  trie_db.state.update(&hashed_post_state);
+  trie_db.state.update(hashed_post_state);
   let new_state_root = trie_db.state.compute_state_root();
 
   // Validate the state root after execution.

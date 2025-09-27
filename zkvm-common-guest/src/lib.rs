@@ -67,7 +67,7 @@ pub fn guest_handler(input_buffer: &[u8]) {
   let hashed_post_state = reth_proofs_core::get_hashed_post_state(&output);
 
   // 13. Apply state updates.
-  trie_db.state.update(&hashed_post_state);
+  trie_db.state.update(hashed_post_state);
 
   // 14. Compute new state root and verify.
   let new_state_root = trie_db.state.compute_state_root();
