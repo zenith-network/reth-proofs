@@ -4,6 +4,8 @@ pub mod mpt;
 
 extern crate alloc;
 
+use itertools::Itertools;
+
 /// Represents Ethereum state.
 /// NOTE: In RSP this structure is named `EthereumState`.
 #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
@@ -133,9 +135,9 @@ impl SP1ZkvmTrie {
       post_state.storages.len(),
       Default::default(),
     );
-    for (hashed_addr, storage) in post_state.storages.iter() {
+    for (hashed_addr, storage) in post_state.storages.into_iter().sorted_unstable_by_key(|(addr, _)| *addr) {
       // Take existing storage trie or create an empty one.
-      let storage_trie = self.storage_tries.entry(*hashed_addr).or_default();
+      let storage_trie = self.storage_tries.entry(hashed_addr).or_default();
 
       // Wipe the trie if requested.
       if storage.wiped {
@@ -143,7 +145,7 @@ impl SP1ZkvmTrie {
       }
 
       // Apply slot-level changes.
-      for (slot, value) in storage.storage.iter() {
+      for (slot, value) in storage.storage.iter().sorted_unstable_by_key(|(slot, _)| *slot) {
         let key = slot.as_slice();
         if value.is_zero() {
           storage_trie.delete(key).unwrap();
