@@ -25,6 +25,7 @@ reth-trie-common = { workspace = true }
 revm = { workspace = true }
 
 # misc
+itertools = { workspace = true }
 nybbles = { workspace = true }
 serde = { workspace = true }
 

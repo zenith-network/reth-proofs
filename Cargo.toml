@@ -88,4 +88,5 @@ reth-trie-common = { git = "https://github.com/paradigmxyz/reth", tag = "v1.5.1"
 reth-stateless = { git = "https://github.com/paradigmxyz/reth", tag = "v1.5.1", default-features = false }
 
 # misc
+itertools = { version = "0.14", default-features = false }
 nybbles = { version = "0.3.0", default-features = false }
