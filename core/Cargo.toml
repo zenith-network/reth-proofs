@@ -30,7 +30,6 @@ reth-trie-common = { workspace = true }
 revm = { workspace = true }
 
 # Reth Proofs
-reth-trie-sp1-zkvm = { workspace = true }
 reth-trie-risc0-zkvm = { workspace = true }
 
 # Serialization.

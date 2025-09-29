@@ -6844,7 +6844,6 @@ dependencies = [
  "reth-stateless",
  "reth-trie-common",
  "reth-trie-risc0-zkvm",
- "reth-trie-sp1-zkvm",
  "revm",
  "serde",
  "serde_with",

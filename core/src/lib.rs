@@ -6,8 +6,6 @@ pub mod input;
 pub mod input_alt;
 pub mod triedb;
 
-pub use reth_trie_sp1_zkvm::mpt;
-
 use alloy_signer::k256::ecdsa::signature::hazmat::PrehashVerifier;
 
 // It is used in the `BasicBlockExecutor` as "strategy factory", implementing `ConfigureEvm` trait.
