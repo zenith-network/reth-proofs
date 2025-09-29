@@ -6816,7 +6816,6 @@ dependencies = [
  "reth-proofs-core",
  "reth-stateless",
  "reth-trie",
- "reth-trie-sp1-zkvm",
  "revm",
  "rlp 0.6.1",
  "serde",

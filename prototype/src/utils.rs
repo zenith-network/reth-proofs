@@ -53,12 +53,23 @@ pub fn format_execution_witness(witness: &alloy_rpc_types_debug::ExecutionWitnes
       }
     }
 
-    // Fall back to Debug printing for all other node types
-    match reth_trie_sp1_zkvm::mpt::MptNode::decode(encoded) {
-      Ok(node) => {
-        output.push_str(&format!("      MPT Node: {:?}\n", node));
+    // Fall back to basic node type identification for all other node types
+    match rlp.prototype() {
+      Ok(rlp::Prototype::Null) | Ok(rlp::Prototype::Data(0)) => {
+        output.push_str("      MPT: Null\n");
       }
-      Err(e) => output.push_str(&format!("      ❌ Failed to decode MPT node: {:?}\n", e)),
+      Ok(rlp::Prototype::List(17)) => {
+        output.push_str("      MPT: Branch\n");
+      }
+      Ok(rlp::Prototype::List(2)) => {
+        output.push_str("      MPT: Extension\n");
+      }
+      Ok(rlp::Prototype::Data(32)) => {
+        output.push_str("      MPT: Digest\n");
+      }
+      _ => {
+        output.push_str("      MPT: Unknown node type\n");
+      }
     }
   }
 
