@@ -20,38 +20,44 @@ pub fn format_execution_witness(witness: &alloy_rpc_types_debug::ExecutionWitnes
     let hash = alloy_primitives::keccak256(encoded);
     output.push_str(&format!("  [{}] node hash: {:#x}\n", i, hash));
 
-    match reth_proofs_core::mpt::MptNode::decode(encoded) {
-      Ok(node) => match node.as_data() {
-        reth_proofs_core::mpt::MptNodeData::Null => output.push_str("      MPT: Null\n"),
-        reth_proofs_core::mpt::MptNodeData::Branch(_) => output.push_str("      MPT: Branch\n"),
-        reth_proofs_core::mpt::MptNodeData::Leaf(_, val) => {
-          if let Ok(account) =
-            <reth_trie::TrieAccount as alloy_rlp::Decodable>::decode(&mut &val[..])
-          {
-            output.push_str("      MPT: Leaf (Account):\n");
-            output.push_str(&format!("            nonce: {}\n", account.nonce));
-            output.push_str(&format!("            balance: {}\n", account.balance));
-            output.push_str(&format!(
-              "            code_hash: {:#x}\n",
-              account.code_hash
-            ));
-            output.push_str(&format!(
-              "            storage_root: {:#x}\n",
-              account.storage_root
-            ));
-          } else if let Ok(val) = alloy_primitives::U256::decode(&mut &val[..]) {
-            output.push_str(&format!("      MPT: Leaf (Storage Value): {}\n", val));
-          } else {
-            output.push_str("      MPT: Leaf (Unknown RLP value)\n");
+    // Try to decode the RLP structure directly to check if it's a leaf
+    let rlp = rlp::Rlp::new(encoded);
+    if rlp.is_list() {
+      if let Ok(rlp::Prototype::List(2)) = rlp.prototype() {
+        // It's a 2-element list, could be Leaf or Extension
+        if let Ok(path) = rlp.val_at::<Vec<u8>>(0) {
+          if !path.is_empty() {
+            let prefix = path[0];
+            // Check if it's a leaf (bit 5 is set: 0x20 or 0x30)
+            if (prefix & 0x20) != 0 {
+              // It's a leaf node, try to decode the value
+              if let Ok(val) = rlp.val_at::<Vec<u8>>(1) {
+                // Try to decode as Account first
+                if let Ok(account) = <reth_trie::TrieAccount as alloy_rlp::Decodable>::decode(&mut &val[..]) {
+                  output.push_str("      MPT: Leaf (Account):\n");
+                  output.push_str(&format!("            nonce: {}\n", account.nonce));
+                  output.push_str(&format!("            balance: {}\n", account.balance));
+                  output.push_str(&format!("            code_hash: {:#x}\n", account.code_hash));
+                  output.push_str(&format!("            storage_root: {:#x}\n", account.storage_root));
+                  continue;
+                }
+                // Try to decode as U256 (storage value)
+                else if let Ok(val) = alloy_primitives::U256::decode(&mut &val[..]) {
+                  output.push_str(&format!("      MPT: Leaf (Storage Value): {}\n", val));
+                  continue;
+                }
+              }
+            }
           }
         }
-        reth_proofs_core::mpt::MptNodeData::Extension(_, _) => {
-          output.push_str("      MPT: Extension\n")
-        }
-        reth_proofs_core::mpt::MptNodeData::Digest(d) => {
-          output.push_str(&format!("      MPT: Digest: {:#x}\n", d))
-        }
-      },
+      }
+    }
+
+    // Fall back to Debug printing for all other node types
+    match reth_trie_sp1_zkvm::mpt::MptNode::decode(encoded) {
+      Ok(node) => {
+        output.push_str(&format!("      MPT Node: {:?}\n", node));
+      }
       Err(e) => output.push_str(&format!("      ❌ Failed to decode MPT node: {:?}\n", e)),
     }
   }
