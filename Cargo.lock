@@ -6833,9 +6833,7 @@ dependencies = [
  "alloy-rlp",
  "alloy-rpc-types-debug",
  "alloy-signer",
- "alloy-trie 0.9.0",
  "k256",
- "nybbles 0.3.4",
  "reth-chainspec",
  "reth-ethereum",
  "reth-ethereum-consensus",
@@ -6847,7 +6845,6 @@ dependencies = [
  "reth-trie-risc0-zkvm",
  "reth-trie-sp1-zkvm",
  "revm",
- "rlp 0.6.1",
  "serde",
  "serde_with",
 ]

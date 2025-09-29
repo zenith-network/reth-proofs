@@ -11,7 +11,6 @@ alloy-consensus = { workspace = true }
 alloy-primitives = { workspace = true }
 alloy-rlp = { workspace = true }
 alloy-rpc-types-debug = { workspace = true }
-alloy-trie = { workspace = true }
 alloy-signer = { workspace = true }
 
 # crypto
@@ -33,13 +32,6 @@ revm = { workspace = true }
 # Reth Proofs
 reth-trie-sp1-zkvm = { workspace = true }
 reth-trie-risc0-zkvm = { workspace = true }
-
-# misc
-nybbles = { workspace = true }
-
-# Ethereum serialization.
-# TODO: Remove once switched to `alloy-rlp` in MPT implementation.
-rlp = { workspace = true }
 
 # Serialization.
 serde = { workspace = true }
