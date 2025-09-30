@@ -6910,7 +6910,6 @@ dependencies = [
  "reth-proofs-core",
  "reth-stateless",
  "reth-trie-risc0-zkvm",
- "reth-trie-sp1-zkvm",
 ]
 
 [[package]]
@@ -7128,24 +7127,6 @@ dependencies = [
  "reth-trie-common",
  "revm",
  "risc0-ethereum-trie",
- "rlp 0.6.1",
- "serde",
-]
-
-[[package]]
-name = "reth-trie-sp1-zkvm"
-version = "0.1.0"
-dependencies = [
- "alloy-primitives",
- "alloy-rlp",
- "alloy-rpc-types-debug",
- "alloy-trie 0.9.0",
- "itertools 0.14.0",
- "nybbles 0.3.4",
- "reth-ethereum",
- "reth-stateless",
- "reth-trie-common",
- "revm",
  "rlp 0.6.1",
  "serde",
 ]

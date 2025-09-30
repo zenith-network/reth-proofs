@@ -10,7 +10,6 @@ members = [
   "zkvm-common-guest",
   "zkvm-common-host",
   "prototype",
-  "reth-trie-sp1-zkvm",
   "reth-trie-risc0-zkvm",
   "risc0-ethereum-trie"
 ]
@@ -26,7 +25,6 @@ ethproofs-api = { path = "./ethproofs" }
 reth-proofs-core = { path = "./core" }
 reth-proofs = { path = "./prototype" }
 reth-proofs-zkvm-common-host = { path = "./zkvm-common-host" }
-reth-trie-sp1-zkvm = { path = "./reth-trie-sp1-zkvm" }
 reth-trie-risc0-zkvm = { path = "./reth-trie-risc0-zkvm" }
 risc0-ethereum-trie = { path = "./risc0-ethereum-trie" }
 

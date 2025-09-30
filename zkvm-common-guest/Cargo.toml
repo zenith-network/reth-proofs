@@ -11,7 +11,6 @@ reth-stateless = { workspace = true }
 
 # Reth Proofs
 reth-proofs-core = { workspace = true }
-reth-trie-sp1-zkvm = { workspace = true }
 reth-trie-risc0-zkvm = { workspace = true }
 
 # Serialization.
