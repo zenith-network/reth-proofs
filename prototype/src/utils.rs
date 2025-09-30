@@ -20,54 +20,69 @@ pub fn format_execution_witness(witness: &alloy_rpc_types_debug::ExecutionWitnes
     let hash = alloy_primitives::keccak256(encoded);
     output.push_str(&format!("  [{}] node hash: {:#x}\n", i, hash));
 
-    // Try to decode the RLP structure directly to check if it's a leaf
-    let rlp = rlp::Rlp::new(encoded);
-    if rlp.is_list() {
-      if let Ok(rlp::Prototype::List(2)) = rlp.prototype() {
-        // It's a 2-element list, could be Leaf or Extension
-        if let Ok(path) = rlp.val_at::<Vec<u8>>(0) {
-          if !path.is_empty() {
-            let prefix = path[0];
-            // Check if it's a leaf (bit 5 is set: 0x20 or 0x30)
-            if (prefix & 0x20) != 0 {
-              // It's a leaf node, try to decode the value
-              if let Ok(val) = rlp.val_at::<Vec<u8>>(1) {
-                // Try to decode as Account first
-                if let Ok(account) = <reth_trie::TrieAccount as alloy_rlp::Decodable>::decode(&mut &val[..]) {
-                  output.push_str("      MPT: Leaf (Account):\n");
-                  output.push_str(&format!("            nonce: {}\n", account.nonce));
-                  output.push_str(&format!("            balance: {}\n", account.balance));
-                  output.push_str(&format!("            code_hash: {:#x}\n", account.code_hash));
-                  output.push_str(&format!("            storage_root: {:#x}\n", account.storage_root));
-                  continue;
-                }
-                // Try to decode as U256 (storage value)
-                else if let Ok(val) = alloy_primitives::U256::decode(&mut &val[..]) {
-                  output.push_str(&format!("      MPT: Leaf (Storage Value): {}\n", val));
-                  continue;
-                }
-              }
-            }
-          }
+    // Decode RLP using PayloadView for simple pattern matching.
+    // Based on https://github.com/risc0/risc0-ethereum/blob/94dddfe18db9977d7f25fc71d8acc80ba1552aab/crates/trie/src/mpt/rlp.rs#L235-L284.
+    let mut buf = &encoded[..];
+    match alloy_rlp::Header::decode_raw(&mut buf) {
+      Ok(alloy_rlp::PayloadView::String(payload)) => match payload.len() {
+        0 => output.push_str("      MPT: Null\n"),
+        32 => output.push_str("      MPT: Digest\n"),
+        _ => output.push_str("      MPT: Unknown node type\n"),
+      },
+      Ok(alloy_rlp::PayloadView::List(items)) => match items.len() {
+        17 => {
+          output.push_str("      MPT: Branch\n");
         }
-      }
-    }
+        2 => {
+          // 2-element list: could be Leaf or Extension
+          // Use hex-prefix encoding to distinguish:
+          //   High nibble = 0b00LO where L=leaf flag, O=odd flag
+          let mut path_buf = items[0];
+          let Ok(path) = alloy_primitives::Bytes::decode(&mut path_buf) else {
+            output.push_str("      MPT: Unknown node type\n");
+            continue;
+          };
 
-    // Fall back to basic node type identification for all other node types
-    match rlp.prototype() {
-      Ok(rlp::Prototype::Null) | Ok(rlp::Prototype::Data(0)) => {
-        output.push_str("      MPT: Null\n");
-      }
-      Ok(rlp::Prototype::List(17)) => {
-        output.push_str("      MPT: Branch\n");
-      }
-      Ok(rlp::Prototype::List(2)) => {
-        output.push_str("      MPT: Extension\n");
-      }
-      Ok(rlp::Prototype::Data(32)) => {
-        output.push_str("      MPT: Digest\n");
-      }
-      _ => {
+          // Extension node (leaf flag not set in second bit of high nibble)
+          if path.is_empty() || (path[0] & 0x20) == 0 {
+            output.push_str("      MPT: Extension\n");
+            continue;
+          }
+
+          // It's a leaf node (0x20 checks the second bit of the high nibble).
+          // Try decoding common value types: Account (state trie) or U256 (storage trie).
+          let mut val_buf = items[1];
+          let Ok(val) = alloy_primitives::Bytes::decode(&mut val_buf) else {
+            output.push_str("      MPT: Leaf (Failed to decode value)\n");
+            continue;
+          };
+
+          // Try to decode as Account first
+          let mut account_buf = &val[..];
+          if let Ok(account) = <reth_trie::TrieAccount as alloy_rlp::Decodable>::decode(&mut account_buf) {
+            output.push_str("      MPT: Leaf (Account):\n");
+            output.push_str(&format!("            nonce: {}\n", account.nonce));
+            output.push_str(&format!("            balance: {}\n", account.balance));
+            output.push_str(&format!("            code_hash: {:#x}\n", account.code_hash));
+            output.push_str(&format!("            storage_root: {:#x}\n", account.storage_root));
+            continue;
+          }
+
+          // Try to decode as U256 (storage value)
+          let mut u256_buf = &val[..];
+          if let Ok(val) = alloy_primitives::U256::decode(&mut u256_buf) {
+            output.push_str(&format!("      MPT: Leaf (Storage Value): {}\n", val));
+            continue;
+          }
+
+          // Leaf but unknown value type
+          output.push_str("      MPT: Leaf (Unknown value)\n");
+        }
+        _ => {
+          output.push_str(&format!("      MPT: List({})\n", items.len()));
+        }
+      },
+      Err(_) => {
         output.push_str("      MPT: Unknown node type\n");
       }
     }

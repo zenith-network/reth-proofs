@@ -6817,7 +6817,6 @@ dependencies = [
  "reth-stateless",
  "reth-trie",
  "revm",
- "rlp 0.6.1",
  "serde",
  "serde_json",
  "thiserror 2.0.12",

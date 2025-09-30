@@ -30,10 +30,6 @@ reth-stateless = { workspace = true }
 # Asynchronous runtime.
 tokio = { workspace = true }
 
-# Ethereum serialization.
-# TODO: Remove once switched to `alloy-rlp` in MPT implementation.
-rlp = { workspace = true }
-
 # Error handling.
 thiserror = { workspace = true }
 
