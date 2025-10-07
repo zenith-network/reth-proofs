@@ -6,7 +6,7 @@ pub mod input;
 pub mod input_alt;
 pub mod triedb;
 
-use alloy_signer::k256::ecdsa::signature::hazmat::PrehashVerifier;
+use k256::ecdsa::signature::hazmat::PrehashVerifier;
 
 // It is used in the `BasicBlockExecutor` as "strategy factory", implementing `ConfigureEvm` trait.
 // Measured SP1 performance:
@@ -261,7 +261,7 @@ pub fn get_hashed_post_state(
 // NOTE: We could use `VerifyingKey`'s `.to_sec1_bytes()` and `.from_sec1_bytes()` to make serialization more raw and efficient.
 #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub struct SignersHint {
-  pub signers: alloc::vec::Vec<alloy_signer::k256::ecdsa::VerifyingKey>,
+  pub signers: alloc::vec::Vec<k256::ecdsa::VerifyingKey>,
 }
 
 impl SignersHint {
