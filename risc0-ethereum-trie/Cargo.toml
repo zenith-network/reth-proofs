@@ -6,7 +6,7 @@ edition = "2021"
 [dependencies]
 
 # alloy
-alloy-primitives = { workspace = true, features = ["map", "map-foldhash", "k256", "std"] }
+alloy-primitives = { workspace = true, features = ["map", "map-foldhash", "k256"] }
 alloy-rlp = { workspace = true, default-features = false, features = ["arrayvec"] }
 alloy-trie = { version = "0.8.0", default-features = false }
 
