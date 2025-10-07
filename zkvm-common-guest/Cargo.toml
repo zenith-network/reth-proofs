@@ -4,6 +4,11 @@ version.workspace = true
 edition.workspace = true
 license.workspace = true
 
+[features]
+default = []
+zkvm-risc0 = ["alloy-primitives/tiny-keccak", "revm/c-kzg"]
+zkvm-sp1 = ["alloy-primitives/sha3-keccak", "revm/kzg-rs"]
+
 [dependencies]
 # reth
 reth-ethereum = { workspace = true }
@@ -15,3 +20,9 @@ reth-trie-risc0-zkvm = { workspace = true }
 
 # Serialization.
 bincode = { workspace = true }
+
+# alloy - extra features for all zkVMs.
+alloy-primitives = { workspace = true, features = ["map-foldhash", "k256"] }
+
+# revm - extra features for all zkVMs.
+revm = { workspace = true, default-features = false, features = ["bn"] }

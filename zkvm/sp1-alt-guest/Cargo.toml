@@ -15,7 +15,7 @@ edition = "2024"
 [dependencies]
 
 # Guest code.
-reth-proofs-zkvm-common-guest = { path = "../../zkvm-common-guest" }
+reth-proofs-zkvm-common-guest = { path = "../../zkvm-common-guest", features = ["zkvm-sp1"] }
 
 # zkVM.
 sp1-zkvm = { version = "=5.2.1", default-features = false, features = ["lib"] }

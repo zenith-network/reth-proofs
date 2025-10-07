@@ -15,7 +15,7 @@ edition = "2024"
 [dependencies]
 
 # Guest code.
-reth-proofs-zkvm-common-guest = { path = "../../zkvm-common-guest" }
+reth-proofs-zkvm-common-guest = { path = "../../zkvm-common-guest", features = ["zkvm-risc0"] }
 
 # zkVM.
 # TODO: Get rid of `std` when serde is no longer used.

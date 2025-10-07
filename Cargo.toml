@@ -61,7 +61,7 @@ risc0-build = { version = "=3.0.3", git = "https://github.com/koxu1996/risc0.git
 alloy-consensus = { version = "1.0.18", default-features = false, features = ["serde", "serde-bincode-compat"] }
 alloy-genesis = { version = "1.0.18", default-features = false }
 alloy-rlp = { version = "0.3.10", default-features = false }
-alloy-primitives = { version = "1.2.0", default-features = false, features = ["map-foldhash", "tiny-keccak", "k256"] } # `sha3-keccak` is required to use SP1 precompile; `tiny-keccak` is for Risc0 precompile.
+alloy-primitives = { version = "1.2.0", default-features = false }
 alloy-provider = { version = "1.0.18", default-features = false, features = ["reqwest", "debug-api"] }
 alloy-rpc-types-debug = { version = "1.0.18", default-features = false }
 alloy-rpc-types-eth = { version = "1.0.18", default-features = false }
@@ -72,7 +72,7 @@ alloy-signer = { version = "1.0.18", default-features = false }
 k256 = { version = "0.13", default-features = false }
 
 # revm
-revm = { version = "27.0.2",  default-features = false, features = ["serde", "bn", "c-kzg"] }
+revm = { version = "27.0.2",  default-features = false, features = ["serde"] }
 
 # reth
 reth-chainspec = { git = "https://github.com/paradigmxyz/reth", tag = "v1.5.1", default-features = false }
