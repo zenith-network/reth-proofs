@@ -281,4 +281,50 @@ impl<M: Memoization> Node<M> {
             }
         }
     }
+
+    /// Replaces unused parts of trie with their digest representation, leaving
+    /// only the minimal nodes needed to reach the specified set of keys.
+    ///
+    /// # Arguments
+    /// * `current_path` - The path from root to the current node.
+    /// * `cursor` - Mutable cursor tracking position in the sorted keys list.
+    #[cfg(feature = "prune")]
+    pub(super) fn prune_to_keys(
+        &mut self,
+        current_path: &Nibbles,
+        keys_cursor: &mut super::prune::SortedKeysCursor<'_>,
+    ) {
+        // If no target key is reachable from the current path, then we can prune this node.
+        if keys_cursor.peek_with_prefix(current_path.as_slice()).is_none() {
+            let hash = self.hash();
+            *self = Node::Digest(hash);
+            return;
+        }
+
+        // Recursively prune underlying nodes.
+        match self {
+            Node::Digest(_) | Node::Null => {
+                // Already pruned or empty.
+            }
+            Node::Leaf(_, _, _) => {
+                // Keep leaf, as it was reachable.
+            }
+            Node::Extension(prefix, child, _) => {
+                // Prune underlying child.
+                let mut extended_path = current_path.clone();
+                extended_path.extend_from_slice_unchecked(prefix);
+                child.prune_to_keys(&extended_path, keys_cursor);
+            }
+            Node::Branch(children, _) => {
+                // Prune children 0-15 in lexicographic order.
+                for i in 0..16 {
+                    if let Entry::Occupied(mut entry) = children.entry(i as u8) {
+                        let mut child_path = current_path.clone();
+                        child_path.as_mut_vec_unchecked().push(i as u8);
+                        entry.get_mut().prune_to_keys(&child_path, keys_cursor);
+                    }
+                }
+            }
+        }
+    }
 }

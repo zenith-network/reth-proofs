@@ -29,6 +29,8 @@ mod nibbles;
 mod node;
 #[cfg(feature = "orphan")]
 pub mod orphan;
+#[cfg(feature = "prune")]
+mod prune;
 #[cfg(feature = "rkyv")]
 mod rkyv;
 mod rlp;
@@ -347,6 +349,23 @@ impl CachedTrie {
         let root = Node::from_rlp(nodes)?;
 
         Ok(Self { inner: root, hash: None })
+    }
+
+    /// Prunes the trie to include minimal nodes leading to the specified set of keys.
+    /// Unused parts of the trie are replaced with their digest representation.
+    #[cfg(feature = "prune")]
+    pub fn prune_to_keys(&mut self, keys: &std::collections::HashSet<B256>) {
+        // Sort keys to create lexicographic cursor.
+        let mut keys: Vec<Nibbles> = keys.iter().map(|key| Nibbles::unpack(key)).collect();
+        keys.sort_by(|a, b| a.as_slice().cmp(b.as_slice()));
+        let mut keys_cursor = prune::SortedKeysCursor::new(&keys);
+
+        // Run recursive trie pruning.
+        let empty_path = Nibbles::default();
+        self.inner.prune_to_keys(&empty_path, &mut keys_cursor);
+
+        // Invalidate the cached hash since we modified the trie structure.
+        self.hash = None;
     }
 }
 
