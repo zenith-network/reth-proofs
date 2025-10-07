@@ -352,7 +352,7 @@ pub async fn main() -> eyre::Result<()> {
           }
         };
         {
-          let verifier_id = sp1_sdk::HashableKey::bytes32(vk);
+          let verifier_id = sp1_sdk::HashableKey::bytes32(&vk);
           // After prove hook.
           eth_proofs_staging_client
             .proved(
