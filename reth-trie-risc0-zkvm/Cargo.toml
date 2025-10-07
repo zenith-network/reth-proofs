@@ -29,9 +29,6 @@ itertools = { workspace = true }
 nybbles = { workspace = true }
 serde = { workspace = true }
 
-# to be deprecated in favor of alloy-rlp
-rlp = { version = "0.6.1", default-features = false }
-
 # Zeth trie. // git = "https://github.com/risc0/risc0-ethereum"
 # CAUTION: Do NOT use `rlp_serialize` as it performs *full* tree validation - we want to do it manually (almost two times faster).
 # NOTE: We do NOT need `orphan` functionality, as reth's witness provides all the nodes we need.
