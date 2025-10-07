@@ -25,7 +25,3 @@ reqwest-retry = { version = "0.7.0", default-features = false }
 
 # Serialization.
 serde_json = { workspace = true, features = ["std"] }
-
-# zkVM.
-#sp1-sdk = { workspace = true }
-#sp1-cuda = { workspace = true }
