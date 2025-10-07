@@ -11,7 +11,8 @@ members = [
   "zkvm-common-host",
   "prototype",
   "reth-trie-risc0-zkvm",
-  "risc0-ethereum-trie"
+  "risc0-ethereum-trie",
+  "subblock"
 ]
 resolver = "3"
 

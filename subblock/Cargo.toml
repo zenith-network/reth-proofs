@@ -1,0 +1,44 @@
+[package]
+name = "reth-proofs-subblock"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+
+# Reth Proofs
+reth-proofs = { workspace = true }
+reth-proofs-core = { workspace = true }
+reth-trie-risc0-zkvm = { workspace = true }
+
+# Asynchronous runtime.
+tokio = { workspace = true }
+
+# NOTE: Version of alloy/revm/reth/crypto crates is based on reth v1.5.1:
+# - https://github.com/paradigmxyz/reth/blob/v1.5.1/Cargo.toml
+
+# alloy
+alloy-consensus = { workspace = true }
+alloy-primitives = { workspace = true }
+alloy-rlp = { workspace = true }
+alloy-rpc-types-debug = { workspace = true }
+alloy-rpc-types-eth = { workspace = true }
+alloy-trie = { workspace = true }
+
+# revm
+revm = { workspace = true }
+
+# reth
+reth-db = { git = "https://github.com/paradigmxyz/reth", tag = "v1.5.1", default-features = false }
+reth-errors = { git = "https://github.com/paradigmxyz/reth", tag = "v1.5.1", default-features = false }
+reth-ethereum-primitives = { workspace = true }
+reth-evm = { git = "https://github.com/paradigmxyz/reth", tag = "v1.5.1", default-features = false }
+reth-execution-errors = { git = "https://github.com/paradigmxyz/reth", tag = "v1.5.1", default-features = false }
+reth-primitives-traits = { workspace = true }
+reth-provider = { git = "https://github.com/paradigmxyz/reth", tag = "v1.5.1", default-features = false }
+reth-revm = { git = "https://github.com/paradigmxyz/reth", tag = "v1.5.1", default-features = false, features = ["witness"] }
+reth-trie = { workspace = true }
+reth-trie-common = { git = "https://github.com/paradigmxyz/reth", tag = "v1.5.1", default-features = false }
+reth-trie-db = { git = "https://github.com/paradigmxyz/reth", tag = "v1.5.1", default-features = false }
+reth-trie-sparse = { git = "https://github.com/paradigmxyz/reth", tag = "v1.5.1", default-features = false }
+reth-stateless = { workspace = true }
