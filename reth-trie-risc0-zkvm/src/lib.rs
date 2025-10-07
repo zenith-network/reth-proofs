@@ -126,7 +126,11 @@ impl Risc0ZkvmTrie {
       post_state.storages.len(),
       Default::default(),
     );
-    for (hashed_addr, storage) in post_state.storages.into_iter().sorted_unstable_by_key(|(addr, _)| *addr) {
+    for (hashed_addr, storage) in post_state
+      .storages
+      .into_iter()
+      .sorted_unstable_by_key(|(addr, _)| *addr)
+    {
       // Take existing storage trie or create an empty one.
       let storage_trie = self.storage_tries.entry(hashed_addr).or_default();
 
@@ -136,7 +140,11 @@ impl Risc0ZkvmTrie {
       }
 
       // Apply slot-level changes.
-      for (slot, value) in storage.storage.into_iter().sorted_unstable_by_key(|(slot, _)| *slot) {
+      for (slot, value) in storage
+        .storage
+        .into_iter()
+        .sorted_unstable_by_key(|(slot, _)| *slot)
+      {
         let key = slot.as_slice();
         if value.is_zero() {
           storage_trie.remove(key);

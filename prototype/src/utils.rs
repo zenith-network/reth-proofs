@@ -59,12 +59,20 @@ pub fn format_execution_witness(witness: &alloy_rpc_types_debug::ExecutionWitnes
 
           // Try to decode as Account first
           let mut account_buf = &val[..];
-          if let Ok(account) = <reth_trie::TrieAccount as alloy_rlp::Decodable>::decode(&mut account_buf) {
+          if let Ok(account) =
+            <reth_trie::TrieAccount as alloy_rlp::Decodable>::decode(&mut account_buf)
+          {
             output.push_str("      MPT: Leaf (Account):\n");
             output.push_str(&format!("            nonce: {}\n", account.nonce));
             output.push_str(&format!("            balance: {}\n", account.balance));
-            output.push_str(&format!("            code_hash: {:#x}\n", account.code_hash));
-            output.push_str(&format!("            storage_root: {:#x}\n", account.storage_root));
+            output.push_str(&format!(
+              "            code_hash: {:#x}\n",
+              account.code_hash
+            ));
+            output.push_str(&format!(
+              "            storage_root: {:#x}\n",
+              account.storage_root
+            ));
             continue;
           }
 
