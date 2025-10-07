@@ -113,6 +113,33 @@ pub async fn prepare_block_trie_db(
   Ok(trie_db)
 }
 
+/// Filters transactions *in place* within a block, keeping only those
+/// for which the predicate returns `true`.
+///
+/// Panics if `block.transactions` is not `BlockTransactions::Full`,
+/// since filtering requires full transaction objects.
+///
+/// # Example
+/// ```ignore
+/// // Keep only transactions with indices 179 and 180
+/// filter_block_txs_in_place(&mut block, |i, _tx| (179..181).contains(&i));
+/// ```
+pub fn filter_block_txs_in_place<F>(block: &mut alloy_rpc_types_eth::Block, predicate: F)
+where
+  F: Fn(usize, &alloy_rpc_types_eth::Transaction) -> bool,
+{
+  match &mut block.transactions {
+    alloy_rpc_types_eth::BlockTransactions::Full(txs) => {
+      *txs = txs
+        .drain(..)
+        .enumerate()
+        .filter_map(|(i, tx)| predicate(i, &tx).then_some(tx))
+        .collect();
+    }
+    _ => panic!("filter_block_txs_in_place requires BlockTransactions::Full"),
+  }
+}
+
 pub async fn execute_block_offline(block_number: u64) -> Result<(), Error> {
   let block = load_block_from_file(block_number).await?;
   let witness = load_block_witness_from_file(block_number).await?;
