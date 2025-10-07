@@ -6,7 +6,6 @@
 !/gevulot2
 !/prototype
 !/reth-trie-risc0-zkvm
-!/reth-trie-sp1-zkvm
 !/risc0-ethereum-trie
 !/zkvm
 zkvm/risc0-methods/guest/Cargo.lock
