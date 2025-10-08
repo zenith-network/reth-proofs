@@ -34,3 +34,6 @@ reth-trie-risc0-zkvm = { workspace = true }
 # Serialization.
 serde = { workspace = true }
 serde_with = { workspace = true }
+
+# For some reason, this is required to build in Nix flake (also fixes ZisK build).
+critical-section = { version = "1.2", features = ["std"] }

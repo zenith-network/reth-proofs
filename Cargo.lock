@@ -6854,6 +6854,7 @@ dependencies = [
  "alloy-primitives",
  "alloy-rlp",
  "alloy-rpc-types-debug",
+ "critical-section",
  "k256",
  "reth-chainspec",
  "reth-ethereum",
