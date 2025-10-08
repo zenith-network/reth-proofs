@@ -94,6 +94,7 @@ impl Risc0ZkvmTrie {
     let mut storage_tries: alloy_primitives::map::HashMap<
       alloy_primitives::B256,
       risc0_ethereum_trie::CachedTrie,
+      alloy_primitives::map::foldhash::fast::RandomState, // NOTE: Without it ZisK guest could NOT compile.
     > = alloy_primitives::map::HashMap::default();
     for (hashed_address, storage_root) in storage_tries_detected {
       let mut storage_trie = risc0_ethereum_trie::CachedTrie::from_digest(storage_root);
