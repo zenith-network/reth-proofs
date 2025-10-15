@@ -4,6 +4,7 @@ members = [
   "ethproofs",
   "gevulot",
   "gevulot2",
+  "gevulot3",
   "zkvm/risc0-host",
   "zkvm/sp1-host",
   "zkvm/sp1-alt-host",
