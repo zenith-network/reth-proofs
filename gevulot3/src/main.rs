@@ -32,14 +32,7 @@ pub async fn main() -> eyre::Result<()> {
   // Configuration for ZisK proving coordination.
   let zisk_coordinator_url = args.zisk_coordinator_url.to_string();
   let zisk_compute_units = args.zisk_compute_units;
-
-  // Webhook server - to receive ZisK proving callback.
-  // CAUTION: Make sure coordinator was started with `--webhook-url 'http://[THIS_MACHINE_IP]:{}/webhook/{$job_id}'`.
   let zisk_webhook_port = args.zisk_webhook_port;
-  let (zisk_webhook_server_handle, zisk_webhook_result_rx) =
-    zisk::start_webhook_server(zisk_webhook_port)
-      .await
-      .expect("Failed to start ZisK webhook server");
 
   // Configure RPCs - both HTTP and WS.
   let ws = alloy_provider::WsConnect::new(args.ws_rpc_url);
@@ -88,6 +81,14 @@ pub async fn main() -> eyre::Result<()> {
                 continue;
               }
             };
+
+            // Start webhook server - to receive ZisK proving callback.
+            // CAUTION: Make sure coordinator was started with `--webhook-url 'http://[THIS_MACHINE_IP]:{}/webhook/{$job_id}'`.
+            // TODO: Make it a long running server.
+            let (zisk_webhook_server_handle, zisk_webhook_result_rx) =
+            zisk::start_webhook_server(zisk_webhook_port)
+              .await
+              .expect("Failed to start ZisK webhook server");
 
             // Notify Ethproofs that we start proving.
             //ethproofs_api.proving(block_number).await;
@@ -139,6 +140,9 @@ pub async fn main() -> eyre::Result<()> {
               block_number,
               duration_total_time.as_secs_f64()
             );
+
+            // Shutdown the ZisK webhook server.
+            zisk_webhook_server_handle.abort();
           }
           None => {
             tracing::warn!("WS stream closed");
@@ -148,9 +152,6 @@ pub async fn main() -> eyre::Result<()> {
       }
     }
   }
-
-  // Shutdown the ZisK webhook server.
-  zisk_webhook_server_handle.abort();
 
   Ok(())
 }
