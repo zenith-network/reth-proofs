@@ -29,6 +29,14 @@ pub async fn main() -> eyre::Result<()> {
     args.ethproofs_api_token,
   );
 
+  // Webhook server - to receive ZisK proving callback.
+  // CAUTION: Make sure coordinator was started with `--webhook-url 'http://[THIS_MACHINE_IP]:{}/webhook/{$job_id}'`.
+  let zisk_webhook_port = args.zisk_webhook_port;
+  let (zisk_webhook_server_handle, zisk_webhook_result_rx) =
+    zisk::start_webhook_server(zisk_webhook_port)
+      .await
+      .expect("Failed to start ZisK webhook server");
+
   // Configure RPCs - both HTTP and WS.
   let ws = alloy_provider::WsConnect::new(args.ws_rpc_url);
   let ws_provider = alloy_provider::ProviderBuilder::new()
@@ -136,6 +144,9 @@ pub async fn main() -> eyre::Result<()> {
       }
     }
   }
+
+  // Shutdown the ZisK webhook server.
+  zisk_server_handle.abort();
 
   Ok(())
 }
