@@ -105,25 +105,32 @@ pub async fn main() -> eyre::Result<()> {
             };
 
             // Wait for proving result.
-//             let (receipt, cycles) = match prove_bonsai(bento_input).await {
-//               Ok(receipt) => receipt,
-//               Err(e) => {
-//                 tracing::error!("Failed to prove block {}: {}", block_number, e);
-//                 continue;
-//               }
-//             };
+            let proving_result = match zisk_webhook_result_rx.await {
+              Ok(payload) => payload,
+              Err(_e) => {
+                tracing::error!("Unable to receive webhook result - channel closed?");
+                zisk_webhook_server_handle.abort();
+                break; // This is fatal error, we have to stop.
+              }
+            };
+            let zisk::WebhookPayload { proof: maybe_proof, error: maybe_error, duration_ms, .. } = proving_result;
+            let proof_bytes = match (maybe_proof, maybe_error) {
+              (_, Some(error)) => {
+                tracing::error!("Failed to prove block {}: {:?}", block_number, error);
+                zisk_webhook_server_handle.abort();
+                continue;
+              }
+              (None, None) => {
+                tracing::error!("Empty proof for block {}", block_number);
+                zisk_webhook_server_handle.abort();
+                continue;
+              }
+              (Some(proof), None) => proof,
+            };
+            let cycles = 0; // TODO: Find way to get ZisK cycles.
 
             // Stop the proving timer.
             let proving_duration = start_proving_time.elapsed();
-
-//             // Serialize receipt.
-//             let proof_bytes = match bincode::serialize(&receipt) {
-//               Ok(bytes) => bytes,
-//               Err(e) => {
-//                 tracing::error!("Failed to serialize receipt for block {}: {}", block_number, e);
-//                 continue;
-//               }
-//             };
 
             // Upload receipt to the Ethproofs endpoint.
             //ethproofs_api.proved(
