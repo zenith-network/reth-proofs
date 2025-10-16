@@ -29,6 +29,10 @@ pub async fn main() -> eyre::Result<()> {
     args.ethproofs_api_token,
   );
 
+  // Configuration for ZisK proving coordination.
+  let zisk_coordinator_url = args.zisk_coordinator_url.to_string();
+  let zisk_compute_units = args.zisk_compute_units;
+
   // Webhook server - to receive ZisK proving callback.
   // CAUTION: Make sure coordinator was started with `--webhook-url 'http://[THIS_MACHINE_IP]:{}/webhook/{$job_id}'`.
   let zisk_webhook_port = args.zisk_webhook_port;
@@ -85,21 +89,21 @@ pub async fn main() -> eyre::Result<()> {
               }
             };
 
-//             // Upload input to Bento.
-//             let bento_input = match upload_bonsai(zkvm_input).await {
-//               Ok(input) => input,
-//               Err(e) => {
-//                 tracing::error!("Failed to upload input for block {}: {}", block_number, e);
-//                 continue;
-//               }
-//             };
-//             let image_id_hex = bento_input.image_id_hex.clone();
-
             // Notify Ethproofs that we start proving.
             //ethproofs_api.proving(block_number).await;
             let start_proving_time = std::time::Instant::now();
 
-//             // Prove the block.
+            // Submit proving job.
+            let input_file_name = format!("{block_number}.bin");
+            let job_id = match zisk::submit_proof_job(&zisk_coordinator_url, &zkvm_input, &input_file_name, zisk_compute_units).await {
+              Ok(id) => id,
+              Err(e) => {
+                tracing::error!("Failed to submit proof job for block {}: {}", block_number, e);
+                continue;
+              }
+            };
+
+            // Wait for proving result.
 //             let (receipt, cycles) = match prove_bonsai(bento_input).await {
 //               Ok(receipt) => receipt,
 //               Err(e) => {
@@ -146,7 +150,7 @@ pub async fn main() -> eyre::Result<()> {
   }
 
   // Shutdown the ZisK webhook server.
-  zisk_server_handle.abort();
+  zisk_webhook_server_handle.abort();
 
   Ok(())
 }

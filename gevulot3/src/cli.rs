@@ -34,6 +34,15 @@ pub struct RunArgs {
   /// ETH proofs cluster ID.
   #[clap(long, env)]
   pub ethproofs_cluster_id: u64,
+
+  /// ZisK coordinator URL.
+  #[clap(long, env)]
+  pub zisk_coordinator_url: url::Url,
+
+  /// ZisK compute units - decides how many workers will be used.
+  #[clap(long, env)]
+  pub zisk_compute_units: u32,
+
   /// ZisK webhook port - on this port we will be waiting for proving callback request.
   #[clap(long, env)]
   pub zisk_webhook_port: u16,
