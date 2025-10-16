@@ -1,6 +1,7 @@
 use futures::StreamExt;
 
 mod cli;
+mod zisk;
 
 #[tokio::main]
 pub async fn main() -> eyre::Result<()> {
