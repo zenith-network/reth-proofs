@@ -64,7 +64,7 @@ async fn webhook_handler(
 /// Submits a proof job to the coordinator.
 pub async fn submit_proof_job(
   coordinator_url: &str,
-  input_data: &Vec<u8>,
+  input_data: Vec<u8>,
   input_file_name: &str,
   compute_capacity: u32,
 ) -> Result<String> {
@@ -86,7 +86,7 @@ pub async fn submit_proof_job(
   let request = LaunchProofRequest {
     block_id: "example-block-001".to_string(),
     compute_capacity,
-    input_path: input_file_name, // Kept for reference only.
+    input_path: input_file_name.to_string(), // Kept for reference only.
     simulated_node: None,
     input_data,
   };

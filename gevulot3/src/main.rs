@@ -96,7 +96,7 @@ pub async fn main() -> eyre::Result<()> {
 
             // Submit proving job.
             let input_file_name = format!("{block_number}.bin");
-            let job_id = match zisk::submit_proof_job(&zisk_coordinator_url, &zkvm_input, &input_file_name, zisk_compute_units).await {
+            let job_id = match zisk::submit_proof_job(&zisk_coordinator_url, zkvm_input, &input_file_name, zisk_compute_units).await {
               Ok(id) => id,
               Err(e) => {
                 tracing::error!("Failed to submit proof job for block {}: {}", block_number, e);
