@@ -133,7 +133,7 @@ pub async fn start_webhook_server(
   };
 
   let app = Router::new()
-    .route("/webhook/:job_id", post(webhook_handler))
+    .route("/webhook/{job_id}", post(webhook_handler))
     .with_state(state);
 
   let addr = format!("0.0.0.0:{}", port);
