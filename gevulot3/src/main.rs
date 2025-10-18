@@ -53,7 +53,7 @@ pub async fn main() -> eyre::Result<()> {
   // Start long-running webhook server for ZisK callbacks.
   // CAUTION: Make sure coordinator was started with `--webhook-url 'http://[THIS_MACHINE_IP]:{}/webhook/{$job_id}'`.
   let (zisk_webhook_server, zisk_webhook_server_handle) =
-    zisk::start_zisk_webhook_server(zisk_webhook_port)
+    zisk::start_webhook_server(zisk_webhook_port)
       .await
       .expect("Failed to start ZisK webhook server");
   tracing::info!("ZisK webhook server started on port {}", zisk_webhook_port);
