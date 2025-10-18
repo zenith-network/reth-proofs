@@ -1,11 +1,12 @@
+use std::collections::HashMap;
 use std::sync::Arc;
 
 use anyhow::{Context, Result};
 use axum::{Json, Router, extract::State, http::StatusCode, routing::post};
 use serde::{Deserialize, Serialize};
-use tokio::sync::oneshot;
+use tokio::sync::{Mutex, oneshot};
 use tonic::transport::Channel;
-use tracing::{error, info};
+use tracing::{error, info, warn};
 use zisk_distributed_grpc_api::LaunchProofRequest;
 use zisk_distributed_grpc_api::zisk_distributed_api_client::ZiskDistributedApiClient;
 
@@ -30,8 +31,8 @@ pub struct WebhookError {
 /// Shared state for the webhook server.
 #[derive(Clone)]
 struct AppState {
-  /// Channel to send the proof result back to the main thread.
-  result_tx: Arc<tokio::sync::Mutex<Option<oneshot::Sender<WebhookPayload>>>>,
+  /// Map of job IDs to their result channels.
+  pending_jobs: Arc<Mutex<HashMap<String, oneshot::Sender<WebhookPayload>>>>,
 }
 
 /// Webhook endpoint handler - receives proof completion notifications from coordinator.
@@ -50,13 +51,18 @@ async fn webhook_handler(
     error!("Job failed: {:?}", payload.error);
   }
 
-  // Send the result to the waiting thread.
-  let mut tx_guard = state.result_tx.lock().await;
-  if let Some(tx) = tx_guard.take() {
-    if tx.send(payload).is_err() {
-      error!("Failed to send webhook result to main thread");
+  // Look up the job in pending jobs and send the result.
+  let mut pending_jobs = state.pending_jobs.lock().await;
+  match pending_jobs.remove(&payload.job_id) {
+    Some(tx) => {
+      if tx.send(payload).is_err() {
+        error!("Failed to send webhook result to main thread");
+      }
     }
-  }
+    None => {
+      warn!("Received webhook for unknown job ID: {}", payload.job_id);
+    }
+  };
 
   StatusCode::OK
 }
@@ -119,22 +125,34 @@ pub async fn submit_proof_job(
   Ok(job_id)
 }
 
-/// Starts the webhook server and returns the server handle and result receiver.
+/// Handle to a long-running webhook server.
+#[derive(Clone)]
+pub struct WebhookServer {
+  state: AppState,
+}
+
+impl WebhookServer {
+  /// Registers a job and returns a receiver for the result.
+  pub async fn register_job(&self, job_id: String) -> oneshot::Receiver<WebhookPayload> {
+    let (tx, rx) = oneshot::channel();
+    let mut pending_jobs = self.state.pending_jobs.lock().await;
+    pending_jobs.insert(job_id.clone(), tx);
+    info!("Registered job {} for webhook callback", job_id);
+    rx
+  }
+}
+
+/// Starts a long-running webhook server and returns a handle to it and the server task.
 pub async fn start_webhook_server(
   port: u16,
-) -> Result<(
-  tokio::task::JoinHandle<()>,
-  oneshot::Receiver<WebhookPayload>,
-)> {
-  let (result_tx, result_rx) = oneshot::channel();
-
+) -> Result<(WebhookServer, tokio::task::JoinHandle<()>)> {
   let state = AppState {
-    result_tx: Arc::new(tokio::sync::Mutex::new(Some(result_tx))),
+    pending_jobs: Arc::new(Mutex::new(HashMap::new())),
   };
 
   let app = Router::new()
     .route("/webhook/{job_id}", post(webhook_handler))
-    .with_state(state);
+    .with_state(state.clone());
 
   let addr = format!("0.0.0.0:{}", port);
   info!("Starting webhook server on {}", addr);
@@ -150,5 +168,5 @@ pub async fn start_webhook_server(
     }
   });
 
-  Ok((server_handle, result_rx))
+  Ok((WebhookServer { state }, server_handle))
 }

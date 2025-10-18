@@ -50,6 +50,14 @@ pub async fn main() -> eyre::Result<()> {
     alloy_provider::Provider::get_block_number(&http_provider).await?
   );
 
+  // Start long-running webhook server for ZisK callbacks.
+  // CAUTION: Make sure coordinator was started with `--webhook-url 'http://[THIS_MACHINE_IP]:{}/webhook/{$job_id}'`.
+  let (zisk_webhook_server, zisk_webhook_server_handle) =
+    zisk::start_zisk_webhook_server(zisk_webhook_port)
+      .await
+      .expect("Failed to start ZisK webhook server");
+  tracing::info!("ZisK webhook server started on port {}", zisk_webhook_port);
+
   // Listen to the notifications about new blocks (WebSocket).
   loop {
     tokio::select! {
@@ -82,14 +90,6 @@ pub async fn main() -> eyre::Result<()> {
               }
             };
 
-            // Start webhook server - to receive ZisK proving callback.
-            // CAUTION: Make sure coordinator was started with `--webhook-url 'http://[THIS_MACHINE_IP]:{}/webhook/{$job_id}'`.
-            // TODO: Make it a long running server.
-            let (zisk_webhook_server_handle, zisk_webhook_result_rx) =
-            zisk::start_webhook_server(zisk_webhook_port)
-              .await
-              .expect("Failed to start ZisK webhook server");
-
             // Notify Ethproofs that we start proving.
             //ethproofs_api.proving(block_number).await;
             let start_proving_time = std::time::Instant::now();
@@ -104,25 +104,25 @@ pub async fn main() -> eyre::Result<()> {
               }
             };
 
+            // Register the job with the webhook server to receive the result.
+            let zisk_webhook_result_rx = zisk_webhook_server.register_job(job_id.clone()).await;
+
             // Wait for proving result.
             let proving_result = match zisk_webhook_result_rx.await {
               Ok(payload) => payload,
               Err(_e) => {
                 tracing::error!("Unable to receive webhook result - channel closed?");
-                zisk_webhook_server_handle.abort();
-                break; // This is fatal error, we have to stop.
+                continue;
               }
             };
             let zisk::WebhookPayload { proof: maybe_proof, error: maybe_error, duration_ms, .. } = proving_result;
             let proof_bytes = match (maybe_proof, maybe_error) {
               (_, Some(error)) => {
                 tracing::error!("Failed to prove block {}: {:?}", block_number, error);
-                zisk_webhook_server_handle.abort();
                 continue;
               }
               (None, None) => {
                 tracing::error!("Empty proof for block {}", block_number);
-                zisk_webhook_server_handle.abort();
                 continue;
               }
               (Some(proof), None) => proof,
@@ -147,9 +147,6 @@ pub async fn main() -> eyre::Result<()> {
               block_number,
               duration_total_time.as_secs_f64()
             );
-
-            // Shutdown the ZisK webhook server.
-            zisk_webhook_server_handle.abort();
           }
           None => {
             tracing::warn!("WS stream closed");
@@ -159,6 +156,10 @@ pub async fn main() -> eyre::Result<()> {
       }
     }
   }
+
+  // Shutdown the webhook server.
+  tracing::info!("Shutting down webhook server");
+  zisk_webhook_server_handle.abort();
 
   Ok(())
 }
