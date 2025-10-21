@@ -44,4 +44,4 @@ url = { version = "2.5.4", default-features = false }
 anyhow = { version = "1.0.100", default-features = false }
 axum = { version = "0.8.4", default-features = false, features = ["json", "tokio", "http1"] }
 tonic = { version = "0.14.2", default-features = false, features = ["server", "channel"] }
-zisk-distributed-grpc-api = { git = "https://github.com/gevulotnetwork/zisk.git", branch = "v0.12.0-koxu" }
+zisk-distributed-grpc-api = { git = "https://github.com/gevulotnetwork/zisk.git", branch = "v0.12.1-koxu" }
