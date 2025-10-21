@@ -115,7 +115,7 @@ pub async fn main() -> eyre::Result<()> {
                 continue;
               }
             };
-            let zisk::WebhookPayload { proof: maybe_proof, error: maybe_error, duration_ms, .. } = proving_result;
+            let zisk::WebhookPayload { proof: maybe_proof, error: maybe_error, duration_ms, executed_steps, .. } = proving_result;
             let proof_bytes = match (maybe_proof, maybe_error) {
               (_, Some(error)) => {
                 tracing::error!("Failed to prove block {}: {:?}", block_number, error);
@@ -127,7 +127,7 @@ pub async fn main() -> eyre::Result<()> {
               }
               (Some(proof), None) => proof,
             };
-            let cycles = 0; // TODO: Find way to get ZisK cycles.
+            let cycles = executed_steps.unwrap_or(0); // TODO: This SHOULD be an error.
 
             // Stop the proving timer.
             let proving_duration = start_proving_time.elapsed();

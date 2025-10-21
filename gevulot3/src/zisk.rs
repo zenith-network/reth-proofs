@@ -11,13 +11,15 @@ use zisk_distributed_grpc_api::LaunchProofRequest;
 use zisk_distributed_grpc_api::zisk_distributed_api_client::ZiskDistributedApiClient;
 
 /// Webhook payload received from the coordinator when a job completes.
-/// See: https://github.com/0xPolygonHermez/zisk/blob/5104c56c4736f99e1a3e809511e41ed6306a7db5/distributed/crates/common/src/dto.rs#L204.
+/// See `WebhookPayloadDto`:
+/// https://github.com/0xPolygonHermez/zisk/blob/b9acdeecf5601f89824570e4337cb084c4ca501e/distributed/crates/common/src/dto.rs#L207-L217.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct WebhookPayload {
   pub job_id: String,
   pub success: bool,
   pub duration_ms: u64,
   pub proof: Option<Vec<u64>>,
+  pub executed_steps: Option<u64>,
   pub timestamp: String,
   pub error: Option<WebhookError>,
 }
