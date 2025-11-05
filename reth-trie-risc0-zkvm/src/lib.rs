@@ -5,7 +5,9 @@ use alloy_rlp::Decodable;
 pub mod mpt;
 
 use itertools::Itertools;
-use reth_trie_common::iter::{IntoParallelRefIterator, ParallelIterator};
+
+#[cfg(feature = "parallel")]
+use rayon::prelude::*;
 
 extern crate alloc;
 
@@ -53,6 +55,7 @@ impl Risc0ZkvmTrie {
     // IMPORTANT: Witness state contains both state trie nodes and storage tries nodes!
     // NOTE: We compute hashes in parallel, but this is okay as this function is called on the host only.
     // TODO: Consider moving this to crate like core-host/preflight.
+    #[cfg(feature = "parallel")]
     let pairs: Vec<(alloy_primitives::B256, alloy_primitives::Bytes)> = witness
       .state
       .par_iter()
@@ -61,6 +64,17 @@ impl Risc0ZkvmTrie {
         (hash, encoded.clone())
       })
       .collect();
+
+    #[cfg(not(feature = "parallel"))]
+    let pairs: Vec<(alloy_primitives::B256, alloy_primitives::Bytes)> = witness
+      .state
+      .iter()
+      .map(|encoded| {
+        let hash = alloy_primitives::keccak256(encoded);
+        (hash, encoded.clone())
+      })
+      .collect();
+
     let num_nodes = witness.state.len();
     let mut node_map =
       alloy_primitives::map::B256Map::with_capacity_and_hasher(num_nodes, Default::default());

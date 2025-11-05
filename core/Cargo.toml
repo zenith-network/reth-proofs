@@ -4,6 +4,10 @@ version.workspace = true
 edition.workspace = true
 license.workspace = true
 
+[features]
+default = []
+parallel = ["dep:rayon", "reth-trie-risc0-zkvm/parallel"]
+
 [dependencies]
 
 # alloy
@@ -27,6 +31,9 @@ reth-trie-common = { workspace = true }
 
 # revm
 revm = { workspace = true }
+
+# misc
+rayon = { workspace = true, optional = true }
 
 # Reth Proofs
 reth-trie-risc0-zkvm = { workspace = true }

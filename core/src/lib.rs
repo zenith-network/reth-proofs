@@ -9,9 +9,8 @@ pub mod triedb;
 use k256::ecdsa::signature::hazmat::PrehashVerifier;
 
 // Required for `par_bridge()` on tx iterator and bytecode list.
-use reth_trie_common::iter::IntoParallelRefIterator;
-use reth_trie_common::iter::ParallelBridge;
-use reth_trie_common::iter::ParallelIterator;
+#[cfg(feature = "parallel")]
+use rayon::prelude::*;
 
 // It is used in the `BasicBlockExecutor` as "strategy factory", implementing `ConfigureEvm` trait.
 // Measured SP1 performance:
@@ -210,8 +209,19 @@ impl Bytecodes {
   ) -> alloy_primitives::map::B256Map<revm::state::Bytecode> {
     // Compute (hash, bytecode) pairs in parallel.
     // NOTE: This part is also not `no_std`, but called on the host only. Consider moving to crate like core-host/preflight.
+    #[cfg(feature = "parallel")]
     let pairs: alloc::vec::Vec<(alloy_primitives::B256, revm::state::Bytecode)> = codes_list
       .par_iter()
+      .map(|encoded| {
+        let bytecode = revm::state::Bytecode::new_raw(encoded.clone());
+        let code_hash = bytecode.hash_slow();
+        (code_hash, bytecode)
+      })
+      .collect();
+
+    #[cfg(not(feature = "parallel"))]
+    let pairs: alloc::vec::Vec<(alloy_primitives::B256, revm::state::Bytecode)> = codes_list
+      .iter()
       .map(|encoded| {
         let bytecode = revm::state::Bytecode::new_raw(encoded.clone());
         let code_hash = bytecode.hash_slow();
@@ -288,6 +298,7 @@ impl SignersHint {
       alloy_consensus::Header,
     >,
   ) -> Self {
+    #[cfg(feature = "parallel")]
     let signers = block
       .body
       .transactions()
@@ -298,6 +309,18 @@ impl SignersHint {
           .unwrap()
       })
       .collect();
+
+    #[cfg(not(feature = "parallel"))]
+    let signers = block
+      .body
+      .transactions()
+      .map(|tx| {
+        tx.signature()
+          .recover_from_prehash(&tx.signature_hash())
+          .unwrap()
+      })
+      .collect();
+
     Self { signers }
   }
 }

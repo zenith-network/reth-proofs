@@ -89,3 +89,4 @@ reth-stateless = { git = "https://github.com/paradigmxyz/reth", tag = "v1.5.1", 
 # misc
 itertools = { version = "0.14", default-features = false }
 nybbles = { version = "0.3.0", default-features = false }
+rayon = { version = "1.7", default-features = false }

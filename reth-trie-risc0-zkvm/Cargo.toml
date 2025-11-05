@@ -7,6 +7,7 @@ license.workspace = true
 [features]
 default = []
 std = []
+parallel = ["dep:rayon"]
 
 [dependencies]
 
@@ -28,6 +29,7 @@ revm = { workspace = true }
 itertools = { workspace = true }
 nybbles = { workspace = true }
 serde = { workspace = true }
+rayon = { workspace = true, optional = true }
 
 # Zeth trie. // git = "https://github.com/risc0/risc0-ethereum"
 # CAUTION: Do NOT use `rlp_serialize` as it performs *full* tree validation - we want to do it manually (almost two times faster).

@@ -38,4 +38,4 @@ serde = { workspace = true }
 serde_json = { workspace = true }
 
 # Reth Proofs.
-reth-proofs-core = { workspace = true }
+reth-proofs-core = { workspace = true, features = ["parallel"] }
