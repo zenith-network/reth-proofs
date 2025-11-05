@@ -127,7 +127,14 @@ pub async fn main() -> eyre::Result<()> {
               }
               (Some(proof), None) => proof,
             };
-            let cycles = executed_steps.unwrap_or(0); // TODO: This SHOULD be an error.
+            let cycles = match executed_steps {
+              Some(n) => n,
+              None => {
+                tracing::error!("Missing cycles count for proven block {}", block_number);
+                continue;
+              }
+            };
+            tracing::info!("Cycles for proving block {}: {}", block_number, cycles);
 
             // Stop the proving timer.
             let proving_duration = start_proving_time.elapsed();
