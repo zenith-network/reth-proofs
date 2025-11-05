@@ -93,9 +93,31 @@ pub fn guest_alt_handler(input_buffer: &[u8]) {
   let evm_config = reth_proofs_core::create_mainnet_evm_config_from(chainspec_arc.clone());
 
   // 3. Validate using `reth-stateless` crate.
+  // 3. Signers recovery.
+  // NOTE: Based on https://github.com/paradigmxyz/reth/blob/e3b38b2de5be10edf7c17e4e895ad1bd0a9b02f2/testing/ef-tests/src/cases/blockchain_test.rs#L427.
+  let public_keys = current_block
+    .body
+    .transactions()
+    .into_iter()
+    .enumerate()
+    .map(|(i, tx)| {
+      tx.signature()
+        .recover_from_prehash(&tx.signature_hash())
+        .map(|keys| {
+          reth_stateless::UncompressedPublicKey(
+            keys.to_encoded_point(false).as_bytes().try_into().unwrap(),
+          )
+        })
+        .map_err(|e| format!("failed to recover signature for tx #{i}: {e}"))
+    })
+    .collect::<Result<Vec<reth_stateless::UncompressedPublicKey>, _>>();
+  let public_keys = public_keys.unwrap();
+
+  // 4. Validate using `reth-stateless` crate.
   // reth_stateless::stateless_validation_with_trie::<reth_stateless::trie::StatelessSparseTrie, _, _>(current_block, witness, chainspec_arc, evm_config).unwrap();
   reth_stateless::stateless_validation_with_trie::<reth_trie_risc0_zkvm::Risc0ZkvmTrie, _, _>(
     current_block,
+    public_keys,
     witness,
     chainspec_arc,
     evm_config,

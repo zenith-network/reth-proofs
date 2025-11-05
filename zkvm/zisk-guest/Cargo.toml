@@ -20,6 +20,12 @@ reth-proofs-zkvm-common-guest = { path = "../../zkvm-common-guest", features = [
 # zkVM.
 ziskos = { git = "https://github.com/0xPolygonHermez/zisk.git", tag = "v0.13.0" }
 
+# revm
+revm = { version = "31.0.0", default-features = false, features = ["bn"] }
+
+# Custom KZG acceleration.
+kzg-rs = { git = "https://github.com/0xPolygonHermez/zisk-patch-kzg.git", tag = "patch-0.2.7-zisk-0.13.0" }
+
 [patch.crates-io]
 
 # ZisK precompiles - copied from https://github.com/0xPolygonHermez/zisk-eth-client/blob/12720e34d0fcd5c3f638b90628bd5a2f53fb1b53/bin/client/rsp/Cargo.toml.
@@ -27,7 +33,6 @@ sha2 = { git = "https://github.com/0xPolygonHermez/zisk-patch-hashes.git", tag =
 sha3 = { git = "https://github.com/0xPolygonHermez/zisk-patch-hashes.git", tag = "patch-sha3-0.10.8-zisk-0.13.0" }
 k256 = { git = "https://github.com/0xPolygonHermez/zisk-patch-elliptic-curves.git", tag = "patch-k256-0.13.4-zisk-0.13.0" }
 bn = { git = "https://github.com/0xPolygonHermez/zisk-patch-bn.git", tag = "patch-0.6.0-zisk-0.13.0", package = "substrate-bn" }
-kzg-rs = { git = "https://github.com/0xPolygonHermez/zisk-patch-kzg.git", tag = "patch-0.2.7-zisk-0.13.0" }
 sp1_bls12_381 = { git = "https://github.com/0xPolygonHermez/zisk-patch-bls12-381.git", tag = "patch-0.8.0-zisk-0.13.0" }
 ark-bls12-381 = { git = "https://github.com/0xPolygonHermez/zisk-patch-ark-algebra.git", tag = "patch-0.5.0-zisk-0.13.0" }
 ark-ec = { git = "https://github.com/0xPolygonHermez/zisk-patch-ark-algebra.git", tag = "patch-0.5.0-zisk-0.13.0" }

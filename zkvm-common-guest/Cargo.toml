@@ -8,7 +8,7 @@ license.workspace = true
 default = []
 zkvm-risc0 = ["alloy-primitives/tiny-keccak", "revm/c-kzg"]
 zkvm-sp1 = ["alloy-primitives/sha3-keccak", "revm/kzg-rs"]
-zkvm-zisk = ["alloy-primitives/sha3-keccak", "revm/kzg-rs"] # Tested and such configuration works best.
+zkvm-zisk = ["alloy-primitives/sha3-keccak"] # Tested and such configuration works best.
 
 [dependencies]
 # reth
