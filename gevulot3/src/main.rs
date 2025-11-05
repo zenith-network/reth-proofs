@@ -79,7 +79,7 @@ pub async fn main() -> eyre::Result<()> {
             let start_total_time = std::time::Instant::now();
 
             // Notify Ethproofs that we started processing.
-            //ethproofs_api.queued(block_number).await;
+            ethproofs_api.queued(block_number).await;
 
             // Prepare input.
             let zkvm_input = match prepare_input(block_number, &http_provider).await {
@@ -91,7 +91,7 @@ pub async fn main() -> eyre::Result<()> {
             };
 
             // Notify Ethproofs that we start proving.
-            //ethproofs_api.proving(block_number).await;
+            ethproofs_api.proving(block_number).await;
             let start_proving_time = std::time::Instant::now();
 
             // Submit proving job.
@@ -140,13 +140,15 @@ pub async fn main() -> eyre::Result<()> {
             let proving_duration = start_proving_time.elapsed();
 
             // Upload receipt to the Ethproofs endpoint.
-            //ethproofs_api.proved(
-            //  &proof_bytes,
-            //  block_number,
-            //  cycles,
-            //  proving_duration.as_secs_f32(),
-            //  &image_id_hex,
-            //).await;
+            let proof_bytes: Vec<u8> = proof_bytes.iter().flat_map(|&x| x.to_le_bytes()).collect();
+            let image_id_hex = "0000000000000000000000000000000000000000000000000000000000000000";
+            ethproofs_api.proved(
+             &proof_bytes,
+             block_number,
+             cycles,
+             proving_duration.as_secs_f32(),
+             &image_id_hex,
+            ).await;
 
             let duration_total_time = start_total_time.elapsed();
             tracing::info!(
