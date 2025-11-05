@@ -8,7 +8,8 @@ pub mod triedb;
 
 use k256::ecdsa::signature::hazmat::PrehashVerifier;
 
-// Required for `par_bridge()` on tx iterator.
+// Required for `par_bridge()` on tx iterator and bytecode list.
+use reth_trie_common::iter::IntoParallelRefIterator;
 use reth_trie_common::iter::ParallelBridge;
 use reth_trie_common::iter::ParallelIterator;
 
@@ -207,14 +208,25 @@ impl Bytecodes {
   pub fn build_map(
     codes_list: &alloc::vec::Vec<alloy_primitives::Bytes>,
   ) -> alloy_primitives::map::B256Map<revm::state::Bytecode> {
+    // Compute (hash, bytecode) pairs in parallel.
+    // NOTE: This part is also not `no_std`, but called on the host only. Consider moving to crate like core-host/preflight.
+    let pairs: alloc::vec::Vec<(alloy_primitives::B256, revm::state::Bytecode)> = codes_list
+      .par_iter()
+      .map(|encoded| {
+        let bytecode = revm::state::Bytecode::new_raw(encoded.clone());
+        let code_hash = bytecode.hash_slow();
+        (code_hash, bytecode)
+      })
+      .collect();
+
+    // Build final map in a single-threaded pass.
     let num_codes = codes_list.len();
     let mut bytecode_by_hash: alloy_primitives::map::B256Map<revm::state::Bytecode> =
       alloy_primitives::map::B256Map::with_capacity_and_hasher(num_codes, Default::default());
-    for encoded in codes_list {
-      let bytecode = revm::state::Bytecode::new_raw(encoded.clone());
-      let code_hash = bytecode.hash_slow();
+    for (code_hash, bytecode) in pairs {
       bytecode_by_hash.insert(code_hash, bytecode);
     }
+
     bytecode_by_hash
   }
 
