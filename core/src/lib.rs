@@ -207,8 +207,9 @@ impl Bytecodes {
   pub fn build_map(
     codes_list: &alloc::vec::Vec<alloy_primitives::Bytes>,
   ) -> alloy_primitives::map::B256Map<revm::state::Bytecode> {
+    let num_codes = codes_list.len();
     let mut bytecode_by_hash: alloy_primitives::map::B256Map<revm::state::Bytecode> =
-      alloy_primitives::map::B256Map::default();
+      alloy_primitives::map::B256Map::with_capacity_and_hasher(num_codes, Default::default());
     for encoded in codes_list {
       let bytecode = revm::state::Bytecode::new_raw(encoded.clone());
       let code_hash = bytecode.hash_slow();
