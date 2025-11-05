@@ -8,6 +8,10 @@ pub mod triedb;
 
 use k256::ecdsa::signature::hazmat::PrehashVerifier;
 
+// Required for `par_bridge()` on tx iterator.
+use reth_trie_common::iter::ParallelBridge;
+use reth_trie_common::iter::ParallelIterator;
+
 // It is used in the `BasicBlockExecutor` as "strategy factory", implementing `ConfigureEvm` trait.
 // Measured SP1 performance:
 // - no precompiles - 501M cycles (deserialization took 64M)
@@ -274,6 +278,7 @@ impl SignersHint {
     let signers = block
       .body
       .transactions()
+      .par_bridge() // Using parallel iteration to speed up recovery. NOTE: This is not `no_std`, but called on the host only. TODO: Move to crate like core-host/preflight.
       .map(|tx| {
         tx.signature()
           .recover_from_prehash(&tx.signature_hash())
