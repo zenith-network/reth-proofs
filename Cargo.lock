@@ -2726,8 +2726,8 @@ dependencies = [
 
 [[package]]
 name = "curves"
-version = "0.12.0"
-source = "git+https://github.com/0xPolygonHermez/pil2-proofman.git?branch=pre-develop-0.12.1#6db05c0999172eb4f82a6fe76dfea3b78bcb54b5"
+version = "0.13.0"
+source = "git+https://github.com/0xPolygonHermez/pil2-proofman.git?tag=v0.13.0#fa188f673af1c72de0b90fa47ef137d59f7d2f72"
 dependencies = [
  "fields",
  "num-bigint 0.4.6",
@@ -3527,8 +3527,8 @@ dependencies = [
 
 [[package]]
 name = "fields"
-version = "0.12.0"
-source = "git+https://github.com/0xPolygonHermez/pil2-proofman.git?branch=pre-develop-0.12.1#6db05c0999172eb4f82a6fe76dfea3b78bcb54b5"
+version = "0.13.0"
+source = "git+https://github.com/0xPolygonHermez/pil2-proofman.git?tag=v0.13.0#fa188f673af1c72de0b90fa47ef137d59f7d2f72"
 dependencies = [
  "num-bigint 0.4.6",
  "paste",
@@ -6086,8 +6086,8 @@ dependencies = [
 
 [[package]]
 name = "pil-std-lib"
-version = "0.12.0"
-source = "git+https://github.com/0xPolygonHermez/pil2-proofman.git?branch=pre-develop-0.12.1#6db05c0999172eb4f82a6fe76dfea3b78bcb54b5"
+version = "0.13.0"
+source = "git+https://github.com/0xPolygonHermez/pil2-proofman.git?tag=v0.13.0#fa188f673af1c72de0b90fa47ef137d59f7d2f72"
 dependencies = [
  "colored",
  "fields",
@@ -6341,8 +6341,8 @@ dependencies = [
 
 [[package]]
 name = "proofman"
-version = "0.12.0"
-source = "git+https://github.com/0xPolygonHermez/pil2-proofman.git?branch=pre-develop-0.12.1#6db05c0999172eb4f82a6fe76dfea3b78bcb54b5"
+version = "0.13.0"
+source = "git+https://github.com/0xPolygonHermez/pil2-proofman.git?tag=v0.13.0#fa188f673af1c72de0b90fa47ef137d59f7d2f72"
 dependencies = [
  "blake3",
  "borsh",
@@ -6374,14 +6374,16 @@ dependencies = [
 
 [[package]]
 name = "proofman-common"
-version = "0.12.0"
-source = "git+https://github.com/0xPolygonHermez/pil2-proofman.git?branch=pre-develop-0.12.1#6db05c0999172eb4f82a6fe76dfea3b78bcb54b5"
+version = "0.13.0"
+source = "git+https://github.com/0xPolygonHermez/pil2-proofman.git?tag=v0.13.0#fa188f673af1c72de0b90fa47ef137d59f7d2f72"
 dependencies = [
  "borsh",
+ "colored",
  "crossbeam-channel",
  "crossbeam-queue",
  "env",
  "fields",
+ "lazy_static",
  "libloading",
  "mpi",
  "num_cpus",
@@ -6395,12 +6397,13 @@ dependencies = [
  "tracing",
  "tracing-subscriber 0.3.19",
  "transcript",
+ "yansi",
 ]
 
 [[package]]
 name = "proofman-hints"
-version = "0.12.0"
-source = "git+https://github.com/0xPolygonHermez/pil2-proofman.git?branch=pre-develop-0.12.1#6db05c0999172eb4f82a6fe76dfea3b78bcb54b5"
+version = "0.13.0"
+source = "git+https://github.com/0xPolygonHermez/pil2-proofman.git?tag=v0.13.0#fa188f673af1c72de0b90fa47ef137d59f7d2f72"
 dependencies = [
  "fields",
  "proofman-common",
@@ -6411,8 +6414,8 @@ dependencies = [
 
 [[package]]
 name = "proofman-macros"
-version = "0.12.0"
-source = "git+https://github.com/0xPolygonHermez/pil2-proofman.git?branch=pre-develop-0.12.1#6db05c0999172eb4f82a6fe76dfea3b78bcb54b5"
+version = "0.13.0"
+source = "git+https://github.com/0xPolygonHermez/pil2-proofman.git?tag=v0.13.0#fa188f673af1c72de0b90fa47ef137d59f7d2f72"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -6422,8 +6425,8 @@ dependencies = [
 
 [[package]]
 name = "proofman-starks-lib-c"
-version = "0.12.0"
-source = "git+https://github.com/0xPolygonHermez/pil2-proofman.git?branch=pre-develop-0.12.1#6db05c0999172eb4f82a6fe76dfea3b78bcb54b5"
+version = "0.13.0"
+source = "git+https://github.com/0xPolygonHermez/pil2-proofman.git?tag=v0.13.0#fa188f673af1c72de0b90fa47ef137d59f7d2f72"
 dependencies = [
  "crossbeam-channel",
  "tracing",
@@ -6431,8 +6434,8 @@ dependencies = [
 
 [[package]]
 name = "proofman-util"
-version = "0.12.0"
-source = "git+https://github.com/0xPolygonHermez/pil2-proofman.git?branch=pre-develop-0.12.1#6db05c0999172eb4f82a6fe76dfea3b78bcb54b5"
+version = "0.13.0"
+source = "git+https://github.com/0xPolygonHermez/pil2-proofman.git?tag=v0.13.0#fa188f673af1c72de0b90fa47ef137d59f7d2f72"
 dependencies = [
  "colored",
  "fields",
@@ -6442,8 +6445,8 @@ dependencies = [
 
 [[package]]
 name = "proofman-verifier"
-version = "0.12.0"
-source = "git+https://github.com/0xPolygonHermez/pil2-proofman.git?branch=pre-develop-0.12.1#6db05c0999172eb4f82a6fe76dfea3b78bcb54b5"
+version = "0.13.0"
+source = "git+https://github.com/0xPolygonHermez/pil2-proofman.git?tag=v0.13.0#fa188f673af1c72de0b90fa47ef137d59f7d2f72"
 dependencies = [
  "bytemuck",
  "fields",
@@ -10500,8 +10503,8 @@ dependencies = [
 
 [[package]]
 name = "transcript"
-version = "0.12.0"
-source = "git+https://github.com/0xPolygonHermez/pil2-proofman.git?branch=pre-develop-0.12.1#6db05c0999172eb4f82a6fe76dfea3b78bcb54b5"
+version = "0.13.0"
+source = "git+https://github.com/0xPolygonHermez/pil2-proofman.git?tag=v0.13.0#fa188f673af1c72de0b90fa47ef137d59f7d2f72"
 dependencies = [
  "proofman-starks-lib-c",
 ]
@@ -11384,8 +11387,8 @@ dependencies = [
 
 [[package]]
 name = "witness"
-version = "0.12.0"
-source = "git+https://github.com/0xPolygonHermez/pil2-proofman.git?branch=pre-develop-0.12.1#6db05c0999172eb4f82a6fe76dfea3b78bcb54b5"
+version = "0.13.0"
+source = "git+https://github.com/0xPolygonHermez/pil2-proofman.git?tag=v0.13.0#fa188f673af1c72de0b90fa47ef137d59f7d2f72"
 dependencies = [
  "colored",
  "fields",
@@ -11600,12 +11603,13 @@ dependencies = [
 [[package]]
 name = "zisk-distributed-common"
 version = "0.1.0"
-source = "git+https://github.com/gevulotnetwork/zisk.git?branch=v0.12.1-koxu#e81f00b42d96d8b23c15f3c7313b00bd704bc90e"
+source = "git+https://github.com/gevulotnetwork/zisk.git?branch=v0.13.0-fc-koxu#3047e9a0b05bf09d8e08359ffc39cd42c27bf68c"
 dependencies = [
  "anyhow",
  "borsh",
  "chrono",
  "proofman",
+ "proofman-common",
  "serde",
  "serde_json",
  "thiserror 2.0.12",
@@ -11617,8 +11621,8 @@ dependencies = [
 
 [[package]]
 name = "zisk-distributed-grpc-api"
-version = "0.12.0"
-source = "git+https://github.com/gevulotnetwork/zisk.git?branch=v0.12.1-koxu#e81f00b42d96d8b23c15f3c7313b00bd704bc90e"
+version = "0.13.0"
+source = "git+https://github.com/gevulotnetwork/zisk.git?branch=v0.13.0-fc-koxu#3047e9a0b05bf09d8e08359ffc39cd42c27bf68c"
 dependencies = [
  "chrono",
  "prost 0.14.1",
