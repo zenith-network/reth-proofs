@@ -7,10 +7,10 @@ edition = "2024"
 [workspace]
 
 # TODO: Experiment with different values to find the most optimal settings.
-#[profile.release]
-#codegen-units = 1
-#debug = 1
-#lto = "fat"
+[profile.release]
+opt-level = 3
+lto = true
+panic = "abort"
 
 [dependencies]
 
