@@ -8,7 +8,7 @@ pub mod triedb;
 
 use k256::ecdsa::signature::hazmat::PrehashVerifier;
 
-// Required for `par_bridge()` on tx iterator and bytecode list.
+// Required for `par_iter()` on tx iterator and bytecode list.
 #[cfg(feature = "parallel")]
 use rayon::prelude::*;
 
@@ -301,8 +301,8 @@ impl SignersHint {
     #[cfg(feature = "parallel")]
     let signers = block
       .body
-      .transactions()
-      .par_bridge() // Using parallel iteration to speed up recovery. NOTE: This is not `no_std`, but called on the host only. TODO: Move to crate like core-host/preflight.
+      .transactions
+      .par_iter() // Using parallel iteration to speed up recovery. NOTE: This is not `no_std`, but called on the host only. TODO: Move to crate like core-host/preflight.
       .map(|tx| {
         tx.signature()
           .recover_from_prehash(&tx.signature_hash())
