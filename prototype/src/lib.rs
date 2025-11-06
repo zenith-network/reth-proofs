@@ -220,8 +220,28 @@ pub async fn execute_offline_block_with_reth_stateless(block_number: u64) {
   witness.keys.clear();
   let chain_spec = std::sync::Arc::new(reth_chainspec::MAINNET.as_ref().clone());
   let evm_config = reth_proofs_core::create_mainnet_evm_config();
+  let current_block = rpc_block_to_consensus_block(current_block);
+  // NOTE: Signer recovery based on https://github.com/paradigmxyz/reth/blob/e3b38b2de5be10edf7c17e4e895ad1bd0a9b02f2/testing/ef-tests/src/cases/blockchain_test.rs#L427.
+  let public_keys = current_block
+    .body
+    .transactions()
+    .into_iter()
+    .enumerate()
+    .map(|(i, tx)| {
+      tx.signature()
+        .recover_from_prehash(&tx.signature_hash())
+        .map(|keys| {
+          reth_stateless::UncompressedPublicKey(
+            keys.to_encoded_point(false).as_bytes().try_into().unwrap(),
+          )
+        })
+        .map_err(|e| format!("failed to recover signature for tx #{i}: {e}"))
+    })
+    .collect::<Result<Vec<reth_stateless::UncompressedPublicKey>, _>>();
+  let public_keys = public_keys.unwrap();
   reth_stateless::validation::stateless_validation(
-    current_block.into(),
+    current_block,
+    public_keys,
     witness,
     chain_spec,
     evm_config,
