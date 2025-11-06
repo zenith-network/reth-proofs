@@ -2836,7 +2836,9 @@ version = "0.1.0"
 dependencies = [
  "alloy-primitives",
  "bincode",
+ "reth-consensus",
  "reth-ethereum",
+ "reth-ethereum-consensus",
  "reth-proofs-core",
  "reth-stateless",
  "reth-trie-risc0-zkvm",

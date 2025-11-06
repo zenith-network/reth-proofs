@@ -1,5 +1,8 @@
 //#![no_std] <- TODO: Reenable after replacing bincode with rkyv.
 
+use reth_consensus::Consensus;
+use reth_consensus::HeaderValidator;
+
 extern crate alloc;
 
 pub fn guest_handler(input_buffer: &[u8]) {
@@ -18,7 +21,7 @@ pub fn guest_handler(input_buffer: &[u8]) {
   let evm_config = reth_proofs_core::create_mainnet_evm_config_from(chainspec_arc.clone());
 
   // 3. Sealing and validating all headers.
-  let block_hashes = ancestor_headers.seal_and_validate(&current_block);
+  let (block_hashes, last_sealed) = ancestor_headers.seal_and_validate(&current_block);
   let pre_state_root = ancestor_headers.headers.first().unwrap().state_root;
 
   // 4. Validating state trie.
@@ -50,6 +53,18 @@ pub fn guest_handler(input_buffer: &[u8]) {
   // 9. Recover block signatures.
   //let recovered_block = current_block.recover_senders(); // <- Fast in SP1, but terribly slow in R0.
   let recovered_block = current_block.recover_with_signers_hint(&signers_hint);
+
+  // 9.5. Extra header validation.
+  let consensus = reth_ethereum_consensus::EthBeaconConsensus::new(chainspec_arc.clone());
+  consensus
+    .validate_header(recovered_block.sealed_header())
+    .unwrap();
+  consensus
+    .validate_header_against_parent(recovered_block.sealed_header(), &last_sealed)
+    .unwrap();
+  consensus
+    .validate_block_pre_execution(&recovered_block)
+    .unwrap();
 
   // 10. Execute block.
   let output =

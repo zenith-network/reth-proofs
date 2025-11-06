@@ -79,6 +79,7 @@ revm = { version = "31.0.0",  default-features = false, features = ["serde"] }
 
 # reth
 reth-chainspec = { git = "https://github.com/paradigmxyz/reth", tag = "v1.9.0", default-features = false }
+reth-consensus = { git = "https://github.com/paradigmxyz/reth", tag = "v1.9.0", default-features = false }
 reth-ethereum = { git = "https://github.com/paradigmxyz/reth", tag = "v1.9.0", default-features = false, features = ["evm"] }
 reth-ethereum-consensus = { git = "https://github.com/paradigmxyz/reth", tag = "v1.9.0", default-features = false }
 reth-ethereum-primitives = { git = "https://github.com/paradigmxyz/reth", tag = "v1.9.0", default-features = false, features = ["serde", "serde-bincode-compat"] }

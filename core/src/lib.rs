@@ -96,11 +96,14 @@ impl AncestorHeaders {
   }
 
   /// Validates that headers (current block + ancestors) are connected correctly (parent-child relationship),
-  /// seals them (to get hash), and returns a map of block numbers to block hashes.
+  /// seals them (to get hash), and returns a (map of block numbers to block hashes, last sealed header).
   pub fn seal_and_validate(
     &self,
     current_block: &CurrentBlock,
-  ) -> alloy_primitives::map::HashMap<u64, reth_ethereum::evm::revm::primitives::FixedBytes<32>> {
+  ) -> (
+    alloy_primitives::map::HashMap<u64, reth_ethereum::evm::revm::primitives::FixedBytes<32>>,
+    reth_ethereum::primitives::SealedHeader,
+  ) {
     let mut block_hashes = alloy_primitives::map::HashMap::default();
     let mut sealed_prev: Option<reth_ethereum::primitives::SealedHeader> = None;
 
@@ -132,7 +135,10 @@ impl AncestorHeaders {
       sealed_prev = Some(sealed);
     }
 
-    block_hashes
+    // We need the last sealed block header - the parent of the current block - for consensus-validating current block header against it.
+    let last_sealed = sealed_prev.expect("at least one header - parent - should be sealed");
+
+    (block_hashes, last_sealed)
   }
 }
 

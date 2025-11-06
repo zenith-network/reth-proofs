@@ -25,5 +25,9 @@ bincode = { workspace = true }
 # alloy - extra features for all zkVMs.
 alloy-primitives = { workspace = true, features = ["map-foldhash", "k256"] }
 
+# reth
+reth-consensus = { workspace = true }
+reth-ethereum-consensus = { workspace = true }
+
 # revm - extra features for all zkVMs.
 revm = { workspace = true, default-features = false, features = ["bn"] }

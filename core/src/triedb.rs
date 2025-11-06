@@ -21,7 +21,7 @@ impl TrieDB {
     let block = crate::CurrentBlock {
       body: block.clone(),
     };
-    let block_hashes = ancestor_headers.seal_and_validate(&block);
+    let (block_hashes, _last_sealed) = ancestor_headers.seal_and_validate(&block);
     let pre_state_root = ancestor_headers.headers.first().unwrap().state_root;
 
     // Step 1-3: Build state trie and storage tries.
