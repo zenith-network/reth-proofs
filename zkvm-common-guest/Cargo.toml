@@ -6,9 +6,9 @@ license.workspace = true
 
 [features]
 default = []
-zkvm-risc0 = ["alloy-primitives/tiny-keccak", "revm/c-kzg"]
-zkvm-sp1 = ["alloy-primitives/sha3-keccak", "revm/kzg-rs"]
-zkvm-zisk = ["alloy-primitives/sha3-keccak"] # Tested and such configuration works best.
+zkvm-risc0 = ["alloy-primitives/tiny-keccak"] # CAUTION: "revm/c-kzg" is not supported since revm v30.
+zkvm-sp1 = ["alloy-primitives/sha3-keccak"] # CAUTION: "revm/kzg-rs" is not supported since revm v30.
+zkvm-zisk = ["alloy-primitives/sha3-keccak"] # NOTE: KZG support is added manually inside final guest.
 
 [dependencies]
 # reth
