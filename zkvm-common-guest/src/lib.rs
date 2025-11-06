@@ -107,7 +107,6 @@ pub fn guest_alt_handler(input_buffer: &[u8]) {
   let chainspec_arc = alloc::sync::Arc::new(chainspec);
   let evm_config = reth_proofs_core::create_mainnet_evm_config_from(chainspec_arc.clone());
 
-  // 3. Validate using `reth-stateless` crate.
   // 3. Signers recovery.
   // NOTE: Based on https://github.com/paradigmxyz/reth/blob/e3b38b2de5be10edf7c17e4e895ad1bd0a9b02f2/testing/ef-tests/src/cases/blockchain_test.rs#L427.
   let public_keys = current_block
