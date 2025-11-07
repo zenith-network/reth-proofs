@@ -3,6 +3,12 @@ use futures::StreamExt;
 mod cli;
 mod zisk;
 
+/// Job for the prove worker containing prepared block data.
+struct ProveJob {
+  block_number: u64,
+  zkvm_input: Vec<u8>,
+}
+
 #[tokio::main]
 pub async fn main() -> eyre::Result<()> {
   tracing::info!("Yo! Starting 'Gevulot Ethereum Prover' - recursive proving with Bento!");
@@ -58,23 +64,123 @@ pub async fn main() -> eyre::Result<()> {
       .expect("Failed to start ZisK webhook server");
   tracing::info!("ZisK webhook server started on port {}", zisk_webhook_port);
 
+  // Create prove queue.
+  let (prove_queue_tx, prove_queue_rx) =
+    async_channel::bounded::<ProveJob>(args.prove_queue_capacity);
+
+  // Token for graceful shutdown.
+  let stop_token = tokio_util::sync::CancellationToken::new();
+  let stop_token_clone = stop_token.clone();
+
+  // Spawn prove worker task.
+  let ethproofs_api_clone = ethproofs_api.clone();
+  let zisk_webhook_server_clone = zisk_webhook_server.clone();
+  let stop_token_worker = stop_token.clone();
+  let prove_queue_rx_worker = prove_queue_rx.clone();
+  let prove_worker_handle = tokio::task::spawn(async move {
+    tracing::info!("Prove worker started");
+    loop {
+      tokio::select! {
+        _ = stop_token_worker.cancelled() => {
+          tracing::info!("Prove worker stopping...");
+          break;
+        }
+        job_result = prove_queue_rx_worker.recv() => {
+          match job_result {
+            Ok(job) => {
+              let block_number = job.block_number;
+              tracing::info!("Prove worker processing block {}", block_number);
+
+              // Notify Ethproofs that we start proving.
+              ethproofs_api_clone.proving(block_number).await;
+              let start_proving_time = std::time::Instant::now();
+
+              // Submit proving job.
+              let input_file_name = format!("{block_number}.bin");
+              let job_id = match zisk::submit_proof_job(&zisk_coordinator_url, job.zkvm_input, &input_file_name, zisk_compute_units).await {
+                Ok(id) => id,
+                Err(e) => {
+                  tracing::error!("Failed to submit proof job for block {}: {}", block_number, e);
+                  continue;
+                }
+              };
+
+              // Register the job with the webhook server to receive the result.
+              let zisk_webhook_result_rx = zisk_webhook_server_clone.register_job(job_id.clone()).await;
+
+              // Wait for proving result.
+              let proving_result = match zisk_webhook_result_rx.await {
+                Ok(payload) => payload,
+                Err(_e) => {
+                  tracing::error!("Unable to receive webhook result - channel closed?");
+                  continue;
+                }
+              };
+              let zisk::WebhookPayload { proof: maybe_proof, error: maybe_error, duration_ms: _, executed_steps, .. } = proving_result;
+              let proof_bytes = match (maybe_proof, maybe_error) {
+                (_, Some(error)) => {
+                  tracing::error!("Failed to prove block {}: {:?}", block_number, error);
+                  continue;
+                }
+                (None, None) => {
+                  tracing::error!("Empty proof for block {}", block_number);
+                  continue;
+                }
+                (Some(proof), None) => proof,
+              };
+              let cycles = match executed_steps {
+                Some(n) => n,
+                None => {
+                  tracing::error!("Missing cycles count for proven block {}", block_number);
+                  continue;
+                }
+              };
+              tracing::info!("Cycles for proving block {}: {}", block_number, cycles);
+
+              // Stop the proving timer.
+              let proving_duration = start_proving_time.elapsed();
+
+              // Upload receipt to the Ethproofs endpoint.
+              let proof_bytes: Vec<u8> = proof_bytes.iter().flat_map(|&x| x.to_le_bytes()).collect();
+              let image_id_hex = "0000000000000000000000000000000000000000000000000000000000000000";
+              ethproofs_api_clone.proved(
+                &proof_bytes,
+                block_number,
+                cycles,
+                proving_duration.as_secs_f32(),
+                &image_id_hex,
+              ).await;
+
+              tracing::info!("Block {} proven and uploaded (proving time: {:.2}s)", block_number, proving_duration.as_secs_f32());
+            }
+            Err(_) => {
+              tracing::info!("Prove queue closed");
+              break;
+            }
+          }
+        }
+      }
+    }
+    tracing::info!("Prove worker stopped");
+  });
+
   // Listen to the notifications about new blocks (WebSocket).
   loop {
     tokio::select! {
-      // _ = tokio::signal::ctrl_c() => {
-      //   println!("Ctrl-C received, cancelling main loop...");
-      //   break;
-      // },
+      _ = tokio::signal::ctrl_c() => {
+        tracing::info!("Ctrl-C received, cancelling main loop...");
+        break;
+      },
       block_number = stream.next() => {
         match block_number {
           Some(block_number) => {
             tracing::debug!("New block {} reported by WS provider", block_number);
 
             // Simple coordination logic.
-            if block_number % 100 != 0 {
+            /*if block_number % 2 != 0 {
               tracing::debug!("Skipping block {} - not our target", block_number);
               continue;
-            }
+            }*/
             tracing::info!("Processing block {}", block_number);
             let start_total_time = std::time::Instant::now();
 
@@ -90,69 +196,36 @@ pub async fn main() -> eyre::Result<()> {
               }
             };
 
-            // Notify Ethproofs that we start proving.
-            ethproofs_api.proving(block_number).await;
-            let start_proving_time = std::time::Instant::now();
+            // If skip_pending_blocks is enabled, drain all pending jobs from the queue.
+            if args.skip_pending_blocks {
+              let mut skipped_count = 0;
+              while let Ok(old_job) = prove_queue_rx.try_recv() {
+                tracing::info!("Skipping pending block {} (replaced by newer block)", old_job.block_number);
+                skipped_count += 1;
+              }
+              if skipped_count > 0 {
+                tracing::info!("Skipped {} pending block(s) to prioritize latest block {}", skipped_count, block_number);
+              }
+            }
 
-            // Submit proving job.
-            let input_file_name = format!("{block_number}.bin");
-            let job_id = match zisk::submit_proof_job(&zisk_coordinator_url, zkvm_input, &input_file_name, zisk_compute_units).await {
-              Ok(id) => id,
+            // Create prove job and send to queue.
+            let prove_job = ProveJob {
+              block_number,
+              zkvm_input,
+            };
+
+            match prove_queue_tx.send(prove_job).await {
+              Ok(_) => {
+                tracing::info!("Block {} prepared and queued for proving", block_number);
+              }
               Err(e) => {
-                tracing::error!("Failed to submit proof job for block {}: {}", block_number, e);
-                continue;
+                tracing::error!("Failed to send block {} to prove queue: {}", block_number, e);
               }
-            };
-
-            // Register the job with the webhook server to receive the result.
-            let zisk_webhook_result_rx = zisk_webhook_server.register_job(job_id.clone()).await;
-
-            // Wait for proving result.
-            let proving_result = match zisk_webhook_result_rx.await {
-              Ok(payload) => payload,
-              Err(_e) => {
-                tracing::error!("Unable to receive webhook result - channel closed?");
-                continue;
-              }
-            };
-            let zisk::WebhookPayload { proof: maybe_proof, error: maybe_error, duration_ms, executed_steps, .. } = proving_result;
-            let proof_bytes = match (maybe_proof, maybe_error) {
-              (_, Some(error)) => {
-                tracing::error!("Failed to prove block {}: {:?}", block_number, error);
-                continue;
-              }
-              (None, None) => {
-                tracing::error!("Empty proof for block {}", block_number);
-                continue;
-              }
-              (Some(proof), None) => proof,
-            };
-            let cycles = match executed_steps {
-              Some(n) => n,
-              None => {
-                tracing::error!("Missing cycles count for proven block {}", block_number);
-                continue;
-              }
-            };
-            tracing::info!("Cycles for proving block {}: {}", block_number, cycles);
-
-            // Stop the proving timer.
-            let proving_duration = start_proving_time.elapsed();
-
-            // Upload receipt to the Ethproofs endpoint.
-            let proof_bytes: Vec<u8> = proof_bytes.iter().flat_map(|&x| x.to_le_bytes()).collect();
-            let image_id_hex = "0000000000000000000000000000000000000000000000000000000000000000";
-            ethproofs_api.proved(
-             &proof_bytes,
-             block_number,
-             cycles,
-             proving_duration.as_secs_f32(),
-             &image_id_hex,
-            ).await;
+            }
 
             let duration_total_time = start_total_time.elapsed();
-            tracing::info!(
-              "Total time for block {}: {:.2} seconds",
+            tracing::debug!(
+              "Block {} prepared in {:.2} seconds",
               block_number,
               duration_total_time.as_secs_f64()
             );
@@ -166,10 +239,21 @@ pub async fn main() -> eyre::Result<()> {
     }
   }
 
+  // Signal workers to stop.
+  tracing::info!("Signaling workers to stop...");
+  stop_token_clone.cancel();
+
+  // Close the prove queue to signal the worker.
+  drop(prove_queue_tx);
+
+  // Wait for prove worker to finish (with timeout).
+  let _ = tokio::time::timeout(std::time::Duration::from_secs(30), prove_worker_handle).await;
+
   // Shutdown the webhook server.
   tracing::info!("Shutting down webhook server");
   zisk_webhook_server_handle.abort();
 
+  tracing::info!("Shutdown complete");
   Ok(())
 }
 

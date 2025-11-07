@@ -7408,6 +7408,7 @@ version = "0.1.0"
 dependencies = [
  "alloy-provider",
  "anyhow",
+ "async-channel",
  "axum 0.8.4",
  "bincode",
  "clap",
@@ -7420,6 +7421,7 @@ dependencies = [
  "serde",
  "serde_json",
  "tokio",
+ "tokio-util",
  "tonic",
  "tracing",
  "tracing-subscriber 0.3.19",

@@ -46,4 +46,13 @@ pub struct RunArgs {
   /// ZisK webhook port - on this port we will be waiting for proving callback request.
   #[clap(long, env)]
   pub zisk_webhook_port: u16,
+
+  /// Skip pending blocks in prove queue - when enabled, only the latest block is kept.
+  /// If a new block is prepared while proving is in progress, pending blocks are discarded.
+  #[clap(long, env, default_value = "true")]
+  pub skip_pending_blocks: bool,
+
+  /// Prove queue capacity - maximum number of blocks that can be queued for proving.
+  #[clap(long, env, default_value = "3")]
+  pub prove_queue_capacity: usize,
 }
