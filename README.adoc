@@ -2,13 +2,6 @@
 
 == Usage
 
-Firstly generate SP1 "proving bundle":
-
-[source,shell]
-----
-cargo run -p reth-proofs-gevulot generate-pk --output-path pk.bin
-----
-
 == Proving Single Block
 
 . Prepare block input:

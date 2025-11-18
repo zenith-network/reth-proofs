@@ -1,5 +1,4 @@
-// NOTE: In the past we supported RSP trie, but decided to remove it as Risc0 implementation is much better.
-//pub use reth_trie_sp1_zkvm::SP1ZkvmTrie as EthereumState;
+// NOTE: Risc0's trie implementation is much better than RSP one.
 pub use reth_trie_risc0_zkvm::Risc0ZkvmTrie as EthereumState;
 
 #[derive(Debug)]

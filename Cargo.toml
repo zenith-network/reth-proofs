@@ -2,12 +2,9 @@
 members = [
   "core",
   "ethproofs",
-  "gevulot",
   "gevulot2",
   "gevulot3",
   "zkvm/risc0-host",
-  "zkvm/sp1-host",
-  "zkvm/sp1-alt-host",
   "zkvm-common-guest",
   "zkvm-common-host",
   "prototype",
@@ -44,12 +41,6 @@ bincode = { version = "1.3.3", default-features = false }
 serde = { version = "=1.0.226", default-features = false }
 serde_json = { version = "1.0.140", default-features = false }
 serde_with = { version = "3.13.0", default-features = false }
-
-# zkVM.
-sp1-cuda = { version = "=5.2.1", default-features = false }
-sp1-sdk = { version = "=5.2.1", default-features = false, features = ["profiling"] }
-sp1-build = { version = "=5.2.1", default-features = false }
-sp1-zkvm = { version = "=5.2.1", default-features = false, features = ["lib"] }
 
 # zkVM.
 risc0-zkvm = { version = "3.0.3", default-features = false, features = ["unstable"] }

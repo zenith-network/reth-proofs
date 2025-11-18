@@ -51,7 +51,6 @@ pub fn guest_handler(input_buffer: &[u8]) {
     reth_ethereum::evm::primitives::execute::BasicBlockExecutor::new(&evm_config, db);
 
   // 9. Recover block signatures.
-  //let recovered_block = current_block.recover_senders(); // <- Fast in SP1, but terribly slow in R0.
   let recovered_block = current_block.recover_with_signers_hint(&signers_hint);
 
   // 9.5. Extra header validation.

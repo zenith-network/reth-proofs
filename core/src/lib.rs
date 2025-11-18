@@ -13,20 +13,12 @@ use k256::ecdsa::signature::hazmat::PrehashVerifier;
 use rayon::prelude::*;
 
 // It is used in the `BasicBlockExecutor` as "strategy factory", implementing `ConfigureEvm` trait.
-// Measured SP1 performance:
-// - no precompiles - 501M cycles (deserialization took 64M)
-// - enabled `tiny-keccak` feature in `alloy_primitives` + added `tiny-keccak` precompile - 501M cycles (deserialization took 64M)
-// - enabled `sha3-keccak` feature in `alloy_primitives` + added `sha3` precompile - 136M cycles (deserialization took 64M)
-// - enabled `sha3-keccak` feature in alloy_primitives + no precompiles - 501M cycles (deserialization took 64M)
-//
 // TIP: In zkVM use more efficient `create_mainnet_evm_config_from` with a bare-minimum chainspec.
 pub fn create_mainnet_evm_config() -> reth_ethereum::evm::EthEvmConfig {
   reth_ethereum::evm::EthEvmConfig::mainnet()
 }
 
 /// Creates an Ethereum mainnet EVM config from the given chainspec.
-/// Measured SP1 performance:
-/// - <1K cycles
 pub fn create_mainnet_evm_config_from(
   chainspec: alloc::sync::Arc<reth_chainspec::ChainSpec>,
 ) -> reth_ethereum::evm::EthEvmConfig {
@@ -34,9 +26,6 @@ pub fn create_mainnet_evm_config_from(
 }
 
 /// Creates an Ethereum mainnet chainspec.
-/// Measured SP1 performance:
-/// - 32K cycles (hardfork creation took 21K cycles, could be optimized)
-///
 /// NOTE: Chainspec is not serializable; genesis is.
 ///
 /// NOTE: We are using chainspec from RSP, which is NOT a 100% Ethereum chainspec.
