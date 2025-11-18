@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use tokio::sync::{Mutex, oneshot};
 use tonic::transport::Channel;
 use tracing::{error, info, warn};
-use zisk_distributed_grpc_api::LaunchProofRequest;
+use zisk_distributed_grpc_api::{InputMode, LaunchProofRequest};
 use zisk_distributed_grpc_api::zisk_distributed_api_client::ZiskDistributedApiClient;
 
 /// Webhook payload received from the coordinator when a job completes.
@@ -72,8 +72,7 @@ async fn webhook_handler(
 /// Submits a proof job to the coordinator.
 pub async fn submit_proof_job(
   coordinator_url: &str,
-  input_data: Vec<u8>,
-  input_file_name: &str,
+  input_file_path: &str,
   compute_capacity: u32,
 ) -> Result<String> {
   info!("Connecting to coordinator at {}", coordinator_url);
@@ -91,12 +90,13 @@ pub async fn submit_proof_job(
     .max_encoding_message_size(max_message_size);
 
   // Create launch proof request.
+  let data_id = uuid::Uuid::new_v4().to_string();
   let request = LaunchProofRequest {
-    block_id: "example-block-001".to_string(),
     compute_capacity,
-    input_path: input_file_name.to_string(), // Kept for reference only.
+    data_id,
+    input_mode: InputMode::Data.into(),
+    input_path: Some(input_file_path.to_string()), // CAUTION: File must be availiable locally on coordinator machine. 
     simulated_node: None,
-    input_data,
   };
 
   info!(

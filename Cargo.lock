@@ -2135,8 +2135,8 @@ dependencies = [
 
 [[package]]
 name = "curves"
-version = "0.13.0"
-source = "git+https://github.com/0xPolygonHermez/pil2-proofman.git?tag=v0.13.0#fa188f673af1c72de0b90fa47ef137d59f7d2f72"
+version = "0.14.0"
+source = "git+https://github.com/0xPolygonHermez/pil2-proofman.git?branch=pre-develop-0.14.0#368ead9fc48788353ccdf062da402f3287c4a9d6"
 dependencies = [
  "fields",
  "num-bigint 0.4.6",
@@ -2784,8 +2784,8 @@ dependencies = [
 
 [[package]]
 name = "fields"
-version = "0.13.0"
-source = "git+https://github.com/0xPolygonHermez/pil2-proofman.git?tag=v0.13.0#fa188f673af1c72de0b90fa47ef137d59f7d2f72"
+version = "0.14.0"
+source = "git+https://github.com/0xPolygonHermez/pil2-proofman.git?branch=pre-develop-0.14.0#368ead9fc48788353ccdf062da402f3287c4a9d6"
 dependencies = [
  "num-bigint 0.4.6",
  "paste",
@@ -4765,8 +4765,8 @@ dependencies = [
 
 [[package]]
 name = "pil-std-lib"
-version = "0.13.0"
-source = "git+https://github.com/0xPolygonHermez/pil2-proofman.git?tag=v0.13.0#fa188f673af1c72de0b90fa47ef137d59f7d2f72"
+version = "0.14.0"
+source = "git+https://github.com/0xPolygonHermez/pil2-proofman.git?branch=pre-develop-0.14.0#368ead9fc48788353ccdf062da402f3287c4a9d6"
 dependencies = [
  "colored",
  "fields",
@@ -5004,12 +5004,13 @@ dependencies = [
 
 [[package]]
 name = "proofman"
-version = "0.13.0"
-source = "git+https://github.com/0xPolygonHermez/pil2-proofman.git?tag=v0.13.0#fa188f673af1c72de0b90fa47ef137d59f7d2f72"
+version = "0.14.0"
+source = "git+https://github.com/0xPolygonHermez/pil2-proofman.git?branch=pre-develop-0.14.0#368ead9fc48788353ccdf062da402f3287c4a9d6"
 dependencies = [
  "blake3",
  "borsh",
  "bytemuck",
+ "chrono",
  "colored",
  "crossbeam-channel",
  "csv",
@@ -5030,6 +5031,8 @@ dependencies = [
  "rayon",
  "serde",
  "serde_json",
+ "tokio",
+ "tokio-util",
  "tracing",
  "transcript",
  "witness",
@@ -5037,13 +5040,14 @@ dependencies = [
 
 [[package]]
 name = "proofman-common"
-version = "0.13.0"
-source = "git+https://github.com/0xPolygonHermez/pil2-proofman.git?tag=v0.13.0#fa188f673af1c72de0b90fa47ef137d59f7d2f72"
+version = "0.14.0"
+source = "git+https://github.com/0xPolygonHermez/pil2-proofman.git?branch=pre-develop-0.14.0#368ead9fc48788353ccdf062da402f3287c4a9d6"
 dependencies = [
  "borsh",
  "colored",
  "crossbeam-channel",
  "crossbeam-queue",
+ "csv",
  "env",
  "fields",
  "lazy_static",
@@ -5057,6 +5061,7 @@ dependencies = [
  "serde",
  "serde_json",
  "sysinfo",
+ "thiserror 2.0.12",
  "tracing",
  "tracing-subscriber 0.3.19",
  "transcript",
@@ -5065,8 +5070,8 @@ dependencies = [
 
 [[package]]
 name = "proofman-hints"
-version = "0.13.0"
-source = "git+https://github.com/0xPolygonHermez/pil2-proofman.git?tag=v0.13.0#fa188f673af1c72de0b90fa47ef137d59f7d2f72"
+version = "0.14.0"
+source = "git+https://github.com/0xPolygonHermez/pil2-proofman.git?branch=pre-develop-0.14.0#368ead9fc48788353ccdf062da402f3287c4a9d6"
 dependencies = [
  "fields",
  "proofman-common",
@@ -5077,8 +5082,8 @@ dependencies = [
 
 [[package]]
 name = "proofman-macros"
-version = "0.13.0"
-source = "git+https://github.com/0xPolygonHermez/pil2-proofman.git?tag=v0.13.0#fa188f673af1c72de0b90fa47ef137d59f7d2f72"
+version = "0.14.0"
+source = "git+https://github.com/0xPolygonHermez/pil2-proofman.git?branch=pre-develop-0.14.0#368ead9fc48788353ccdf062da402f3287c4a9d6"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -5088,8 +5093,8 @@ dependencies = [
 
 [[package]]
 name = "proofman-starks-lib-c"
-version = "0.13.0"
-source = "git+https://github.com/0xPolygonHermez/pil2-proofman.git?tag=v0.13.0#fa188f673af1c72de0b90fa47ef137d59f7d2f72"
+version = "0.14.0"
+source = "git+https://github.com/0xPolygonHermez/pil2-proofman.git?branch=pre-develop-0.14.0#368ead9fc48788353ccdf062da402f3287c4a9d6"
 dependencies = [
  "crossbeam-channel",
  "tracing",
@@ -5097,8 +5102,8 @@ dependencies = [
 
 [[package]]
 name = "proofman-util"
-version = "0.13.0"
-source = "git+https://github.com/0xPolygonHermez/pil2-proofman.git?tag=v0.13.0#fa188f673af1c72de0b90fa47ef137d59f7d2f72"
+version = "0.14.0"
+source = "git+https://github.com/0xPolygonHermez/pil2-proofman.git?branch=pre-develop-0.14.0#368ead9fc48788353ccdf062da402f3287c4a9d6"
 dependencies = [
  "colored",
  "fields",
@@ -5108,8 +5113,8 @@ dependencies = [
 
 [[package]]
 name = "proofman-verifier"
-version = "0.13.0"
-source = "git+https://github.com/0xPolygonHermez/pil2-proofman.git?tag=v0.13.0#fa188f673af1c72de0b90fa47ef137d59f7d2f72"
+version = "0.14.0"
+source = "git+https://github.com/0xPolygonHermez/pil2-proofman.git?branch=pre-develop-0.14.0#368ead9fc48788353ccdf062da402f3287c4a9d6"
 dependencies = [
  "bytemuck",
  "fields",
@@ -7980,6 +7985,7 @@ dependencies = [
  "io-uring",
  "libc",
  "mio",
+ "parking_lot 0.12.4",
  "pin-project-lite",
  "signal-hook-registry",
  "slab",
@@ -8316,8 +8322,8 @@ dependencies = [
 
 [[package]]
 name = "transcript"
-version = "0.13.0"
-source = "git+https://github.com/0xPolygonHermez/pil2-proofman.git?tag=v0.13.0#fa188f673af1c72de0b90fa47ef137d59f7d2f72"
+version = "0.14.0"
+source = "git+https://github.com/0xPolygonHermez/pil2-proofman.git?branch=pre-develop-0.14.0#368ead9fc48788353ccdf062da402f3287c4a9d6"
 dependencies = [
  "proofman-starks-lib-c",
 ]
@@ -9069,8 +9075,8 @@ dependencies = [
 
 [[package]]
 name = "witness"
-version = "0.13.0"
-source = "git+https://github.com/0xPolygonHermez/pil2-proofman.git?tag=v0.13.0#fa188f673af1c72de0b90fa47ef137d59f7d2f72"
+version = "0.14.0"
+source = "git+https://github.com/0xPolygonHermez/pil2-proofman.git?branch=pre-develop-0.14.0#368ead9fc48788353ccdf062da402f3287c4a9d6"
 dependencies = [
  "colored",
  "fields",
@@ -9279,7 +9285,7 @@ dependencies = [
 [[package]]
 name = "zisk-distributed-common"
 version = "0.1.0"
-source = "git+https://github.com/gevulotnetwork/zisk.git?branch=v0.13.0-fc-koxu#3047e9a0b05bf09d8e08359ffc39cd42c27bf68c"
+source = "git+https://github.com/0xPolygonHermez/zisk.git?branch=pre-develop-0.14.0#7bfb2fbb8e3bb888a9dce5509f5f5bf75bf79d79"
 dependencies = [
  "anyhow",
  "borsh",
@@ -9297,9 +9303,10 @@ dependencies = [
 
 [[package]]
 name = "zisk-distributed-grpc-api"
-version = "0.13.0"
-source = "git+https://github.com/gevulotnetwork/zisk.git?branch=v0.13.0-fc-koxu#3047e9a0b05bf09d8e08359ffc39cd42c27bf68c"
+version = "0.14.0"
+source = "git+https://github.com/0xPolygonHermez/zisk.git?branch=pre-develop-0.14.0#7bfb2fbb8e3bb888a9dce5509f5f5bf75bf79d79"
 dependencies = [
+ "anyhow",
  "chrono",
  "prost 0.14.1",
  "prost-types 0.14.1",

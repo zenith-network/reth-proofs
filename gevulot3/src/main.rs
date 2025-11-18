@@ -95,9 +95,23 @@ pub async fn main() -> eyre::Result<()> {
               ethproofs_api_clone.proving(block_number).await;
               let start_proving_time = std::time::Instant::now();
 
+              // Store input in the local file.
+              // CAUTION: This requires ZisK coordinator to be running
+              // on the same machine as reth-proofs, but that is how ZisK's
+              // direct input works.
+              let input_file_path = format!("/tmp/{block_number}.bin");
+              match std::fs::write(&input_file_path, &job.zkvm_input) {
+                Ok(_) => {
+                  tracing::info!("zkVM input for block {} written to {}", block_number, input_file_path);
+                }
+                Err(e) => {
+                  tracing::error!("Failed to write zkVM input for block {}: {}", block_number, e);
+                  continue;
+                }
+              };
+
               // Submit proving job.
-              let input_file_name = format!("{block_number}.bin");
-              let job_id = match zisk::submit_proof_job(&zisk_coordinator_url, job.zkvm_input, &input_file_name, zisk_compute_units).await {
+              let job_id = match zisk::submit_proof_job(&zisk_coordinator_url, &input_file_path, zisk_compute_units).await {
                 Ok(id) => id,
                 Err(e) => {
                   tracing::error!("Failed to submit proof job for block {}: {}", block_number, e);
