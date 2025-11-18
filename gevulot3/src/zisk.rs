@@ -7,8 +7,8 @@ use serde::{Deserialize, Serialize};
 use tokio::sync::{Mutex, oneshot};
 use tonic::transport::Channel;
 use tracing::{error, info, warn};
-use zisk_distributed_grpc_api::{InputMode, LaunchProofRequest};
 use zisk_distributed_grpc_api::zisk_distributed_api_client::ZiskDistributedApiClient;
+use zisk_distributed_grpc_api::{InputMode, LaunchProofRequest};
 
 /// Webhook payload received from the coordinator when a job completes.
 /// See `WebhookPayloadDto`:
@@ -95,7 +95,7 @@ pub async fn submit_proof_job(
     compute_capacity,
     data_id,
     input_mode: InputMode::Data.into(),
-    input_path: Some(input_file_path.to_string()), // CAUTION: File must be availiable locally on coordinator machine. 
+    input_path: Some(input_file_path.to_string()), // CAUTION: File must be availiable locally on coordinator machine.
     simulated_node: None,
   };
 
