@@ -42,6 +42,9 @@ serde_json = { workspace = true }
 # URL parsing.
 url = { version = "2.5.4", default-features = false }
 
+# UUID.
+uuid = { version = "1.18.1", default-features = false }
+
 # ZisK coordination.
 anyhow = { version = "1.0.100", default-features = false }
 axum = { version = "0.8.4", default-features = false, features = ["json", "tokio", "http1"] }
