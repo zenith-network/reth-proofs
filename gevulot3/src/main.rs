@@ -210,6 +210,12 @@ pub async fn main() -> eyre::Result<()> {
               }
             };
 
+            // Create prove job.
+            let prove_job = ProveJob {
+              block_number,
+              zkvm_input,
+            };
+
             // If skip_pending_blocks is enabled, drain all pending jobs from the queue.
             if args.skip_pending_blocks {
               let mut skipped_count = 0;
@@ -220,20 +226,44 @@ pub async fn main() -> eyre::Result<()> {
               if skipped_count > 0 {
                 tracing::info!("Skipped {} pending block(s) to prioritize latest block {}", skipped_count, block_number);
               }
-            }
-
-            // Create prove job and send to queue.
-            let prove_job = ProveJob {
-              block_number,
-              zkvm_input,
-            };
-
-            match prove_queue_tx.send(prove_job).await {
-              Ok(_) => {
-                tracing::info!("Block {} prepared and queued for proving", block_number);
+              // Send to queue (should always succeed since we drained it).
+              match prove_queue_tx.send(prove_job).await {
+                Ok(_) => {
+                  tracing::info!("Block {} prepared and queued for proving", block_number);
+                }
+                Err(e) => {
+                  tracing::error!("Failed to send block {} to prove queue: {}", block_number, e);
+                }
               }
-              Err(e) => {
-                tracing::error!("Failed to send block {} to prove queue: {}", block_number, e);
+            } else {
+              // When skip_pending_blocks is disabled, try to send without blocking.
+              // If queue is full, drain it to catch up with latest blocks.
+              match prove_queue_tx.try_send(prove_job) {
+                Ok(_) => {
+                  tracing::info!("Block {} prepared and queued for proving", block_number);
+                }
+                Err(async_channel::TrySendError::Full(prove_job)) => {
+                  tracing::warn!("Prove queue is full, dropping all pending blocks to catch up");
+                  let mut dropped_count = 0;
+                  while let Ok(old_job) = prove_queue_rx.try_recv() {
+                    tracing::info!("Dropping pending block {} (queue overflow)", old_job.block_number);
+                    dropped_count += 1;
+                  }
+                  tracing::warn!("Dropped {} pending block(s) due to queue overflow", dropped_count);
+
+                  // Now send the new job (should succeed since we drained the queue).
+                  match prove_queue_tx.send(prove_job).await {
+                    Ok(_) => {
+                      tracing::info!("Block {} prepared and queued for proving after queue drain", block_number);
+                    }
+                    Err(e) => {
+                      tracing::error!("Failed to send block {} to prove queue after drain: {}", block_number, e);
+                    }
+                  }
+                }
+                Err(async_channel::TrySendError::Closed(_)) => {
+                  tracing::error!("Prove queue is closed, cannot send block {}", block_number);
+                }
               }
             }
 
