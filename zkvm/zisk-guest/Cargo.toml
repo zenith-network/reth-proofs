@@ -21,7 +21,7 @@ reth-proofs-zkvm-common-guest = { path = "../../zkvm-common-guest", features = [
 ziskos = { git = "https://github.com/0xPolygonHermez/zisk.git", tag = "v0.13.0" }
 
 # revm
-revm = { version = "31.0.0", default-features = false, features = ["bn"] }
+revm = { version = "31.0.2", default-features = false, features = ["bn"] }
 
 # Custom KZG acceleration.
 kzg-rs = { git = "https://github.com/0xPolygonHermez/zisk-patch-kzg.git", tag = "patch-0.2.7-zisk-0.13.0" }
