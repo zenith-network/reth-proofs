@@ -49,7 +49,7 @@ pub struct RunArgs {
 
   /// Skip pending blocks in prove queue - when enabled, only the latest block is kept.
   /// If a new block is prepared while proving is in progress, pending blocks are discarded.
-  #[clap(long, env, default_value = "true")]
+  #[clap(long, env, default_value = "false")]
   pub skip_pending_blocks: bool,
 
   /// Prove queue capacity - maximum number of blocks that can be queued for proving.
