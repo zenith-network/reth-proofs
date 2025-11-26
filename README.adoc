@@ -12,8 +12,8 @@ Guest logic is **zkVM agnostic** - see `./zkvm/zkvm-common-guest` - and tiny wra
 
 Code is inspired by those three:
 
-- SuccintLab's [RSP](https://github.com/succinctlabs/rsp)
-- Risc0's [zeth](https://github.com/boundless-xyz/zeth) - before the whole codebase was destroyed in https://github.com/boundless-xyz/zeth/pull/170[#170].
+- SuccintLab's https://github.com/succinctlabs/rsp[RSP]
+- Risc0's https://github.com/boundless-xyz/zeth[Zeth] - before the whole codebase was destroyed in https://github.com/boundless-xyz/zeth/pull/170[#170].
 - Paradigm's https://reth.rs/docs/reth_stateless/index.html[reth-stateless]
 
 Even though most people use RSP, I believe it can become obsolete when `reth-stateless` made few improvements like building tries outside guest.
@@ -35,7 +35,7 @@ We need to build two parts:
 
 === Building Guest
 
-IMPORTANT: In order to compile guest, you need ZisK [binaries](https://github.com/zenith-network/zisk-container).
+IMPORTANT: In order to compile guest, you need ZisK https://github.com/zenith-network/zisk-container[binaries].
 
 [source,sh]
 ----
