@@ -106,7 +106,7 @@ TIP: By default each ZisK worker is 10 compute units. If you want to use 12 mach
 [source,sh]
 ----
 ./reth-proofs-gevulot3 run
-```
+----
 +
 TIP: Use the same directory where `.env` file is located.
 +
