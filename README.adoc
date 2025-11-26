@@ -1,5 +1,7 @@
 = Reth Proofs - Ethereum Prover with Ethproofs Integration
 
+CAUTION: Code is experimental, and not audited.
+
 Yet another Ethereum block prover, created for **Gevulot**. Currently focused on **ZisK** zkVM and its distributed proving.
 
 == Overview
