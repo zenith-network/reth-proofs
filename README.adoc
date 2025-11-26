@@ -1,38 +1,113 @@
 = Reth Proofs - Ethereum Prover with Ethproofs Integration
 
+Yet another Ethereum block prover, created for **Gevulot**. Currently focused on **ZisK** zkVM and its distributed proving.
+
+== Overview
+
+=== Guest Code
+
+Guest logic is **zkVM agnostic** - see `./zkvm/zkvm-common-guest` - and tiny wrappers are used to handle input/output, also to apply precompile patches.
+
+Code is inspired by those three:
+
+- SuccintLab's [RSP](https://github.com/succinctlabs/rsp)
+- Risc0's [zeth](https://github.com/boundless-xyz/zeth) - before the whole codebase was destroyed in https://github.com/boundless-xyz/zeth/pull/170[#170].
+- Paradigm's https://reth.rs/docs/reth_stateless/index.html[reth-stateless]
+
+Even though most people use RSP, I believe it can become obsolete when `reth-stateless` made few improvements like building tries outside guest.
+
+=== Different ZkVMs
+
+Historically this repository contained SP1 zkVM Integration, but it got https://github.com/zenith-network/reth-proofs/commit/ce0510317f49512f630151e30600108dbfdab0a3[removed] when two better zkVMs were introduced: **Risc0** and **ZisK**.
+
+Risc0 Integration is still present, but no longer used or maintained.
+
+Right now we mainly support **ZisK** which is blazingly fast and scales well.
+
+== Setup
+
+We need to build two parts:
+
+- ZisK zkVM guest
+- orchestrator - for ZisK distributed proving
+
+=== Building Guest
+
+IMPORTANT: In order to compile guest, you need ZisK [binaries](https://github.com/zenith-network/zisk-container).
+
+[source,sh]
+----
+cd ./zkvm/zisk-guest
+cargo-zisk build --release
+----
+
+You will find guest ELF located at `./target/riscv64ima-zisk-zkvm-elf/release/reth-proofs-zkvm-zisk-guest`.
+
+=== Building Orchestator
+
+[source,sh]
+----
+cargo build -p reth-proofs-gevulot3 --release
+----
+
+You will find orchestrator binary at `./target/release/reth-proofs-gevulot3`.
+
 == Usage
 
-== Proving Single Block
+Most steps are relevant to https://github.com/0xPolygonHermez/zisk/tree/2f791ffd070d024ba350f054c349c8d6bd98d629/distributed[setting up ZisK's distributed proving].
 
-. Prepare block input:
+. Run ZisK coordinator on the **master** machine:
 +
-[source,shell]
+[source,sh]
 ----
-cargo run -p reth-proofs-gevulot \
-  prepare-block \
-  --block-number 22789000 \
-  --http-rpc-url http://130.250.187.55:8545
+zisk-coordinator --webhook-url 'http://localhost:3000/webhook'
 ----
 +
-NOTE: You can generate input up to 100 blocks behind the chain tip, because getting witness of old blocks is getting too slow in Reth node.
+IMPORTANT: Do NOT change the webhook url, as it is required to run orchestration on the same machine as the coordinator.
+
+. Guest binary must be available on each **worker** machine, and ROM setup called for it:
 +
-At this point you will get file with block input placed at `/tmp/reth_proofs_cache/input/`.
-
-. Prove block:
+[source,sh]
+----
+cargo-zisk rom-setup -e ./reth-proofs-zkvm-zisk-guest
+----
 +
-[source,shell]
+NOTE: You can remove `~/.zisk/cache` in order to purge old ROM setup.
+
+. Each **worker** machine need to run ZisK worker, providing guest ELF and coordinator URL (master machine):
++
+[source,sh]
 ----
-cargo run -p reth-proofs-gevulot \
-  prove-block-offline \
-  --block-input /tmp/reth_proofs_cache/input/22789000.bin \
-  --proving-key-path ./pk.bin
+zisk-worker -e ./reth-proofs-zkvm-zisk-guest --coordinator-url http://130.250.187.60:50051
 ----
 
-== Core Compatibility with `no_std`
-
-Once a while run the following to make sure Reth Proofs core is **truely** `no_std` compatible:
-
-[source,shell]
+. Configure orchestrator on the **master** machine - here is the `.env` file I used:
++
+[source,sh]
 ----
-cargo build -p reth-proofs-core --target thumbv7em-none-eabi
----
+HTTP_RPC_URL="http://[YOUR_ETHEREUM_NODE_RPC]:8545"
+WS_RPC_URL="ws://[YOUR_ETHEREUM_NODE_RPC]:8546"
+ETHPROOFS_API_URL="https://ethproofs.org/api/v0"
+ETHPROOFS_API_TOKEN="...secret...."
+ETHPROOFS_CLUSTER_ID="1"
+ZISK_COORDINATOR_URL="http://127.0.0.1:50051"
+ZISK_COMPUTE_UNITS="10"
+ZISK_WEBHOOK_PORT="3000"
+----
++
+CAUTION: Ethereum RPC must support `debug_executionWitness` method - right now probably supported by Reth node only.
++
+TIP: By default each ZisK worker is 10 compute units. If you want to use 12 machines for proving then set `ZISK_COMPUTE_UNITS=120`.
+
+. Run orchestrator on the **master** machine:
++
+[source,sh]
+----
+./reth-proofs-gevulot3 run
+```
++
+TIP: Use the same directory where `.env` file is located.
++
+TIP: Call `run --help` to see available options. For example you might pass `--skip-pending-blocks` to avoid delayed blocks stacking up.
+
+If you followed all steps correctly, you should see proofs being submitted to Ethproofs.
