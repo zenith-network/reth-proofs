@@ -166,6 +166,13 @@ pub async fn main() -> eyre::Result<()> {
               ).await;
 
               tracing::info!("Block {} proven and uploaded (proving time: {:.2}s)", block_number, proving_duration.as_secs_f32());
+
+              // Cleanup: remove the input file after successful proving.
+              if let Err(e) = std::fs::remove_file(&input_file_path) {
+                tracing::warn!("Failed to remove input file {}: {}", input_file_path, e);
+              } else {
+                tracing::debug!("Removed input file {}", input_file_path);
+              }
             }
             Err(_) => {
               tracing::info!("Prove queue closed");
