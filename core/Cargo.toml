@@ -11,6 +11,7 @@ parallel = ["dep:rayon", "reth-trie-risc0-zkvm/parallel"]
 [dependencies]
 
 # alloy
+alloy-eips.workspace = true
 alloy-consensus = { workspace = true }
 alloy-primitives = { workspace = true }
 alloy-rlp = { workspace = true }

@@ -6,7 +6,10 @@ pub mod input;
 pub mod input_alt;
 pub mod triedb;
 
+use alloy_eips::{BlobScheduleBlobParams, eip7840::BlobParams};
 use k256::ecdsa::signature::hazmat::PrehashVerifier;
+use reth_chainspec::MAINNET_PRUNE_DELETE_LIMIT;
+use reth_chainspec::mainnet::{MAINNET_BPO1_TIMESTAMP, MAINNET_BPO2_TIMESTAMP};
 
 // Required for `par_iter()` on tx iterator and bytecode list.
 #[cfg(feature = "parallel")]
@@ -44,8 +47,11 @@ pub fn create_mainnet_chainspec() -> reth_chainspec::ChainSpec {
     base_fee_params: reth_chainspec::BaseFeeParamsKind::Constant(
       reth_chainspec::BaseFeeParams::ethereum(),
     ),
-    prune_delete_limit: 20000,
-    blob_params: Default::default(),
+    prune_delete_limit: MAINNET_PRUNE_DELETE_LIMIT,
+    blob_params: BlobScheduleBlobParams::default().with_scheduled([
+      (MAINNET_BPO1_TIMESTAMP, BlobParams::bpo1()),
+      (MAINNET_BPO2_TIMESTAMP, BlobParams::bpo2()),
+    ]),
   };
 
   mainnet
