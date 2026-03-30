@@ -96,6 +96,5 @@ impl revm::DatabaseRef for TrieDB {
 }
 
 pub fn wrap_into_database(trie_db: &TrieDB) -> revm::database::WrapDatabaseRef<&TrieDB> {
-  let db = revm::database::WrapDatabaseRef(trie_db);
-  db
+  revm::database::WrapDatabaseRef(trie_db)
 }
